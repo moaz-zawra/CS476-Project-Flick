@@ -18,7 +18,9 @@ Repository for work relating to the CS476 group project
   <li>
     Nur-A Nulkarnain
   </li>
-
+  <li>
+    Harsh Pancholi
+  </li>
 
 
 </ul>
