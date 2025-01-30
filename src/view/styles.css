@@ -1,0 +1,26 @@
+
+/*Start of the CSS stylesheet*/
+
+#main_title, #unique_title {
+    text-align:center;
+}
+
+#unique_title{
+    font-style:italic;
+}
+
+a:hover {
+    text-decoration:none;
+}
+
+.login_form, .register_form {
+    margin: auto;
+    width: 20%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    text-align:center;
+}
+
+/*End of the CSS stylesheet*/

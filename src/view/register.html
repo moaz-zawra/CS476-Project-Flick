@@ -1,22 +1,23 @@
 <!DOCTYPE html>
+<link rel="stylesheet" href="styles.css" />
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Register for Flick</title>
 </head>
 <body>
-<h1>Registration Page</h1>
-<form action="/register" method="post">
-  <div class="field">
-    <label for="email">Email</label> <input type="email" name="email" id="email">
-  </div>
-  <div class="field">
-    <label for="password">Password</label> <input type="password" name="password" id="password">
-  </div>
-  <div class="field">
-    <label for="cpassword">Confirm Password</label> <input type="password" name="cpassword" id="cpassword">
-  </div>
-  <input type="submit" value="Register">
-</form>
+<h1 id="main_title" name="main_title">Registration Page</h1><br /><br /><br />
+
+<div class="register_form">
+    <form action="main.html" method="post">
+        <label for="username" id="username_label" name="username_label">Username</label><br />
+        <input type="text" id="username_field" name="username_field" required /><br /><br />
+        <label for="email address" id="email_label" name="email_label">Email Address</label><br />
+        <input type="email" id="email_field" name="email_field" required /><br /><br />
+        <label for="password" id="password_label" name="password_label">Password</label><br />
+        <input type="password" id="password_field" name="password_field" required /><br /><br />
+        <button type="submit">Register</button>
+    </form>
+</div>
 </body>
 </html>
