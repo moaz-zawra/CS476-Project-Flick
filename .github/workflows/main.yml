@@ -14,12 +14,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build
-        uses: erikyo/tsdoc-action@v1
-        with:
-          entryPoints: ./src/*
-          output_dir: ./docs
-          front_page: README.md
-          entryPointStrategy: Expand src
+        run: |
+          echo "📝 Generating documentation" && \
+          npm -i typedoc --silent && \
+          npx typedoc --entryPointStrategy Expand src && \
+          echo "📝 Documentation generated in ./doc/"          
 
       - name: Commit and Push Documentation Output
         uses: EndBug/add-and-commit@v9
@@ -27,4 +26,4 @@ jobs:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: 'Update documentation'
-          add: './out'
+          add: './doc'
