@@ -16,7 +16,7 @@ jobs:
       - name: Build
         uses: erikyo/tsdoc-action@v1
         with:
-          source_dir: ./src/*
+          entryPoints: ./src/*
           output_dir: ./docs
           front_page: README.md
 
