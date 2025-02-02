@@ -10,11 +10,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Build
-        uses: andstor/jsdoc-action@v1
-        with:
-          source_dir: ./src
-          output_dir: ./out
-          config_file: conf.json
-          template: minami
-          front_page: README.md
+      - name: Check Directory Structure
+        run: ls -R
+
