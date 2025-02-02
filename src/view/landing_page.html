@@ -9,15 +9,19 @@
     <h1 id="main_title" name="main_title">Flick</h1>
     <h2 id="unique_title" name="unique_title">Your Flashcards are a Click Away</h2><br /><br /><br />
 
-    <div class="login_form">
-        <form action="main.html" method="post">
+    <div class="centered login_form">
+        <form action="/api/v1/login" method="post">
             <label for="username" id="username_label" name="username_label">Username</label><br />
-            <input type="text" id="username_field" name="username_field" required /><br /><br />
-            <label for="password" id="password_label" name="password_label">Password</label><br />
+            <input type="text" id="username" name="username_field" required /><br /><br />
+            <label for="password" id="password" name="password_label">Password</label><br />
             <input type="password" id="password_field" name="password_field" required /><br /><br />
-            <button type="submit" id="submit_button" name="submit_button">Login</button> <br /><br /><br />
+            <input type="submit" value="Login"><br /><br /><br />
         </form>
-        <a href="register.html">New User? Click to Register</a>
-    </div> <br /><br />
+        <div class="centered" id="link-to-register">
+            <a href="register.html">New User? Click to Register</a>
+        </div>
+
+    </div>
+
 </body>
 </html>

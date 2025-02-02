@@ -1,0 +1,33 @@
+{
+  "name": "cs476-project",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/skyefactory/CS476-Project#readme",
+  "bugs": {
+    "url": "https://github.com/skyefactory/CS476-Project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skyefactory/CS476-Project.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "src/controller.ts",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.0"
+  }
+}
