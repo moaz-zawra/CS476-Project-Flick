@@ -12,11 +12,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
-      - name: Generate Documentation
+
+      - name: Build Documentation
         uses: andstor/jsdoc-action@v1
         with:
           source_dir: ./src
           recurse: true
           output_dir: ./out
 
+      - name: Commit and Push Documentation Output
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'Update documentation'
+          add: './out'
