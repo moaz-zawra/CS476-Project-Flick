@@ -16,7 +16,7 @@ jobs:
       - name: Build
         run: |
           echo "📝 Generating documentation" && \
-          npm -i typedoc --silent && \
+          npm i typedoc --silent && \
           npx typedoc --entryPointStrategy Expand src && \
           echo "📝 Documentation generated in ./doc/"          
 
