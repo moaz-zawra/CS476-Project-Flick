@@ -13,12 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Documentation
-        uses: andstor/jsdoc-action@v1
+      - name: Build
+        uses: erikyo/tsdoc-action@v1
         with:
-          source_dir: ./src/
-          recurse: true
-          output_dir: ./out
+          source_dir: ./src/*
+          output_dir: ./docs
+          front_page: README.md
 
       - name: Commit and Push Documentation Output
         uses: EndBug/add-and-commit@v9

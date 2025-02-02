@@ -40,6 +40,7 @@ export function checkIfUserExists(connection: mysql.Connection, email: string): 
                     console.log(err);
                     reject(false); // Reject with false on error
                 } else {
+                    // @ts-ignore
                     resolve(result[0] !== undefined); // Resolve with true/false based on the result
                 }
             }

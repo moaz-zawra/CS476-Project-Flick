@@ -53,12 +53,15 @@ export function userLogin(user: User): Promise<loginStatus> {
                                 return resolve(loginStatus.DatabaseFailure);
                             }
 
+                            // @ts-ignore
                             if(rows[0] === undefined) {
                                 return loginStatus.DoesNotExist;
                             }
                             else {
+                                // @ts-ignore
                                 let uID = rows[0].uID.toString();
                                 console.log("Processing login for uID " + uID);
+                                // @ts-ignore
                                 let hash = rows[0].hash.toString();
                                 let correct_password = bcrypt.compareSync(user.password, hash);
                                 if(correct_password) return loginStatus.Success;
