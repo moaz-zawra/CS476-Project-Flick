@@ -18,7 +18,7 @@ jobs:
           echo "📝 Generating documentation" && \
           npm i typedoc --silent && \
           npx typedoc --entryPointStrategy Expand src && \
-          echo "📝 Documentation generated in ./doc/"          
+          echo "📝 Documentation generated in ./docs/"          
 
       - name: Commit and Push Documentation Output
         uses: EndBug/add-and-commit@v9
@@ -26,4 +26,4 @@ jobs:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: 'Update documentation'
-          add: './doc'
+          add: './docs'
