@@ -19,6 +19,7 @@ jobs:
           entryPoints: ./src/*
           output_dir: ./docs
           front_page: README.md
+          entryPointStrategy: Expand src
 
       - name: Commit and Push Documentation Output
         uses: EndBug/add-and-commit@v9
