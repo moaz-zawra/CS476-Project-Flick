@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
-      - name: Check Directory Structure
-        run: ls -R
+      - name: Generate Documentation
+        uses: andstor/jsdoc-action@v1
+        with:
+          source_dir: ./src
+          recurse: true
+          output_dir: ./out
 
