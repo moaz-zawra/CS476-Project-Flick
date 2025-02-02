@@ -9,6 +9,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      # GITHUB_TOKEN write permission to commit and push the added or changed files to the repository.
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
