@@ -6,33 +6,29 @@ the /public/ directory -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register for Flick</title>
+    <title>Flick</title>
 </head>
 <body>
-    <h1 id="main_title" >Registration Page</h1><br /><br /><br />
+    <h1 id="main_title">Flick</h1>
+    <h2 id="unique_title" >Your Flashcards are a Click Away</h2><br /><br /><br />
 
-    <div class="centered register_form">
+    <div class="centered login_form">
         <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-        <form action="/api/v1/register" method="post">
+        <form action="/api/v1/login" method="post">
             <label for="email" id="email_label">Email</label><br />
             <input type="email" id="email" name="email" required /><br /><br />
 
             <label for="password" id="password_label" >Password</label><br />
             <input type="password" id="password" required /><br /><br />
 
-            <label for="cpassword" id="cpassword_label" >Confirm Password</label><br />
-            <input type="password" id="cpassword" required /><br /><br />
-
-            <input type="submit" value="Register"><br /><br />
+            <input type="submit" value="Login"><br /><br /><br />
         </form>
 
-        <div class="centered" id="link-to-login">
-            <a href="/login">Existing User? Click to Login</a>
+        <div class="centered" id="link-to-register">
+            <a href="/register">New User? Click to Register</a>
         </div>
+
     </div>
-
-
-
 
 </body>
 </html>

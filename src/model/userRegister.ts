@@ -19,7 +19,7 @@ export interface User {
  * @returns {string} The hashed password.
  * @see {@link https://en.wikipedia.org/wiki/Bcrypt}
  */
-function hashPassword(password: string): string {
+export function hashPassword(password: string): string {
     return bcrypt.hashSync(password, 12);
 }
 

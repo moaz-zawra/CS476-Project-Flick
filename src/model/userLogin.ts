@@ -6,7 +6,7 @@ import {dbConnect} from "./dbConnect";
  * Enum representing possible login statuses.
  * @enum {number}
  */
-enum loginStatus {
+export enum loginStatus {
     /** Incorrect password was provided. */
     WrongPassword,
     /** The user does not exist in the database. */

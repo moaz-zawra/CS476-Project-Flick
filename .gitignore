@@ -4,3 +4,4 @@
 /.idea/
 .env
 .envexample
+node_modules/

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- Ignore that styles.css cannot be located, this is fixed when the service is
+running as the controller statically includes the styles.css and all other files in
+the /public/ directory -->
+<link rel="stylesheet" type="text/css" href="styles.css">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flick Account</title>
+</head>
+<body>
+    <header>
+        <a href="/login">login</a>
+        <a href="/register">register</a>
+    </header>
+    <h1 id="welcome_title">Welcome $USERNAME$ </h1>
+    <a href="/account"> <b>Account Info</b> </a> <br />
+
+    <div>
+        <b>Your Flashcard Sets</b>
+        $FLASHCARD_SETS$
+    </div>
+
+
+
+</body>
+</html>
