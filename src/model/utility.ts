@@ -1,5 +1,9 @@
 import express = require("express");
+import session = require('express-session');
 import { User } from "./userRegister";
+import path = require('path');
+import dotenv = require('dotenv');
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 /**
  * Sets up and configures an Express application.
@@ -14,6 +18,17 @@ export function setupExpress(): express.Express {
     let controller = express();
     controller.use(express.json());
     controller.use(express.urlencoded({ extended: true }));
+
+    const secret = process.env.SESSION_SECRET || "NULL";
+    if (secret == null) {
+        throw new Error("Failed to load .env file");
+    }
+    controller.use(session({
+        secret: secret,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure : false }, //Change to true if running on HTTPS
+    }))
     return controller;
 }
 
@@ -30,3 +45,12 @@ export function setupExpress(): express.Express {
 export function makeUser(email: string, password: string): User {
     return { email, password };
 }
+
+export const isAuthenticated = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    // @ts-ignore
+    if (req.session.logged_in) {
+        next();
+    } else {
+        res.status(401).send("Unauthorized");
+    }
+};

@@ -1,9 +1,9 @@
 import { dbConnect } from "./dbConnect";
 import bcrypt = require("bcrypt");
 import mysql = require("mysql2");
+import path = require('path');
 import dotenv = require('dotenv');
-import {loginStatus} from "./userLogin";
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 /**
  * Represents user information required for database entry.
@@ -81,20 +81,20 @@ export function userRegister(user: User): Promise<registerStatus> {
         let db_user = process.env.DB_USER || 'NULL';
         let pass = process.env.DB_PASSWORD || 'NULL';
         if (host == 'NULL' || db_user == 'NULL' || pass == 'NULL'){
-            return resolve(registerStatus.DatabaseFailure);
+            throw new Error("Failed to load .env file");
         }
         dbConnect(host, db_user, pass).then(async (connection) => {
             if (connection instanceof Error) {
                 console.error(connection.message);
                 return resolve(registerStatus.DatabaseFailure);
             }
-
+            console.log("Connected to DB Successfully")
             connection.query("USE CS476", function (err) {
                 if (err) {
                     console.error(err);
                     return resolve(registerStatus.DatabaseFailure);
                 }
-
+                console.log("Picked CS476 db")
                 checkIfUserExists(connection, user.email).then((result) => {
                     if (result) {
                         return resolve(registerStatus.UserAlreadyExists);
@@ -115,7 +115,5 @@ export function userRegister(user: User): Promise<registerStatus> {
                 });
             });
         });
-
-    return resolve (registerStatus.DatabaseFailure);
 });
 }

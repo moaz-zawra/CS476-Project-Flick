@@ -1,8 +1,9 @@
 import bcrypt = require('bcrypt');
 import {User} from './userRegister';
 import {dbConnect} from "./dbConnect";
+import path = require('path');
 import dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 /**
  * Enum representing possible login statuses.
  * @enum {number}
@@ -36,7 +37,7 @@ export function userLogin(user: User): Promise<loginStatus> {
         let db_user = process.env.DB_USER || 'NULL';
         let pass = process.env.DB_PASSWORD || 'NULL';
         if (host == 'NULL' || db_user == 'NULL' || pass == 'NULL'){
-            return resolve(loginStatus.DatabaseFailure);
+            throw new Error("Failed to load .env file");
         }
         dbConnect(host, db_user, pass)
             .then((connection) => {
@@ -44,7 +45,7 @@ export function userLogin(user: User): Promise<loginStatus> {
                     console.error(connection.message);
                     return resolve(loginStatus.DatabaseFailure);
                 }
-
+                console.log("Connected to DB Successfully")
                 connection.query("USE CS476", (err) => {
                     if (err) {
                         console.error(err);
