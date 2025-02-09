@@ -4,6 +4,7 @@ import {dbConnect} from "./dbConnect";
 import path = require('path');
 import dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
 /**
  * Enum representing possible login statuses.
  * @enum {number}
@@ -45,7 +46,6 @@ export function userLogin(user: User): Promise<loginStatus> {
                     console.error(connection.message);
                     return resolve(loginStatus.DatabaseFailure);
                 }
-                console.log("Connected to DB Successfully")
                 connection.query("USE CS476", (err) => {
                     if (err) {
                         console.error(err);

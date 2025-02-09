@@ -88,18 +88,15 @@ export function userRegister(user: User): Promise<registerStatus> {
                 console.error(connection.message);
                 return resolve(registerStatus.DatabaseFailure);
             }
-            console.log("Connected to DB Successfully")
             connection.query("USE CS476", function (err) {
                 if (err) {
                     console.error(err);
                     return resolve(registerStatus.DatabaseFailure);
                 }
-                console.log("Picked CS476 db")
                 checkIfUserExists(connection, user.email).then((result) => {
                     if (result) {
                         return resolve(registerStatus.UserAlreadyExists);
                     }
-
                     connection.execute(
                         "INSERT INTO users (email, hash) VALUES (?,?);",
                         [user.email, hashPassword(user.password)],

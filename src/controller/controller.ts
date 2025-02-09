@@ -7,8 +7,7 @@ import {userLogin, loginStatus} from "../model/userLogin";
 import {userRegister, registerStatus} from "../model/userRegister";
 import {setupExpress, makeUser} from "../model/utility";
 
-//constant to the Views folder
-const views = path.join(__dirname, '../view/');
+
 
 //constant to the Public folder
 const pub = path.join(__dirname,'../../public/');
@@ -19,6 +18,9 @@ const port = 3000;
 //expressJS setup
 let controller = setupExpress()
 controller.use(express.static(pub));
+
+controller.set("view engine", "ejs");
+controller.set("views", path.join(__dirname,"../view/"));
 
 //Setup default session
 controller.use((req, res, next) => {
@@ -34,10 +36,9 @@ controller.use((req, res, next) => {
 
 //API Endpoints
 controller.post('/api/v1/login', function(req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     //Create user Object - the request is a 'POST' request, submitted by the form on login.html. We get these fields by using req.body.<fieldName>
     let user = makeUser(req.body.email, req.body.password);
-    console.log(user);
     //Call the userLogin() function, which attempts a connection with the DB, looks up the users email, grabs the saved hash we have for the user, and compare it against
     //whatever was entered
     userLogin(user).then((status) => {
@@ -58,7 +59,7 @@ controller.post('/api/v1/login', function(req, res) {
     });
 })
 controller.post('/api/v1/register', function(req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     //Create user Object - the request is a 'POST' request, submitted by the form on login.html. We get these fields by using req.body.<fieldName>
     let user = makeUser(req.body.email, req.body.password);
 
@@ -77,24 +78,24 @@ controller.post('/api/v1/register', function(req, res) {
 })
 
 controller.get('/api/v1/getSets/:userID', function(req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     res.status(501).sendFile(pub + "unimplemented.html");
 })
 controller.post('/api/v1/addSet', function(req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     res.status(501).sendFile(pub + "unimplemented.html");
 })
 controller.get('/api/v1/getSet/:userID-:setID', function(req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     res.status(501).sendFile(pub + "unimplemented.html");
 })
 
 //Get request for pages
 controller.get('/', function (req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     // @ts-ignore
     if (req.session.logged_in){
-        res.sendFile(views + 'index.html');
+        res.render("index")
     }
     else{
         res.redirect('/login');
@@ -102,31 +103,31 @@ controller.get('/', function (req, res) {
 
 })
 controller.get('/login', function (req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     if (req.session.logged_in){
         res.redirect('/');
     }
     else{
-        res.sendFile(views + '/login.html');
+        res.render("login")
     }
 })
 controller.get('/register', function (req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     if (req.session.logged_in){
         res.redirect('/');
     }
     else{
-        res.sendFile(views + '/register.html');
+        res.render("register")
     }
 })
 controller.get('/account', function (req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     //501 => Unimplemented
     res.status(501).sendFile(pub + "unimplemented.html");
 })
 
 controller.get('*', function (req, res) {
-    console.log("Logged In?: " + req.session.logged_in);
+    
     res.status(404).sendFile(pub + "notfound.html");
 })
 
