@@ -1,7 +1,8 @@
 import bcrypt = require('bcrypt');
 import {User} from './userRegister';
 import {dbConnect} from "./dbConnect";
-
+import dotenv = require('dotenv');
+dotenv.config();
 /**
  * Enum representing possible login statuses.
  * @enum {number}
@@ -31,7 +32,13 @@ export enum loginStatus {
  */
 export function userLogin(user: User): Promise<loginStatus> {
     return new Promise((resolve) => {
-        dbConnect("localhost", "admin", "admin1234")
+        let host = process.env.DB_HOST || 'NULL';
+        let db_user = process.env.DB_USER || 'NULL';
+        let pass = process.env.DB_PASSWORD || 'NULL';
+        if (host == 'NULL' || db_user == 'NULL' || pass == 'NULL'){
+            return resolve(loginStatus.DatabaseFailure);
+        }
+        dbConnect(host, db_user, pass)
             .then((connection) => {
                 if (connection instanceof Error) {
                     console.error(connection.message);
@@ -55,7 +62,7 @@ export function userLogin(user: User): Promise<loginStatus> {
 
                             // @ts-ignore
                             if(rows[0] === undefined) {
-                                return loginStatus.DoesNotExist;
+                                return resolve(loginStatus.DoesNotExist);
                             }
                             else {
                                 // @ts-ignore
@@ -64,8 +71,8 @@ export function userLogin(user: User): Promise<loginStatus> {
                                 // @ts-ignore
                                 let hash = rows[0].hash.toString();
                                 let correct_password = bcrypt.compareSync(user.password, hash);
-                                if(correct_password) return loginStatus.Success;
-                                else return loginStatus.WrongPassword;
+                                if(correct_password) return resolve(loginStatus.Success);
+                                else return resolve(loginStatus.WrongPassword);
                             }
                         }
                     );

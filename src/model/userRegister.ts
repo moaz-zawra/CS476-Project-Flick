@@ -1,6 +1,9 @@
 import { dbConnect } from "./dbConnect";
 import bcrypt = require("bcrypt");
 import mysql = require("mysql2");
+import dotenv = require('dotenv');
+import {loginStatus} from "./userLogin";
+dotenv.config();
 
 /**
  * Represents user information required for database entry.
@@ -72,39 +75,47 @@ export enum registerStatus {
  * if the user is already registered, `Success` if registration is successful, or
  * `DatabaseFailure` if an error occurs.
  */
-export function userRegister(user: User): registerStatus {
-    dbConnect("localhost", "admin", "admin1234").then(async (connection) => {
-        if (connection instanceof Error) {
-            console.error(connection.message);
-            return registerStatus.DatabaseFailure;
+export function userRegister(user: User): Promise<registerStatus> {
+    return new Promise((resolve) => {
+        let host = process.env.DB_HOST || 'NULL';
+        let db_user = process.env.DB_USER || 'NULL';
+        let pass = process.env.DB_PASSWORD || 'NULL';
+        if (host == 'NULL' || db_user == 'NULL' || pass == 'NULL'){
+            return resolve(registerStatus.DatabaseFailure);
         }
-
-        connection.query("USE CS476", function (err) {
-            if (err) {
-                console.error(err);
-                return registerStatus.DatabaseFailure;
+        dbConnect(host, db_user, pass).then(async (connection) => {
+            if (connection instanceof Error) {
+                console.error(connection.message);
+                return resolve(registerStatus.DatabaseFailure);
             }
 
-            checkIfUserExists(connection, user.email).then((result) => {
-                if (result) {
-                    return registerStatus.UserAlreadyExists;
+            connection.query("USE CS476", function (err) {
+                if (err) {
+                    console.error(err);
+                    return resolve(registerStatus.DatabaseFailure);
                 }
 
-                connection.execute(
-                    "INSERT INTO users (email, hash) VALUES (?,?);",
-                    [user.email, hashPassword(user.password)],
-                    (err) => {
-                        if (err) {
-                            console.error(err);
-                            return registerStatus.DatabaseFailure;
-                        } else {
-                            return registerStatus.Success;
-                        }
+                checkIfUserExists(connection, user.email).then((result) => {
+                    if (result) {
+                        return resolve(registerStatus.UserAlreadyExists);
                     }
-                );
+
+                    connection.execute(
+                        "INSERT INTO users (email, hash) VALUES (?,?);",
+                        [user.email, hashPassword(user.password)],
+                        (err) => {
+                            if (err) {
+                                console.error(err);
+                                return resolve(registerStatus.DatabaseFailure);
+                            } else {
+                                return resolve(registerStatus.Success);
+                            }
+                        }
+                    );
+                });
             });
         });
-    });
 
-    return registerStatus.DatabaseFailure;
+    return resolve (registerStatus.DatabaseFailure);
+});
 }

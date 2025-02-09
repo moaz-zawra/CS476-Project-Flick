@@ -74,5 +74,5 @@ controller.get('*', function (req, res) {
 })
 
 controller.listen(port, () => {
-    console.log("Server running on localhost: " + port);
+    console.log("Server running on 24.72.0.105:" + port);
 })
