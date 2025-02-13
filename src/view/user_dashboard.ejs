@@ -10,17 +10,12 @@ the /public/ directory -->
 </head>
 <body>
     <h1 id="main_title">Flick</h1>
-    <h2 id="unique_title" >Your Flashcards are a Click Away</h2><br /><br /><br />
-
-    <header>
-        <a href="/login">login</a>
-        <a href="/register">register</a>
-    </header>
-    <h1 id="welcome_title">Welcome $USERNAME$ </h1>
-    <a href="/account"> <b>Account Info</b> </a> <br />
+    <h2 id="unique_title" >Your Flashcards are a Click Away</h2><br />
+    <a href="/api/v1/logout"> Logout </a>
+    <p id="welcome_title">Welcome $USERNAME$ <a href="/account"> <b>Account Info</b> </a> </p><br />
 
     <div>
-        <b>Your Flashcard Sets</b>
+        <b>Flashcard Sets</b>
         $FLASHCARD_SETS$
     </div>
 
