@@ -3,13 +3,27 @@ import {loginStatus} from "./userLogin";
 import {checkIfUserExists, hashPassword, registerStatus} from "./userRegister";
 import {getuIDFromEmail} from "./utility";
 
-export enum isMod{
+/**
+ * Enum representing possible states when checking if a user is a moderator.
+ */
+export enum isMod {
     InvalidUser,
     UserIsNotMod,
     UserIsMod,
     DatabaseFailure,
 }
-export function isModerator(email: string): Promise<isMod>{
+
+/**
+ * Checks if the given email belongs to a moderator.
+ *
+ * @param {string} email - The email address to check.
+ * @returns {Promise<isMod>} A promise that resolves to an enum value indicating the user's moderation status.
+ *
+ * @description This function queries the database to determine whether
+ * the provided email corresponds to a moderator. It ensures necessary
+ * environment variables are loaded and handles database connection errors.
+ */
+export function isModerator(email: string): Promise<isMod> {
     return new Promise((resolve) => {
         let host = process.env.DB_HOST || 'NULL';
         let db_user = process.env.DB_USER || 'NULL';
@@ -27,31 +41,35 @@ export function isModerator(email: string): Promise<isMod>{
                     console.error(connection.message);
                     return resolve(isMod.DatabaseFailure);
                 }
+
+                // Select database
                 connection.query("USE CS476", function (err) {
                     if (err) {
                         console.error(err);
                         return resolve(isMod.DatabaseFailure);
                     }
-                    getuIDFromEmail(email).then((uID) =>{
-                        if (uID == -1){
+
+                    // Retrieve user ID from email
+                    getuIDFromEmail(email).then((uID) => {
+                        if (uID == -1) {
                             return resolve(isMod.InvalidUser);
                         }
+
+                        // Check if user is a moderator
                         connection.execute(
                             "SELECT EXISTS (SELECT 1 FROM moderators WHERE uID = ?) AS is_moderator;",
                             [uID],
-                            (err, rows) =>{
+                            (err, rows) => {
                                 if (err) {
                                     console.error(err);
                                     return resolve(isMod.DatabaseFailure);
-                                }
-                                else{
+                                } else {
                                     // @ts-ignore
                                     let isModerator = rows[0].is_moderator;
-                                    if(isModerator) return resolve(isMod.UserIsMod);
-                                    else return resolve(isMod.UserIsNotMod);
+                                    return resolve(isModerator ? isMod.UserIsMod : isMod.UserIsNotMod);
                                 }
                             }
-                        )
+                        );
                     });
                 });
             });

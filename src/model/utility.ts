@@ -28,18 +28,44 @@ export function setDefaultSession(controller: express.Express) {
     });
 }
 
-export function setUserSession(req: express.Request, user:User) {
+/**
+ * Sets a user session with a standard user role.
+ *
+ * @param {express.Request} req - The Express request object.
+ * @param {User} user - The user object containing user information.
+ *
+ * @description This function initializes a session for a standard user,
+ * setting the `logged_in` flag to `true` and assigning the user role as "user".
+ */
+export function setUserSession(req: express.Request, user: User) {
     req.session.logged_in = true;
-    req.session.user_info = {username: user.email, role: "user"};
+    req.session.user_info = { username: user.email, role: "user" };
 }
-export function setModSession(req: express.Request, user:User) {
+
+/**
+ * Sets a user session with a moderator role.
+ *
+ * @param {express.Request} req - The Express request object.
+ * @param {User} user - The user object containing user information.
+ *
+ * @description This function initializes a session for a moderator,
+ * setting the `logged_in` flag to `true` and assigning the user role as "moderator".
+ */
+export function setModSession(req: express.Request, user: User) {
     req.session.logged_in = true;
-    req.session.user_info = {username: user.email, role: "moderator"};
+    req.session.user_info = { username: user.email, role: "moderator" };
 }
 
-
-
-export function logUserActivity(action:string, username:string) {
+/**
+ * Logs a user's activity with a timestamp.
+ *
+ * @param {string} action - The action performed by the user.
+ * @param {string} username - The username of the user performing the action.
+ *
+ * @description This function records user activity in the console
+ * with a timestamp in HH:MM format.
+ */
+export function logUserActivity(action: string, username: string) {
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     console.log(`[${time}] User ${username} ${action}`);
