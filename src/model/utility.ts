@@ -3,7 +3,7 @@ import session = require('express-session');
 import { User } from "./userRegister";
 import path = require('path');
 import dotenv = require('dotenv');
-import {dbConnect} from "./dbConnect";
+import { dbConnect } from "./dbConnect";
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 /**
@@ -11,10 +11,9 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
  *
  * @param {express.Express} controller - The Express application instance.
  *
- * @description This function ensures that every session has default values.
- * If a session does not contain a `logged_in` flag, it is set to `false`.
- * If a session does not contain `user_info`, it is initialized with a default
- * username of "Guest" and a role of "visitor".
+ * @description This middleware ensures that each session has default values.
+ * It sets the `logged_in` flag to `false` and initializes `user_info` with a default
+ * username of "Guest" and a role of "visitor" if they are not already set.
  */
 export function setDefaultSession(controller: express.Express) {
     controller.use((req, res, next) => {
@@ -34,8 +33,8 @@ export function setDefaultSession(controller: express.Express) {
  * @param {express.Request} req - The Express request object.
  * @param {User} user - The user object containing user information.
  *
- * @description This function initializes a session for a standard user,
- * setting the `logged_in` flag to `true` and assigning the user role as "user".
+ * @description This function sets the session's `logged_in` flag to `true`
+ * and assigns the user role as "user" based on the provided `user` object.
  */
 export function setUserSession(req: express.Request, user: User) {
     req.session.logged_in = true;
@@ -48,8 +47,8 @@ export function setUserSession(req: express.Request, user: User) {
  * @param {express.Request} req - The Express request object.
  * @param {User} user - The user object containing user information.
  *
- * @description This function initializes a session for a moderator,
- * setting the `logged_in` flag to `true` and assigning the user role as "moderator".
+ * @description This function sets the session's `logged_in` flag to `true`
+ * and assigns the user role as "moderator" based on the provided `user` object.
  */
 export function setModSession(req: express.Request, user: User) {
     req.session.logged_in = true;
@@ -62,8 +61,7 @@ export function setModSession(req: express.Request, user: User) {
  * @param {string} action - The action performed by the user.
  * @param {string} username - The username of the user performing the action.
  *
- * @description This function records user activity in the console
- * with a timestamp in HH:MM format.
+ * @description This function records user activity in the console with a timestamp in HH:MM format.
  */
 export function logUserActivity(action: string, username: string) {
     const now = new Date();
@@ -79,8 +77,8 @@ export function logUserActivity(action: string, username: string) {
  * @returns {express.Express} An instance of an Express application.
  *
  * @description This function initializes an Express application,
- * adds middleware for parsing JSON and URL-encoded data,
- * and returns the configured instance.
+ * adds middleware for JSON and URL-encoded data parsing, and configures the session.
+ * It returns the configured Express app instance.
  */
 export function setupExpress(path_to_pub: string, path_to_view: string): express.Express {
     let controller = express();
@@ -113,8 +111,7 @@ export function setupExpress(path_to_pub: string, path_to_view: string): express
  * @param {string} password - The password of the user.
  * @returns {User} A `User` object containing the provided email and password.
  *
- * @description This function constructs a `User` object
- * with the given email and password properties.
+ * @description This function constructs a `User` object with the given email and password properties.
  */
 export function makeUser(email: string, password: string): User {
     return { email, password };
@@ -123,66 +120,75 @@ export function makeUser(email: string, password: string): User {
 /**
  * Retrieves the user ID (uID) associated with a given email.
  *
- * @async
  * @param {string} email - The email of the user.
  * @returns {Promise<number>} A promise resolving to the user ID, or -1 if not found or if an error occurs.
  *
  * @description This function connects to the database, checks if the email exists,
- * and returns the corresponding user ID. If the email is not found, it returns -1.
- * If a database error occurs, it also returns -1.
+ * and returns the corresponding user ID. If the email is not found or an error occurs, it returns -1.
  */
-export function getuIDFromEmail(email: string): Promise<number> {
-    return new Promise((resolve) => {
-        // Load database credentials from environment variables
-        let host = process.env.DB_HOST || 'NULL';
-        let db_user = process.env.DB_USER || 'NULL';
-        let pass = process.env.DB_PASSWORD || 'NULL';
+export async function getuIDFromEmail(email: string): Promise<number> {
+    let connection;
 
-        // Ensure required environment variables are loaded
-        if (host === 'NULL' || db_user === 'NULL' || pass === 'NULL') {
-            throw new Error("Failed to load .env file");
+    // Load environment variables and check if they are set
+    const host = process.env.DB_HOST;
+    const db_user = process.env.DB_USER;
+    const pass = process.env.DB_PASSWORD;
+
+    // Ensure all environment variables are present before proceeding
+    if (!host || !db_user || !pass) {
+        throw new Error("Failed to load .env file");
+    }
+
+    try {
+        // Attempt to connect to the database
+        connection = await dbConnect(host, db_user, pass);
+
+        // Switch to the CS476 database
+        await connection.query("USE CS476");
+
+        // Query the database for the user ID
+        const [rows] = await connection.execute(
+            "SELECT uID FROM users WHERE email = ?",
+            [email]
+        );
+
+        // Check if a matching user was found
+        if (!rows || (rows as any).length === 0) {
+            return -1;
         }
 
-        // Connect to the database
-        dbConnect(host, db_user, pass)
-            .then((connection) => {
-                if (connection instanceof Error) {
-                    console.error(connection.message);
-                    return resolve(-1);
-                }
+        // Extract and return the user ID
+        return (rows as any)[0].uID;
+    } catch (error) {
+        console.error("Error:", error);
+        return -1;
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
+}
 
-                // Select the database
-                connection.query("USE CS476", (err) => {
-                    if (err) {
-                        console.error(err);
-                        return resolve(-1);
-                    }
 
-                    // Query the database for the user ID
-                    connection.execute(
-                        "SELECT uID FROM users WHERE email = ?",
-                        [email],
-                        (err, rows) => {
-                            if (err) {
-                                console.error(err);
-                                return resolve(-1);
-                            }
+/**
+ * Parses a comma-separated string into a JSON stringified array.
+ *
+ * @param {string} input - The input string containing comma-separated values.
+ * @returns {string} A JSON stringified array of trimmed non-empty values.
+ *
+ * @description This function splits the input string by commas, trims each item,
+ * removes empty items, and returns the result as a JSON stringified array.
+ */
+export function parseStringToArray(input: string): string {
+    if (!input) {
+        console.error("Input is missing");
+        return input;
+    }
 
-                            // Check if a matching user was found
-                            // @ts-ignore - Suppressing TypeScript warning for undefined rows
-                            if (!rows[0]) {
-                                return resolve(-1);
-                            } else {
-                                // @ts-ignore - Extracting uID from the query result
-                                return resolve(rows[0].uID);
-                            }
-                        }
-                    );
-                });
-            })
-            .catch((error) => {
-                console.error("Database connection error:", error);
-                return resolve(-1);
-            });
-    });
+    const parsedArray = input
+        .split(",") // Split by comma
+        .map(item => item.trim()) // Trim spaces
+        .filter(item => item.length > 0); // Remove empty items
+
+    return JSON.stringify(parsedArray);
 }

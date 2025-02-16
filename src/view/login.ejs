@@ -15,12 +15,34 @@ the /public/ directory -->
     <div class="centered login_form">
         <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
         <form action="/api/v1/login" method="post">
-            <% if (status === "wrong-password") { %>
+
+            <%
+            if (status === "wrong-password")
+            {
+            %>
                 <p style="color: red;">Incorrect password. Please try again.</p>
-            <% } else if (status === "does-not-exist") { %>
+            <%
+            }
+            else if (status === "does-not-exist")
+            {
+            %>
                 <p style="color: red;">User does not exist. Please sign up.</p>
-            <% } else if (status === "error") { %>
-                <p style="color: red;">Something went wrong. Please try again later.</p><% } %>
+            <%
+            }
+            else if (status === "error")
+            {
+            %>
+                <p style="color: red;">Something went wrong. Please try again later.</p>
+            <%
+            }
+            else if (status === "registration-success")
+            {
+            %>
+                <p style="color: limegreen;">Registration was successful, please login.</p>
+            <%
+            }
+            %>
+
             <label for="email" id="email_label">Email</label><br />
             <input type="email" id="email" name="email" required /><br /><br />
 

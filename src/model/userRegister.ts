@@ -1,6 +1,6 @@
 import { dbConnect } from "./dbConnect";
 import bcrypt = require("bcrypt");
-import mysql = require("mysql2");
+import mysql = require("mysql2/promise");
 import path = require('path');
 import dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
@@ -33,22 +33,17 @@ export function hashPassword(password: string): string {
  * @param {string} email - The email address of the user to check.
  * @returns {Promise<boolean>} A promise resolving to `true` if the user exists, otherwise `false`.
  */
-export function checkIfUserExists(connection: mysql.Connection, email: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-        connection.execute(
+export async function checkIfUserExists(connection: mysql.Connection, email: string): Promise<boolean> {
+    try {
+        const [rows] = await connection.execute(
             "SELECT 1 FROM users WHERE email = ?;",
-            [email],
-            (err, result) => {
-                if (err) {
-                    console.log(err);
-                    reject(false); // Reject with false on error
-                } else {
-                    // @ts-ignore
-                    resolve(result[0] !== undefined); // Resolve with true/false based on the result
-                }
-            }
+            [email]
         );
-    });
+        return (rows as any).length > 0;
+    } catch (err) {
+        console.error("Database query error:", err);
+        throw err;
+    }
 }
 
 /**
@@ -68,49 +63,52 @@ export enum registerStatus {
  * Registers a new user in the database.
  *
  * @param {User} user - The user object containing email and password.
- * @returns {registerStatus} The status of the registration attempt.
+ * @returns {Promise<registerStatus>} The status of the registration attempt.
  *
  * @description This function connects to the database, checks if the user already exists,
  * and if not, inserts a new entry with the hashed password. It returns `UserAlreadyExists`
  * if the user is already registered, `Success` if registration is successful, or
  * `DatabaseFailure` if an error occurs.
  */
-export function userRegister(user: User): Promise<registerStatus> {
-    return new Promise((resolve) => {
-        let host = process.env.DB_HOST || 'NULL';
-        let db_user = process.env.DB_USER || 'NULL';
-        let pass = process.env.DB_PASSWORD || 'NULL';
-        if (host == 'NULL' || db_user == 'NULL' || pass == 'NULL'){
-            throw new Error("Failed to load .env file");
+export async function userRegister(user: User): Promise<registerStatus> {
+    let connection;
+
+    // Load environment variables and check if they are set
+    const host = process.env.DB_HOST;
+    const db_user = process.env.DB_USER;
+    const pass = process.env.DB_PASSWORD;
+
+    // Ensure all environment variables are present before proceeding
+    if (!host || !db_user || !pass) {
+        throw new Error("Failed to load .env file");
+    }
+
+    try {
+        // Attempt to connect to the database
+        connection = await dbConnect(host, db_user, pass);
+
+        // Switch to the CS476 database
+        await connection.query("USE CS476");
+
+        // Check if user already exists in the database
+        const userExists = await checkIfUserExists(connection, user.email);
+        if (userExists) {
+            return registerStatus.UserAlreadyExists;
         }
-        dbConnect(host, db_user, pass).then(async (connection) => {
-            if (connection instanceof Error) {
-                console.error(connection.message);
-                return resolve(registerStatus.DatabaseFailure);
-            }
-            connection.query("USE CS476", function (err) {
-                if (err) {
-                    console.error(err);
-                    return resolve(registerStatus.DatabaseFailure);
-                }
-                checkIfUserExists(connection, user.email).then((result) => {
-                    if (result) {
-                        return resolve(registerStatus.UserAlreadyExists);
-                    }
-                    connection.execute(
-                        "INSERT INTO users (email, hash) VALUES (?,?);",
-                        [user.email, hashPassword(user.password)],
-                        (err) => {
-                            if (err) {
-                                console.error(err);
-                                return resolve(registerStatus.DatabaseFailure);
-                            } else {
-                                return resolve(registerStatus.Success);
-                            }
-                        }
-                    );
-                });
-            });
-        });
-});
+
+        // Insert new user with hashed password
+        await connection.execute(
+            "INSERT INTO users (email, hash) VALUES (?, ?);",
+            [user.email, hashPassword(user.password)]
+        );
+
+        return registerStatus.Success;
+    } catch (error) {
+        console.error("Error:", error);
+        return registerStatus.DatabaseFailure;
+    } finally {
+        if (connection) {
+            await connection.end();
+        }
+    }
 }
