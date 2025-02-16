@@ -15,9 +15,21 @@ the /public/ directory -->
         <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
         <form action="/api/v1/register" method="post">
             <% if (status === "user-already-exists") { %>
-                <p style="color: red;">This email is already in use. Please try again.</p>
+                    <p style="color: red;">This email is already in use. Please try again.</p>
             <% } else if (status === "error") { %>
-                <p style="color: red;">Something went wrong. Please try again later.</p>
+                    <p style="color: red;">Something went wrong. Please try again later.</p>
+            <% } else if (status === "mismatch") { %>
+                    <p style="color: red;">The passwords did not match</p>
+            <% } else if (status === "bad-pass") { %>
+                <div>
+                    <p class="text-red-600">Bad password. Passwords must contain the following</p>
+                    <ul class="list-disc pl-5 text-red-600">
+                        <li>Length of 8 or more</li>
+                        <li>Alphanumeric only</li>
+                        <li>Atleast one uppercase letter</li>
+                    </ul>
+                </div>
+
             <% } %>
 
             <label for="email" id="email_label">Email</label><br />

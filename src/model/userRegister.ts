@@ -57,6 +57,8 @@ export enum registerStatus {
     Success,
     /** A database error occurred. */
     DatabaseFailure,
+    PasswordMismatch,
+    BadPassword
 }
 
 /**
@@ -70,7 +72,7 @@ export enum registerStatus {
  * if the user is already registered, `Success` if registration is successful, or
  * `DatabaseFailure` if an error occurs.
  */
-export async function userRegister(user: User): Promise<registerStatus> {
+export async function userRegister(user: User, cpass: string): Promise<registerStatus> {
     let connection;
 
     // Load environment variables and check if they are set
@@ -81,6 +83,15 @@ export async function userRegister(user: User): Promise<registerStatus> {
     // Ensure all environment variables are present before proceeding
     if (!host || !db_user || !pass) {
         throw new Error("Failed to load .env file");
+    }
+
+    //Validate user password
+    const regex = /^(?=.*[A-Z])(?=.*[a-zA-Z0-9]).{8,}$/
+    if (!regex.test(user.password)) {
+        return registerStatus.BadPassword
+    }
+    if (user.password != cpass) {
+        return registerStatus.PasswordMismatch;
     }
 
     try {
