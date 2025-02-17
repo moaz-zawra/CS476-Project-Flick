@@ -12,37 +12,39 @@ the /public/ directory -->
 
 <body class="p-4 bg-amber-200">
 
-    <h1 class="text-black font-extrabold text-center text-3xl font-serif">Flick</h1>
-    <h2 class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</h2>
-    <br /><br /><br />
+    <header>
+        <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
+        <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
+        <hr>
 
-    <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center justify-self-center">
+        <br /><br />
+        <div class="text-black font-extrabold text-center text-3xl font-sans">Login</div>
+    </header>
+
+    <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
         <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
         <form action="/api/v1/login" method="post">
 
             <% if (status==="wrong-password" ) { %>
-                <p style="color: red;">Incorrect password. Please try again.</p>
-                <% } else if (status==="does-not-exist" ) { %>
-                    <p style="color: red;">User does not exist. Please sign up.</p>
-                    <% } else if (status==="error" ) { %>
-                        <p style="color: red;">Something went wrong. Please try again later.</p>
-                        <% } %>
+                <p class="text-red-500 font-sans text-1xl font-bold">Incorrect password. Please try again.</p>
+            <% } else if (status==="does-not-exist" ) { %>
+                <p class="text-red-500 font-sans text-1xl font-bold">User does not exist. Please sign up.</p>
+            <% } else if (status==="error" ) { %>
+                <p class="text-red-500 font-sans text-1xl font-bold">Something went wrong. Please try again later.</p>
+            <% } else if (status==="registration-success" ) { %>
+                <p class="text-lime-500 font-sans text-1xl font-bold">Registration successful. Please login.</p>
+            <% } %>
+                <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
+                <input type="email" id="email" name="email"  class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+                <br /><br />
 
-                            <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
-                            <input type="email" id="email" name="email"
-                                class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
-                                required /><br /><br />
+                <label for="password" id="password_label" class="text-black font-bold">Password</label><br />
+                <input type="password" id="password" name="password" class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+                <br /><br />
 
-                            <label for="password" id="password_label"
-                                class="text-black font-bold">Password</label><br />
-                            <input type="password" id="password" name="password"
-                                class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
-                                required /><br /><br />
-
-                            <input
-                                class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
-                                type="submit" value="Login"><br /><br /><br />
-        </form>
+                <input class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400" type="submit" value="Login">
+                <br /><br /><br />
+                </form>
 
         <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
             onclick="window.location.href='/register'">New User? Click to Register</button>

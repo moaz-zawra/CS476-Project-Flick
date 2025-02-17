@@ -168,18 +168,15 @@ controller.get('/', async (req, res) => {
                 const userID = await getuIDFromEmail(req.session.user_info.username);
                 const response = await fetch(`http://localhost:3000/api/v1/getSets/${userID}`);
                 const sets = await response.json();
-                console.log(sets[0]);
-                const parsedArray = JSON.parse(sets[0]);
 
-
-                parsedArray.forEach((item: { tags: string; }) => {
+                sets.forEach((item: { tags: string; }) => {
                     item.tags = JSON.parse(item.tags); // Parse the 'tags' string into an array
                 });
-
+                console.log(sets.length)
                 return res.render("user_dashboard", {
                     uname: req.session.user_info.username,
                     status: req.query.status,
-                    sets: parsedArray
+                    sets: sets
                 });
             } catch (error) {
                 console.log(error)

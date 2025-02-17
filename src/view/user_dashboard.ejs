@@ -12,70 +12,64 @@ the /public/ directory -->
 </head>
 
 <body class="p-4 bg-amber-200">
+
     <header>
-        <h1 class="text-black font-extrabold text-center text-3xl font-serif">Flick</h1> <br />
-        <h2 class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!
-        </h2><br /><br />
-        <div class="flow-root">
-            <span class="text-black text-2xl font-serif"> Welcome, <b>
-                    <%= uname %>
-                </b> </span>
-            <button class="float-right border-2 rounded-xl w-25 p-0.5 bg-red-400 text-black font-bold hover:bg-red-500"
-                onclick="window.location.href='/api/v1/logout'">Logout</button>
-            <button
-                class="float-right border-2 rounded-xl w-30 p-0.5 mr-2 bg-green-300 text-black font-bold hover:bg-green-400"
-                onclick="window.location.href='/account'">
-                Account Info
-            </button>
-        </div>
-        <br />
+        <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
+        <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
         <hr>
-        <br />
     </header>
-    </p>
+
     <br />
+
+    <div class="flow-root">
+        <span class="text-black text-2xl font-sans"> Welcome, <b> <%= uname %> </b> </span>
+
+        <button class="float-right border-2 rounded-xl w-25 p-0.5 bg-red-400 text-black font-bold hover:bg-red-500"
+                onclick="window.location.href='/api/v1/logout'">Logout</button>
+        <button class="float-right border-2 rounded-xl w-30 p-0.5 mr-2 bg-green-300 text-black font-bold hover:bg-green-400"
+                onclick="window.location.href='/account'">Account Info</button>
+    </div>
+
     <% if (status==="success" ) { %>
         <p style="color: limegreen;">Card set added successfully.</p>
-        <% } else if (status==="does-not-exist" ) { %>
-            <p style="color: red;">Failed to add card set.</p>
-            <% } %>
+    <% } else if (status==="does-not-exist" ) { %> <p style="color: red;">Failed to add card set.</p> <% } %>
 
-                <div>
-                    <span class="text-3xl font-bold underline">Flashcard Sets</span><br /><br />
-                    <span>
-                        <span>
-                            <% if (sets.length===0) {%>
-                                <span class='text-2xl, font-bold,'> You have no sets. Create one using the button below!
-                                </span> <br /> <br />
-                                <button
-                                    class="bg-sky-50 hover:bg-sky-100 text-gray-800 font-bold py-2 px-4 rounded-xl inline-flex items-center"
-                                    onclick="window.location.href='/new_set'">
-                                    <img style='padding-right:10px;' src="add.svg" alt="SVG Image">
-                                    <span>New Card Set</span>
-                                </button><br /><br /><br />
-                                <% } else for (let i=0; i < sets.length; i++) { %>
-                                    <div
-                                        class=" inline-table w-fit bg-sky-50 hover:bg-sky-100 text-gray-800 font-semibold py-2 px-4 border text-center border-gray-400 rounded-xl shadow">
-                                        <span class="underline text-1xl">
-                                            <%= sets[i].set_name %> <br />
-                                        </span>
-                                        <br />
-                                        <button
-                                            class=" bg-green-100 hover:bg-green-200 text-gray-800 font-semibold mr-3 py-2 px-4 border border-gray-400 rounded-xl shadow">
-                                            View
-                                        </button>
-                                        <button
-                                            class="bg-amber-100 hover:bg-amber-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
-                                            Edit
-                                        </button>
-                                    </div>
-                                    <% } %>
-                        </span>
+    <br />
+    <div id="ejs-flashcard">
+        <span class="text-3xl font-bold">Flashcard Sets</span>
+        <hr>
+        <br />
 
-                    </span>
+        <% if (sets.length === 0) { %>
+            <span class='text-2xl font-bold'> You have no sets. Create one using the button below!</span>
+            <br /><br />
+        <% } %>
 
+        <button class="bg-sky-50 hover:bg-sky-100 text-gray-800 font-bold py-2 px-4 rounded-xl inline-flex items-center" onclick="window.location.href='/newset'">
+            <img style='padding-right:10px;' src="add.svg" alt="SVG Image"> <span>New Card Set</span>
+        </button>
+
+        <br /><br />
+
+        <% if (sets.length > 0) { %>
+            <% for (let i = 0; i < sets.length; i++) { %>
+                <div class="inline-table w-fit bg-sky-50 hover:bg-sky-100 text-gray-800 font-semibold py-2 px-4 border text-center border-gray-400 rounded-xl shadow">
+                <span class="underline text-1xl">
+                    <%= sets[i].set_name %> <br />
+                </span>
+                    <br />
+
+                    <button class="bg-green-100 hover:bg-green-200 text-gray-800 font-semibold mr-3 py-2 px-4 border border-gray-400 rounded-xl shadow">
+                        View
+                    </button>
+                    <button class="bg-amber-100 hover:bg-amber-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
+                        Edit
+                    </button>
                 </div>
+            <% } %>
+        <% } %>
 
+    </div>
 
 
 </body>

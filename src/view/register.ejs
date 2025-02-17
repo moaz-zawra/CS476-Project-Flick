@@ -13,21 +13,15 @@ the /public/ directory -->
 <body class="p-4 bg-amber-200">
 
     <header>
-        <h1 class="text-black font-extrabold text-center text-3xl font-serif">Flick</h1>
-        <h2 class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!
-        </h2>
-        <div class="flow-root">
-            <button
-                class=" float-left border-2 rounded-xl w-40 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
-                onclick="window.location.href='/login'">Back to Login Page</button>
-        </div>
-        <br />
+        <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
+        <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
         <hr>
+
         <br /><br />
+        <div class="text-black font-extrabold text-center text-3xl font-sans">Registration</div>
+    </header>
 
-        <h1 class="text-black font-extrabold text-center text-3xl font-serif">Create Account</h1><br /><br />
-
-        <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center justify-self-center">
+        <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
             <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
             <form action="/api/v1/register" method="post">
 
@@ -66,6 +60,8 @@ the /public/ directory -->
                                     class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
                                     type="submit" value="Register"><br /><br />
             </form>
+            <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
+                    onclick="window.location.href='/login'">Existing User? Click to Login</button>
         </div>
 
 </body>
