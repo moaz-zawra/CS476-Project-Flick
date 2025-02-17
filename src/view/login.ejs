@@ -4,59 +4,51 @@ running as the controller statically includes the styles.css and all other files
 the /public/ directory -->
 <link rel="stylesheet" type="text/css" href="styles.css">
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Flick | Login</title>
 </head>
-<body>
-    <h1 class="text-2xl">Flick</h1>
-    <h2 id="unique_title" >Your Flashcards are a Click Away!</h2><br /><br /><br />
 
-    <div class="centered login_form">
+<body class="p-4 bg-amber-200">
+
+    <h1 class="text-black font-extrabold text-center text-3xl font-serif">Flick</h1>
+    <h2 class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</h2>
+    <br /><br /><br />
+
+    <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center justify-self-center">
         <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
         <form action="/api/v1/login" method="post">
 
-            <%
-            if (status === "wrong-password")
-            {
-            %>
+            <% if (status==="wrong-password" ) { %>
                 <p style="color: red;">Incorrect password. Please try again.</p>
-            <%
-            }
-            else if (status === "does-not-exist")
-            {
-            %>
-                <p style="color: red;">User does not exist. Please sign up.</p>
-            <%
-            }
-            else if (status === "error")
-            {
-            %>
-                <p style="color: red;">Something went wrong. Please try again later.</p>
-            <%
-            }
-            else if (status === "registration-success")
-            {
-            %>
-                <p style="color: limegreen;">Registration was successful, please login.</p>
-            <%
-            }
-            %>
+                <% } else if (status==="does-not-exist" ) { %>
+                    <p style="color: red;">User does not exist. Please sign up.</p>
+                    <% } else if (status==="error" ) { %>
+                        <p style="color: red;">Something went wrong. Please try again later.</p>
+                        <% } %>
 
-            <label for="email" id="email_label">Email</label><br />
-            <input type="email" id="email" name="email" required /><br /><br />
+                            <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
+                            <input type="email" id="email" name="email"
+                                class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
+                                required /><br /><br />
 
-            <label for="password" id="password_label" >Password</label><br />
-            <input type="password" id="password" name="password" required /><br /><br />
+                            <label for="password" id="password_label"
+                                class="text-black font-bold">Password</label><br />
+                            <input type="password" id="password" name="password"
+                                class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
+                                required /><br /><br />
 
-            <input type="submit" value="Login"><br /><br /><br />
+                            <input
+                                class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
+                                type="submit" value="Login"><br /><br /><br />
         </form>
 
-        <div class="centered" id="link-to-register">
-            <a href="/register">New User? Click to Register</a>
-        </div>
+        <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
+            onclick="window.location.href='/register.html'">New User? Click to Register</button>
 
     </div>
 
 </body>
+
 </html>
