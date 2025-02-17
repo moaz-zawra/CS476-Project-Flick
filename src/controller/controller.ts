@@ -62,11 +62,14 @@ controller.post('/api/v1/login', async (req, res) => {
  */
 controller.post('/api/v1/register', async (req, res) => {
     const user = makeUser(req.body.email, req.body.password);
+    const cpass = req.body.cpassword
     try {
-        const status = await userRegister(user);
+        const status = await userRegister(user, cpass);
         if (status === registerStatus.Success) return res.redirect('/login?status=registration-success');
-        if (status === registerStatus.UserAlreadyExists) return res.redirect('/register?status=user-already-exists');
-        return res.redirect('/register?status=error');
+        else if (status === registerStatus.UserAlreadyExists) return res.redirect('/register?status=user-already-exists');
+        else if (status === registerStatus.PasswordMismatch) return res.redirect('/register?status=mismatch')
+        else if (status === registerStatus.BadPassword) return res.redirect('/register?status=bad-pass')
+        else return res.redirect('/register?status=error');
     } catch (error) {
         return res.redirect('/register?status=error');
     }
