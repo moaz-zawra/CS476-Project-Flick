@@ -41,6 +41,20 @@ export function setUserSession(req: express.Request, user: User) {
     req.session.user_info = { username: user.email, role: "user" };
 }
 
+export function setAdminSession(req: express.Request, user: User) {
+    /**
+     * Sets a user session with a administrator role.
+     *
+     * @param {express.Request} req - The Express request object.
+     * @param {User} user - The user object containing user information.
+     *
+     * @description This function sets the session's `logged_in` flag to `true`
+     * and assigns the user role as "user" based on the provided `user` object.
+     */
+    req.session.logged_in = true;
+    req.session.user_info = { username: user.email, role: "administrator" };
+}
+
 /**
  * Sets a user session with a moderator role.
  *

@@ -13,11 +13,13 @@ import {
     setUserSession,
     setModSession,
     getuIDFromEmail,
-    parseStringToArray
+    parseStringToArray, setAdminSession
 } from "../model/utility";
 import { isMod, isModerator } from "../model/modCheck";
-import { addCardSet, makeCardSet } from "../model/setCreate";
-import { getSetsFromuID } from "../model/setGet";
+import { addCardSet, makeCardSet } from "../model/createSet";
+import { getSetsFromuID } from "../model/getSets";
+import {isAdmin, isAdministrator} from "../model/adminCheck";
+import {getAllModerators} from "../model/getMods";
 
 // Paths to public and view directories
 const pub = path.join(__dirname, '../../public/');
@@ -49,6 +51,12 @@ controller.post('/api/v1/login', async (req, res) => {
             else if (modStatus === isMod.InvalidUser || modStatus === isMod.DatabaseFailure) {
                 return res.redirect('/login?status=error');
             }
+            const adminStatus = await isAdministrator(user.email);
+            if (adminStatus === isAdmin.UserIsAdmin) setAdminSession(req, user);
+            else if (adminStatus === isAdmin.UserIsNotAdmin && modStatus === isMod.UserIsNotMod) setUserSession(req, user);
+            else if (adminStatus === isAdmin.InvalidUser || adminStatus === isAdmin.DatabaseFailure) {
+                return res.redirect('/login?status=error');
+            }
             return res.redirect('/');
         }
         return res.redirect('/login?status=error');
@@ -78,10 +86,7 @@ controller.post('/api/v1/register', async (req, res) => {
 /**
  * API routes for managing user sets (Not yet implemented)
  */
-controller.get('/api/v1/getSets/:userID', async (req, res) => {
-    const userID = req.params.userID;
-    res.send(userID);
-});
+
 controller.get('/api/v1/getSet/:userID-:setID', (req, res) => res.status(501).sendFile(pub + "unimplemented.html"));
 
 controller.post('/api/v1/addSet', async (req, res) => {
@@ -113,12 +118,44 @@ controller.get('/api/v1/logout', (req, res) => {
     return res.redirect('/login');
 });
 
+controller.post('/api/v1/addMod', async (req, res) => {
+    const email = req.body.modemail;
+    console.log(email);
+})
+controller.post('/api/v1/removeMod', async (req, res) => {
+    const email = req.body.modemail;
+    console.log(email);
+})
+controller.get('/api/v1/getAllMods', (req, res) => {
+    if (req.session.logged_in && req.session.user_info) {
+        if (req.session.user_info.role === "administrator"){
+            logUserActivity('ordered all mods list', req.session.user_info.username);
+            getAllModerators()
+        }
+        else res.redirect('/?status=unauthorized')
+    }
+    else res.redirect('/login');
+});
+
+controller.get('/api/v1/getSets/:userID', async (req, res) => {
+    const userID = req.params.userID;
+    const sets = await getSetsFromuID(Number(userID));
+    res.send(sets);
+});
+
 /**
  * Dashboard or Home page - redirect to log in if user is not authenticated
  */
 controller.get('/', async (req, res) => {
     if (req.session.logged_in && req.session.user_info) {
         logUserActivity('logged in', req.session.user_info.username);
+
+        if (req.session.user_info.role === "administrator"){
+            return res.render("admin_dashboard", {
+                uname: req.session.user_info.username,
+                status: req.query.status
+            });
+        }
 
         if (req.session.user_info.role === "moderator")
             return res.render("mod_dashboard", {
@@ -130,10 +167,10 @@ controller.get('/', async (req, res) => {
             try {
                 const userID = await getuIDFromEmail(req.session.user_info.username);
                 const response = await fetch(`http://localhost:3000/api/v1/getSets/${userID}`);
-                const data = await response.json();
-                const sets = await getSetsFromuID(data);
+                const sets = await response.json();
+                console.log(sets[0]);
+                const parsedArray = JSON.parse(sets[0]);
 
-                const parsedArray = JSON.parse(sets);
 
                 parsedArray.forEach((item: { tags: string; }) => {
                     item.tags = JSON.parse(item.tags); // Parse the 'tags' string into an array
@@ -145,6 +182,7 @@ controller.get('/', async (req, res) => {
                     sets: parsedArray
                 });
             } catch (error) {
+                console.log(error)
                 return res.render("user_dashboard", {
                     uname: req.session.user_info.username,
                     status: req.query.status,
