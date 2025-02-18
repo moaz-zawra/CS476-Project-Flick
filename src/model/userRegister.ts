@@ -9,6 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
  * Represents user information required for database entry.
  */
 export interface User {
+    username: string,
     /** The email address of the user. */
     email: string;
     /** The password of the user. */

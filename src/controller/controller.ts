@@ -15,6 +15,7 @@ import {
     getuIDFromEmail,
     parseStringToArray, setAdminSession
 } from "../model/utility";
+import {UserCreator, User, Regular,Moderator,Administrator} from "../model/user";
 import { isMod, isModerator } from "../model/modCheck";
 import { addCardSet, makeCardSet } from "../model/createSet";
 import { getSetsFromuID } from "../model/getSets";
@@ -38,6 +39,7 @@ setDefaultSession(controller);
  * Handle login attempts
  */
 controller.post('/api/v1/login', async (req, res) => {
+
     const user = makeUser(req.body.email, req.body.password);
 
     try {
@@ -127,14 +129,7 @@ controller.post('/api/v1/removeMod', async (req, res) => {
     console.log(email);
 })
 controller.get('/api/v1/getAllMods', (req, res) => {
-    if (req.session.logged_in && req.session.user_info) {
-        if (req.session.user_info.role === "administrator"){
-            logUserActivity('ordered all mods list', req.session.user_info.username);
-            getAllModerators()
-        }
-        else res.redirect('/?status=unauthorized')
-    }
-    else res.redirect('/login');
+
 });
 
 controller.get('/api/v1/getSets/:userID', async (req, res) => {
@@ -151,6 +146,7 @@ controller.get('/', async (req, res) => {
         logUserActivity('logged in', req.session.user_info.username);
 
         if (req.session.user_info.role === "administrator"){
+            const response = await fetch(`http://localhost:3000/api/v1/getAllMods`);
             return res.render("admin_dashboard", {
                 uname: req.session.user_info.username,
                 status: req.query.status
@@ -223,6 +219,45 @@ controller.get('/newset', (req, res) => {
         if (req.session.user_info.role === "user") return res.render("new_set");
     }
     return res.redirect('/login');
+});
+
+
+
+controller.get('/test', async (req,res) =>{
+    let user = await new UserCreator().login("admin@flick.com", "a!1w27T?twxB")
+    console.log(user);
+    res.send(user);
+})
+
+controller.post('/api/v2/login', async (req, res) => {
+    let login = await new UserCreator().login(req.body.email, req.body.password);
+    if (login instanceof Regular){
+        logUserActivity("logged in", "regular " + login.username);
+    }
+
+    else if (login instanceof Moderator){
+        logUserActivity("logged in", "moderator " + login.username);
+    }
+    else if (login instanceof Administrator){
+        logUserActivity("logged in", "administrator " + login.username);
+    }
+    else {
+        switch (login) {
+            case LoginStatus.USER_DOES_NOT_EXIST:
+                console.log("User does not exist");
+                break;
+            case LoginStatus.WRONG_PASSWORD:
+                console.log("Incorrect password");
+                break;
+            case LoginStatus.DATABASE_FAILURE:
+                console.log("Database failure");
+                break;
+            default:
+                console.log("Other login error");
+                break;
+        }
+
+
 });
 
 /**
