@@ -121,14 +121,15 @@ export function setupExpress(path_to_pub: string, path_to_view: string): express
 /**
  * Creates a new `User` object.
  *
+ * @param username
  * @param {string} email - The email address of the user.
  * @param {string} password - The password of the user.
  * @returns {User} A `User` object containing the provided email and password.
  *
  * @description This function constructs a `User` object with the given email and password properties.
  */
-export function makeUser(email: string, password: string): User {
-    return { email, password };
+export function makeUser(username: string, email: string, password: string): User {
+    return { username, email, password };
 }
 
 /**
