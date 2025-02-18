@@ -15,7 +15,7 @@ import {
     getuIDFromEmail,
     parseStringToArray, setAdminSession
 } from "../model/utility";
-import {UserCreator, User, Regular,Moderator,Administrator} from "../model/user";
+import {UserCreator, User, Regular,Moderator,Administrator, LoginStatus} from "../model/user";
 import { isMod, isModerator } from "../model/modCheck";
 import { addCardSet, makeCardSet } from "../model/createSet";
 import { getSetsFromuID } from "../model/getSets";
@@ -256,7 +256,7 @@ controller.post('/api/v2/login', async (req, res) => {
                 console.log("Other login error");
                 break;
         }
-
+    }
 
 });
 
