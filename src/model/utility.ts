@@ -1,9 +1,9 @@
 import express = require("express");
 import session = require('express-session');
-import { User } from "./userRegister";
+import { User } from "../old/userRegister";
 import path = require('path');
 import dotenv = require('dotenv');
-import { dbConnect } from "./dbConnect";
+import { dbConnect } from "../old/dbConnect";
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 /**
@@ -77,10 +77,12 @@ export function setModSession(req: express.Request, user: User) {
  *
  * @description This function records user activity in the console with a timestamp in HH:MM format.
  */
-export function logUserActivity(action: string, username: string) {
+export function logUserActivity(action: string, username: string): string {
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    console.log(`[${time}] User ${username} ${action}`);
+    const msg = `[${time}] ${username} ${action}`;
+    console.log(msg)
+    return msg
 }
 
 /**

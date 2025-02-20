@@ -1,21 +1,36 @@
 import mysql from 'mysql2/promise';
+import dotenv = require('dotenv');
+import path = require('path');
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-/**
- * Establishes a connection to a MySQL database.
- * @async
- * @param hostname - The hostname of the MySQL server.
- * @param user - The username for authentication.
- * @param password - The password for authentication.
- * @returns A promise resolving to a MySQL Connection or rejecting with an Error.
- */
-export async function dbConnect(hostname: string, user: string, password: string): Promise<mysql.Connection> {
-    try {
-        return await mysql.createConnection({
-            host: hostname,
-            user: user,
-            password: password,
-        });
-    } catch (error) {
-        throw new Error(`Database connection failed: ${(error as Error).message}`);
+export class DB {
+    private constructor(public connection: mysql.Connection | Error) {}
+
+    static async create(): Promise<DB> {
+        try {
+            const host = process.env.DB_HOST;
+            const user = process.env.DB_USER;
+            const password = process.env.DB_PASSWORD;
+
+            if (!host || !user || !password) {
+                return new DB(new Error("Failed to load .env file"));
+            }
+
+            const connection = await mysql.createConnection({host, user, password});
+            await connection.query("USE CS476");
+            return new DB(connection);
+        } catch (error) {
+            return new DB(new Error(`Database connection failed: ${(error as Error).message}`));
+        }
+    }
+}
+export class DatabaseService {
+    private static instance: DB | null = null;
+
+    static async getConnection(): Promise<DB> {
+        if (!this.instance) {
+            this.instance = await DB.create();
+        }
+        return this.instance;
     }
 }

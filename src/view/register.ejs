@@ -12,57 +12,69 @@ the /public/ directory -->
 
 <body class="p-4 bg-amber-200">
 
-    <header>
-        <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
-        <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
-        <hr>
+<header>
+    <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
+    <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
+    <hr>
 
-        <br /><br />
-        <div class="text-black font-extrabold text-center text-3xl font-sans">Registration</div>
-    </header>
+    <br /><br />
+    <div class="text-black font-extrabold text-center text-3xl font-sans">Register</div>
+</header>
 
-        <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
-            <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-            <form action="/api/v1/register" method="post">
+<div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
+    <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
+    <form action="/api/v2/register" method="post">
 
-                <% if (status==="user-already-exists" ) { %>
-                    <p style="color: red;">This email is already in use. Please try again.</p>
-                    <% } else if (status==="error" ) { %>
-                        <p style="color: red;">Something went wrong. Please try again later.</p>
-                        <% } else if (status==="registration-success" ) { %>
-                            <p style="color: limegreen;">Registration was successful, please login.</p>
-                            <% } %>
-
-                                <label for="username" id="uname_label"
-                                    class="text-black font-bold">Username</label><br />
-                                <input type="text" id="uname" name="uname"
-                                    class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
-                                    required /><br /><br />
-
-                                <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
-                                <input type="email" id="email" name="email"
-                                    class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
-                                    required /><br /><br />
-
-                                <label for="password" id="password_label"
-                                    class="text-black font-bold">Password</label><br />
-                                <input type="password" id="password" name="password"
-                                    class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
-                                    required /><br /><br />
-
-                                <label for="cpassword" id="cpassword_label" class="text-black font-bold">Confirm
-                                    Password</label><br />
-                                <input type="password" id="cpassword" name="cpassword"
-                                    class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
-                                    required /><br /><br />
-
-                                <input
-                                    class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
-                                    type="submit" value="Register"><br /><br />
-            </form>
-            <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
-                    onclick="window.location.href='/login'">Existing User? Click to Login</button>
+        <% if (status==="bad-password" ) { %>
+        <div class="text-red-500 font-sans text-1xl font-bold">
+            <p >Bad Password. Must meet the following:</p>
+            <ul>
+                <li>Length of 8 or more</li>
+                <li>Alphanumerical</li>
+                <li>Atleast one uppercase letter</li>
+            </ul>
         </div>
+
+        <% } else if (status==="username-used" ) { %>
+            <p class="text-red-500 font-sans text-1xl font-bold">Username is in use.</p>
+        <% } else if (status==="email-used" ) { %>
+            <p class="text-red-500 font-sans text-1xl font-bold">Email is in use.</p>
+        <% } else if (status==="mismatch-password" ) { %>
+            <p class="text-red-500 font-sans text-1xl font-bold">Passwords don't match.</p>
+        <% } else if (status==="Error" ) { %>
+                <p class="text-red-500 font-sans text-1xl font-bold">Something went wrong. Please try again later.</p>
+        <% } %>
+
+        <label for="username" id="uname_label"
+               class="text-black font-bold">Username</label><br />
+        <input type="text" id="username" name="username"
+               class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
+               required /><br /><br />
+
+        <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
+        <input type="email" id="email" name="email"
+               class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
+               required /><br /><br />
+
+        <label for="password" id="password_label"
+               class="text-black font-bold">Password</label><br />
+        <input type="password" id="password" name="password"
+               class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
+               required /><br /><br />
+
+        <label for="cpassword" id="cpassword_label" class="text-black font-bold">Confirm
+            Password</label><br />
+        <input type="password" id="cpassword" name="cpassword"
+               class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black"
+               required /><br /><br />
+
+        <input
+                class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
+                type="submit" value="Register"><br /><br />
+    </form>
+    <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
+            onclick="window.location.href='/login'">Existing User? Click to Login</button>
+</div>
 
 </body>
 

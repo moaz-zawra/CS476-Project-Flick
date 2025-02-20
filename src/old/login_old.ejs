@@ -7,7 +7,7 @@ the /public/ directory -->
 
 <head>
     <meta charset="UTF-8">
-    <title>Flick | Testing Area</title>
+    <title>Flick | Login</title>
 </head>
 
 <body class="p-4 bg-amber-200">
@@ -20,12 +20,15 @@ the /public/ directory -->
         <hr>
 
         <br /><br />
+        <button class="inline border-2 rounded-xl w-40 p-0.5 bg-red-400 text-black font-bold hover:bg-red-500"
+                onclick="window.location.href='/test_login'">Go to Testing Area.</button>
         <div class="text-black font-extrabold text-center text-3xl font-sans">Login</div>
     </header>
 
     <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
         <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-        <form action="/api/v2/login" method="post">
+        <form action="/api/v1/login" method="post">
+
             <% if (status==="wrong-password" ) { %>
                 <p class="text-red-500 font-sans text-1xl font-bold">Incorrect password. Please try again.</p>
             <% } else if (status==="does-not-exist" ) { %>
@@ -35,27 +38,22 @@ the /public/ directory -->
             <% } else if (status==="registration-success" ) { %>
                 <p class="text-lime-500 font-sans text-1xl font-bold">Registration successful. Please login.</p>
             <% } %>
+                <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
+                <input type="email" id="email" name="email"  class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+                <br /><br />
 
-            <label for="identifier" id="identifier_label" class="text-black font-bold">Username or Email</label><br />
-            <input type="text" id="identifier" name="identifier"
-                   class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
-            <br /><br />
+                <label for="password" id="password_label" class="text-black font-bold">Password</label><br />
+                <input type="password" id="password" name="password" class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+                <br /><br />
 
-            <label for="password" class="text-black font-bold">Password</label><br />
-            <input type="password" id="password" name="password"
-                   class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
-            <br /><br />
+                <input class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400" type="submit" value="Login">
+                <br /><br /><br />
+                </form>
 
-            <input class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
-                   type="submit" value="Login">
-            <br /><br /><br />
-
-                <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
-                        onclick="window.location.href='/register'">New User? Click to Register</button>
-        </form>
+        <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
+            onclick="window.location.href='/register'">New User? Click to Register</button>
 
     </div>
-
 
 </body>
 
