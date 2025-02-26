@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<!-- Ignore that styles.css cannot be located, this is fixed when the service is
-running as the controller statically includes the styles.css and all other files in
-the /public/ directory -->
-<link rel="stylesheet" type="text/css" href="styles.css">
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Flick | Testing Area</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flick | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="p-4 bg-amber-200">
@@ -16,8 +13,7 @@ the /public/ directory -->
 
         <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
         <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
-
-        <hr>
+        <hr class="border-black">
 
         <br /><br />
         <div class="text-black font-extrabold text-center text-3xl font-sans">Login</div>
@@ -38,19 +34,19 @@ the /public/ directory -->
 
             <label for="identifier" id="identifier_label" class="text-black font-bold">Username or Email</label><br />
             <input type="text" id="identifier" name="identifier"
-                   class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+                   class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black border-gray-600" required />
             <br /><br />
 
             <label for="password" class="text-black font-bold">Password</label><br />
             <input type="password" id="password" name="password"
-                   class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+                   class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black border-gray-600" required />
             <br /><br />
 
-            <input class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
+            <input class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400  border-gray-600"
                    type="submit" value="Login">
             <br /><br /><br />
 
-                <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
+                <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300 border-gray-600"
                         onclick="window.location.href='/register'">New User? Click to Register</button>
         </form>
 

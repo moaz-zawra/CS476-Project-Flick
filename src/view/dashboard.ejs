@@ -1,14 +1,10 @@
 <!DOCTYPE html>
-<!-- Ignore that styles.css cannot be located, this is fixed when the service is
-running as the controller statically includes the styles.css and all other files in
-the /public/ directory -->
-<link rel="stylesheet" type="text/css" href="styles.css">
-
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Flick | Creator Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flick | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="p-4 bg-amber-200">
@@ -16,7 +12,7 @@ the /public/ directory -->
     <header>
         <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
         <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
-        <hr>
+        <hr class="border-black">
     </header>
 
     <br />
@@ -24,41 +20,42 @@ the /public/ directory -->
     <div class="flow-root">
         <span class="text-black text-2xl font-sans"> Welcome, <b> <%= uname %> </b> </span>
 
-        <button class="float-right border-2 rounded-xl w-25 p-0.5 bg-red-400 text-black font-bold hover:bg-red-500"
-                onclick="window.location.href='/api/v1/logout'">Logout</button>
-        <button class="float-right border-2 rounded-xl w-30 p-0.5 mr-2 bg-green-300 text-black font-bold hover:bg-green-400"
+        <button class="float-right border-2 rounded-xl w-25 p-0.5 bg-red-400 text-black font-bold hover:bg-red-500 border-black"
+                onclick="window.location.href='/api/v2/logout'">Logout</button>
+        <button class="float-right border-2 rounded-xl w-30 p-0.5 mr-2 bg-green-300 text-black font-bold hover:bg-green-400 border-black"
                 onclick="window.location.href='/account'">Account Info</button>
     </div>
 
-    <% if (status==="success" ) { %>
-        <p style="color: limegreen;">Card set added successfully.</p>
-    <% } else if (status==="does-not-exist" ) { %> <p style="color: red;">Failed to add card set.</p> <% } %>
+    <% if (status==="success" ) { %> <p style="color: limegreen;">Card set added successfully.</p>
+    <% } else if (status==="name-used" ) { %> <p style="color: red;">You already have a flashcard set with that name</p>
+    <% } else if (status==="missing-info" ) { %> <p style="color: red;">Information was missing from the request to create the flashcard. Please try again.</p>
+    <% } else if (status==="error" ) { %> <p style="color: red;">An error has occurred; failed to add card set.</p> <% } %>
 
     <br />
     <div id="ejs-flashcard">
         <span class="text-3xl font-bold">Flashcard Sets</span>
-        <hr>
         <br />
 
         <% if (sets.length === 0) { %>
-            <span class='text-2xl font-bold'> You have no sets. Create one using the button below!</span>
+            <span class='text-1xl font-bold italic'> You have no sets. Create one using the button below!</span>
             <br /><br />
         <% } %>
 
-        <button class="bg-sky-50 hover:bg-sky-100 text-gray-800 font-bold py-2 px-4 rounded-xl inline-flex items-center" onclick="window.location.href='/newset'">
+        <button class="bg-sky-50 hover:bg-sky-100 text-gray-800 font-bold py-2 px-4 rounded-xl inline-flex items-center border-black" onclick="window.location.href='/newset'">
             <img style='padding-right:10px;' src="add.svg" alt="SVG Image"> <span>New Card Set</span>
         </button>
 
         <br /><br />
-
+        <input type="text" id="tagFilter" class="border-2 rounded-lg p-0.5 focus:outline-black border-gray-600"" placeholder="Search for a tag"><br /> <br />
+        <!-- The sets with tags displayed here -->
         <% if (sets.length > 0) { %>
             <% for (let i = 0; i < sets.length; i++) { %>
-                <div class="inline-table w-fit bg-sky-50 hover:bg-sky-100 text-gray-800 font-semibold py-2 px-4 border text-center border-gray-400 rounded-xl shadow">
-                <span class="underline text-1xl">
-                    <%= sets[i].set_name %> <br />
-                </span>
+                <div class="inline-table w-fit bg-sky-50 hover:bg-sky-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
+            <span class="text-1xl">
+                <%= sets[i].setName %> <br />
+                <span class="text-xs setTags"><%= sets[i].tags %></span>
+            </span>
                     <br />
-
                     <button class="bg-green-100 hover:bg-green-200 text-gray-800 font-semibold mr-3 py-2 px-4 border border-gray-400 rounded-xl shadow">
                         View
                     </button>
@@ -68,6 +65,26 @@ the /public/ directory -->
                 </div>
             <% } %>
         <% } %>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById("tagFilter").addEventListener("input", function(event) {
+                    const value = event.target.value.toLowerCase();
+                    const tags = document.getElementsByClassName("setTags");
+                    console.log(value);
+                    for (let i = 0; i < tags.length; i++) {
+                        const tagText = tags[i].innerHTML.toLowerCase();
+                        if (tagText.includes(value)) {
+                            tags[i].parentElement.parentElement.style.display = ""; // Show the set
+                        } else {
+                            tags[i].parentElement.parentElement.style.display = "none"; // Hide the set if it doesn't match
+                        }
+                    }
+                });
+            });
+        </script>
+
+
 
     </div>
 

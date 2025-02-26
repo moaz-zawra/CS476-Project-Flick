@@ -5,4 +5,4 @@
 .env
 .envexample
 node_modules/
-./src/old
+./src/old/

@@ -1,30 +1,49 @@
 <!DOCTYPE html>
-<!-- Ignore that styles.css cannot be located, this is fixed when the service is
-running as the controller statically includes the styles.css and all other files in
-the /public/ directory -->
-<link rel="stylesheet" type="text/css" href="styles.css">
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flick</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flick | New Set</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1 id="main_title">Flick</h1>
-    <h2 id="unique_title" >Your Flashcards are a Click Away</h2><br /><br /><br />
-    <a href="/">Go back to dashboard</a>
-    <div class="centered login_form">
-        <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-        <form action="/api/v1/addSet" method="post">
-            <label for="set_name_input" id="set_name_label">Set Name</label><br />
-            <input type="text" id="set_name_input" name="set_name" required /><br /><br />
 
-            <label for="set_tags_input" id="set_tags_label">Tags</label><br />
-            <input type="text" id="set_tags_input" name="set_tags" /><br /><br />
 
-            <input type="submit" value="Submit"><br />
-        </form>
+<body class="p-4 bg-amber-200">
 
-    </div>
+<header>
+
+    <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
+    <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
+    <hr class="border-black">
+
+    <br /><br />
+    <div class="text-black font-extrabold text-center text-3xl font-sans">New Set</div>
+</header>
+
+<div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
+    <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
+    <form action="/api/v2/create-set" method="post">
+        <label for="setName" id="setName_label" class="text-black font-bold">Set Name</label><br />
+        <input type="text" id="setName" name="setName"
+               class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+        <br /><br />
+
+        <label for="tags" class="text-black font-bold">Tags (Comma seperated)</label><br />
+        <input type="text" id="tags" name="tags"
+               class="border-2 rounded-lg p-0.5 focus:border-black focus:outline focus:outline-black" required />
+        <br /><br />
+
+        <input class="border-2 rounded-xl w-25 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
+               type="submit" value="Submit">
+        <br /><br /><br />
+
+        <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
+                onclick="window.location.href='/'">Go back to dashboard</button>
+    </form>
+
+</div>
+
 
 </body>
+
 </html>

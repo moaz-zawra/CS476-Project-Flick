@@ -5,21 +5,23 @@ import express = require("express");
 
 // This is called a type guard
 // https://www.typescriptlang.org/docs/handbook/advanced-types.html
-function isUser(obj: any): obj is User {
+export function isUser(obj: any): obj is User {
     return obj && typeof obj === "object" && "username" in obj && "email" in obj && "role" in obj;
 }
 
 export async function handleLogin(req: express.Request, res: express.Response): Promise<void> {
     let login = await new UserCreator().login(req.body.identifier, req.body.password);
-    console.log(login);
-
     if (isUser(login)) {
         if (login instanceof Administrator) {
-            res.send(logUserActivity("logged in", "Admin User " + login.username));
+            req.session.user = login;
+            res.redirect('/');
+
         } else if (login instanceof Moderator) {
-            res.send(logUserActivity("logged in", "Mod User " + login.username));
-        } else {
-            res.send(logUserActivity("logged in", "Regular User " + login.username));
+            req.session.user = login;
+            res.redirect('/');
+        } else if (login instanceof Regular) {
+            req.session.user = login;
+            res.redirect('/');
         }
     } else {
         switch (login) {

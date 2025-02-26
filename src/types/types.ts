@@ -1,9 +1,12 @@
 export interface CardSet {
     ownerID: number;
     setName: string | undefined;
-    tags: [string] | undefined;
+    tags: string[] | undefined;
 }
 
+export function makeCardSet(ownerID: number, setName: string, tags: string[]): CardSet{
+    return {ownerID, setName, tags}
+}
 export interface Card {
     setID: number;
     front_text: string | undefined;
@@ -58,7 +61,6 @@ export enum CardSetReportStatus {
 export enum CardSetGetStatus {
     DATABASE_FAILURE,    // Error occurred while interacting with the database.
     SET_DOES_NOT_EXIST,  // The requested card set does not exist.
-    SUCCESS              // Card set was successfully retrieved.
 }
 
 /**

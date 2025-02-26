@@ -15,11 +15,11 @@ import {
     LoginStatus,
     ModBanStatus,
     ModUnBanStatus,
-    RegisterStatus
+    RegisterStatus, makeCardSet
 } from "../types/types";
 import { RowDataPacket } from "mysql2/promise";
 
-class UserService {
+export class UserService {
     public static async getUserByEmail(email: string): Promise<RowDataPacket | null> {
         const db = await DatabaseService.getConnection();
         if (db.connection instanceof Error) {
@@ -201,7 +201,6 @@ export class UserCreator extends UserFactory {
             if (!isPasswordCorrect) return LoginStatus.WRONG_PASSWORD;
 
             // Return user based on role
-            console.log(userData);
 
             switch (userData.role) {
                 case "REGULAR": {
@@ -276,7 +275,7 @@ export class Regular implements User {
             );
             if (rows.length > 0) return CardSetAddStatus.NAME_USED;
 
-            await db.connection.execute(
+            await db.connection.execute<RowDataPacket[]>(
                 "INSERT INTO card_sets (ownerID, tags, set_name) VALUES (?,?,?)",
                 [ownerID, card_set.tags, card_set.setName]
             );
@@ -302,13 +301,13 @@ export class Regular implements User {
                 return CardSetRemoveStatus.DATABASE_FAILURE;
             }
 
-            const [rows]: any = await db.connection.execute(
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT 1 FROM card_sets WHERE setID = ? LIMIT 1",
                 [setID]
             );
             if (rows.length === 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
 
-            await db.connection.execute("DELETE FROM card_sets WHERE setID = ?", [setID]);
+            await db.connection.execute<RowDataPacket[]>("DELETE FROM card_sets WHERE setID = ?", [setID]);
             return CardSetRemoveStatus.SUCCESS;
         } catch (error) {
             console.error("Failed to delete card set:", error);
@@ -329,7 +328,7 @@ export class Regular implements User {
                 return CardSetReportStatus.DATABASE_FAILURE;
             }
 
-            await db.connection.execute(
+            await db.connection.execute<RowDataPacket[]>(
                 "INSERT INTO reports (setID, reason) VALUES (?, ?)",
                 [report.setID, report.reason || "No reason provided"]
             );
@@ -360,7 +359,7 @@ export class Regular implements User {
 
             card.media = card.media || "No Media";
 
-            const [rows]: any = await db.connection.execute(
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT 1 FROM card_sets WHERE setID = ? LIMIT 1",
                 [card.setID]
             );
@@ -368,7 +367,7 @@ export class Regular implements User {
                 return CardAddStatus.SET_DOES_NOT_EXIST;
             }
 
-            await db.connection.execute(
+            await db.connection.execute<RowDataPacket[]>(
                 "INSERT INTO card_data (setID, front_text, back_text, media_url) VALUES (?,?,?,?)",
                 [card.setID, card.front_text, card.back_text, card.media]
             );
@@ -380,23 +379,39 @@ export class Regular implements User {
         }
     }
 
-    /**
-     * Deletes a card from a set.
-     * @param card - The card to be deleted.
-     * @returns A promise resolving to the status of the card deletion.
-     */
     async deleteCardFromSet(card: Card): Promise<CardRemoveStatus> {
         console.log('unimplemented');
         return CardRemoveStatus.SUCCESS;
     }
 
     async getAllSets(): Promise<CardSet[] | CardSetGetStatus> {
-        console.log('unimplemented');
-        return CardSetGetStatus.SUCCESS;
+        try{
+            const db = await DatabaseService.getConnection();
+            if (db.connection instanceof Error) {
+                console.error(db.connection.message);
+                return CardSetGetStatus.DATABASE_FAILURE;
+            }
+
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT ownerID, tags, set_name FROM card_sets WHERE ownerID = ?",
+                [await UserService.getIDOfUser(this)]
+            )
+
+            let cardSets: CardSet[] = []
+            for (let row of rows) {
+                cardSets.push(makeCardSet(row.ownerID, row.set_name, row.tags));
+            }
+            return cardSets;
+
+
+        }catch(error){
+            console.error("Failed to get card sets for user " + this.username + " with error: ", error);
+            return CardSetGetStatus.DATABASE_FAILURE;
+        }
     }
     async getSet(setID: number): Promise<CardSet | CardSetGetStatus>{
         console.log('unimplemented');
-        return CardSetGetStatus.SUCCESS;
+        return CardSetGetStatus.DATABASE_FAILURE;
     }
 
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {
