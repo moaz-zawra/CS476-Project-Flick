@@ -1,119 +1,136 @@
-// Include NodeJS libraries
-import path = require('path');
+import path from 'path';
+import express from 'express';
 import axios from 'axios';
-// Include functions and interfaces from other files
 import {
     setupExpress,
-    logUserActivity, getCookie,
+    getCookie,
 } from "../model/utility";
-import {handleLogin} from "../model/handleLogin";
-import {handleRegistration} from "../model/handleRegistration";
-import {handleNewSet} from "../model/handleNewSet";
-import {Role} from "../types/types";
-import {handleGetSets} from "../model/handleGetSets";
-// Paths to public and view directories
+import { handleLogin } from "../model/handleLogin";
+import { handleRegistration } from "../model/handleRegistration";
+import { handleNewSet } from "../model/handleNewSet";
+import { handleGetSets } from "../model/handleGetSets";
+import { handleGetCardsInSet } from "../model/handleGetCardsInSet";
+import { setupDashboard } from "../model/dashboard";
+
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../view');
+export const port = 3000;
 
-
-
-// Server port
-const port = 3000;
-
-// ExpressJS setup
 const controller = setupExpress(pub, view);
 
-controller.post('/api/v2/login', async (req,res) =>{
-    await handleLogin(req, res);
-});
-controller.post('/api/v2/register', async (req,res) =>{
-    await handleRegistration(req, res);
-});
-controller.post('/api/v2/create-set', async(req,res) =>{
-    await handleNewSet(req,res);
-});
-
-controller.get('/api/v2/getCardSets', async(req,res) =>{
-    await handleGetSets(req,res)
-});
-
-controller.get('/api/v2/logout', (req,res) =>{
-    req.session.user = undefined;
-    res.redirect('/');
-});
-/**
- * Dashboard or Home page
- */
-controller.get('/', async (req, res) => {
-    if(req.session.user){
-        logUserActivity('visited dashboard', req.session.user.username);
-        if(req.session.user.role == Role.ADMINISTRATOR){}
-        if(req.session.user.role == Role.MODERATOR){}
-        if(req.session.user.role == Role.REGULAR){
-            try{
-                const cookie = getCookie(req);
-                const response = await axios.get('http://localhost:'+port+'/api/v2/getCardSets', {
-                    headers: {
-                        cookie
-                    }
-                });
-
-                let sets = response.data;
-                return res.render('dashboard', {
-                    uname: req.session.user.username,
-                    status: req.query.status,
-                    sets: sets
-                });
-            } catch(error){
-                console.error("Error fetching card sets:", error);
-                res.status(500).send("Error fetching card sets");
-            }
-        }
-    } else res.redirect('/login');
-
-});
-
-/**
- * Login page
- */
-controller.get('/login', (req, res) => {
-    if (req.session.user) res.redirect('/');
-    else return res.render('login', { status: req.query.status });
-});
-
-/**
- * Registration page
- */
-controller.get('/register', (req, res) => {
-    if (req.session.user) return res.redirect('/');
-    return res.render('register', { status: req.query.status });
-});
-
-/**
- * Account settings page (Not yet implemented)
- */
-controller.get('/account', (req, res) => {
-    if (req.session.user) res.render('account' , { account: req.session.user });
-    else res.redirect('/login');
-});
-
-/**
- * Views for moderator actions (Not yet implemented)
- */
-controller.get('/moderator/report', (req, res) => res.status(501).sendFile(pub + "unimplemented.html"));
-controller.get('/moderator/review', (req, res) => res.status(501).sendFile(pub + "unimplemented.html"));
-controller.get('/moderator/useradmin', (req, res) => res.status(501).sendFile(pub + "unimplemented.html"));
-
-controller.get('/newset', (req, res) => {
-    if(req.session.user){
-        res.render("new_set");
+// API Routes
+controller.post('/api/v2/login', async (req, res) => {
+    try {
+        await handleLogin(req, res);
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-/**
- * Catch-all route for undefined pages (404 error)
- */
-controller.get('*', (req, res) => res.status(404).sendFile(pub + "notfound.html"));
+controller.post('/api/v2/register', async (req, res) => {
+    try {
+        await handleRegistration(req, res);
+    } catch (error) {
+        console.error('Error during registration:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
-// Start the server
-controller.listen(port, () => console.log("Server running on 24.72.0.105:" + port));
+controller.post('/api/v2/create-set', async (req, res) => {
+    try {
+        await handleNewSet(req, res);
+    } catch (error) {
+        console.error('Error creating new set:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+controller.get('/api/v2/getCardSets', async (req, res) => {
+    try {
+        await handleGetSets(req, res);
+    } catch (error) {
+        console.error('Error fetching card sets:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+controller.get('/api/v2/getCards', async (req, res) => {
+    try {
+        await handleGetCardsInSet(req, res);
+    } catch (error) {
+        console.error('Error fetching cards in set:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+controller.get('/api/v2/logout', (req, res) => {
+    try {
+        delete req.session.user;
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error during logout:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// View Routes
+controller.get('/', async (req, res) => {
+    try {
+        await setupDashboard(req, res);
+    } catch (error) {
+        console.error('Error setting up dashboard:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+controller.get('/login', (req, res) => {
+    if (req.session.user) return res.redirect('/');
+    res.render('login', { status: req.query.status });
+});
+
+controller.get('/register', (req, res) => {
+    if (req.session.user) return res.redirect('/');
+    res.render('register', { status: req.query.status });
+});
+
+controller.get('/account', (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    res.render('account', { account: req.session.user });
+});
+
+controller.post('/view_set', async (req, res) => {
+    if (!req.session.user) return res.redirect('/');
+
+    try {
+        const cookie = getCookie(req);
+        let set;
+
+        try {
+            set = JSON.parse(req.body.set);
+        } catch (parseError) {
+            console.error('Error parsing set JSON:', parseError);
+            res.status(400).json({error: 'Invalid set data'});
+        }
+
+        const response = await axios.get(`http://localhost:${port}/api/v2/getCards`, {
+            params: { set },
+            headers: { cookie }
+        });
+
+        res.render("view_set", { set, cards: response.data });
+    } catch (error) {
+        console.error('Error fetching set data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+controller.get('/newset', (req, res) => {
+    if (!req.session.user) return res.redirect('/');
+    res.render("new_set");
+});
+
+// 404 catch-all route
+controller.get('*', (req, res) => res.status(404).sendFile(path.join(pub, "notfound.html")));
+
+controller.listen(port, () => console.log(`Server running on http://localhost:${port}`));

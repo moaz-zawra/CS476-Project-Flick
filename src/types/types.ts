@@ -1,18 +1,29 @@
 export interface CardSet {
     ownerID: number;
-    setName: string | undefined;
-    tags: string[] | undefined;
+    setName: string;
+    tags: string;
+    setID?: number;
 }
 
-export function makeCardSet(ownerID: number, setName: string, tags: string[]): CardSet{
-    return {ownerID, setName, tags}
+export function makeCardSet(ownerID: number, setName: string, tags: string, setID?:number): CardSet{
+    if (setID) return {ownerID, setName, tags, setID};
+    else return {ownerID, setName, tags}
 }
 export interface Card {
     setID: number;
-    front_text: string | undefined;
-    back_text: string | undefined;
-    media: string | undefined;
+    front_text?: string;
+    back_text?: string;
+    media?: string;
 }
+export function makeCard(setID: number, front_text?: string, back_text?: string, media?: string): Card {
+    return {
+        setID,
+        front_text: front_text || "",
+        back_text: back_text || "",
+        media: media || ""
+    };
+}
+
 
 export interface Report{
     setID: number;
@@ -68,8 +79,8 @@ export enum CardSetGetStatus {
  */
 export enum CardGetStatus {
     DATABASE_FAILURE,    // Error occurred while interacting with the database.
-    CARD_DOES_NOT_EXIST, // The requested card does not exist.
-    SUCCESS              // Card was successfully retrieved.
+    SET_DOES_NOT_EXIST, // The requested card set does not exist.
+    SET_HAS_NO_CARDS,
 }
 
 /**

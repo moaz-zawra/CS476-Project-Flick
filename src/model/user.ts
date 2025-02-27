@@ -15,30 +15,37 @@ import {
     LoginStatus,
     ModBanStatus,
     ModUnBanStatus,
-    RegisterStatus, makeCardSet
+    RegisterStatus, makeCardSet, makeCard
 } from "../types/types";
 import { RowDataPacket } from "mysql2/promise";
 
 export class UserService {
+    /**
+     * Retrieves a user by their email address.
+     * @async
+     * @param email - The user's email address.
+     * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
+     */
     public static async getUserByEmail(email: string): Promise<RowDataPacket | null> {
         const db = await DatabaseService.getConnection();
-        if (db.connection instanceof Error) {
-            console.error(db.connection.message);
-            return null;
-        }
+        
         const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT username, email, hash, role FROM users WHERE username = ?",
+            "SELECT username, email, hash, role FROM users WHERE email = ?",
             [email]
         );
 
         return rows.length ? rows[0] : null;
     }
+
+    /**
+     * Retrieves a user by their username.
+     * @async
+     * @param username - The user's username.
+     * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
+     */
     public static async getUserByUsername(username: string): Promise<RowDataPacket | null> {
         const db = await DatabaseService.getConnection();
-        if (db.connection instanceof Error) {
-            console.error(db.connection.message);
-            return null;
-        }
+
         const [rows] = await db.connection.execute<RowDataPacket[]>(
             "SELECT username, email, hash, role FROM users WHERE username = ?",
             [username]
@@ -46,42 +53,52 @@ export class UserService {
 
         return rows.length ? rows[0] : null;
     }
+
+    /**
+     * Retrieves a user by their email or username (identifier).
+     * @async
+     * @param identifier - The user's username or email.
+     * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
+     */
     public static async getUserByIdentifier(identifier: string): Promise<RowDataPacket | null> {
         const db = await DatabaseService.getConnection();
-        if (db.connection instanceof Error) {
-            console.error(db.connection.message);
-            return null;
-        }
-        // Search for user by username or email
-        const [rows]: any = await db.connection.execute(
+
+        const [rows] = await db.connection.execute<RowDataPacket[]>(
             "SELECT username, email, hash, role FROM users WHERE username = ? OR email = ?",
             [identifier, identifier]
         );
 
         return rows.length ? rows[0] : null;
     }
-    public static isValidPassword(password: string): boolean{
+
+    /**
+     * Validates whether the provided password meets basic criteria.
+     * @param password - The password to validate.
+     * @returns {boolean} True if the password is valid, false otherwise.
+     */
+    public static isValidPassword(password: string): boolean {
         const regex = /^(?=.*[A-Z])(?=.*[a-zA-Z0-9]).{8,}$/;
         return regex.test(password);
     }
+
     /**
      * Hashes a password using bcrypt with a salt factor of 12.
      * @async
      * @param {string} password - The plaintext password to hash.
-     * @returns {string} The hashed password.
+     * @returns {Promise<string>} The hashed password.
      * @see {@link https://en.wikipedia.org/wiki/Bcrypt}
      */
-    public static async hashPassword(password: string): Promise<string>{
+    public static async hashPassword(password: string): Promise<string> {
         return await bcrypt.hash(password, 12);
     }
 
     /**
-     * Retrieves the user ID (uID) from the database based on the provided username.
+     * Retrieves the user ID (uID) based on the provided username.
      * @async
      * @param {User} user - The user object containing the username.
-     * @returns {Promise<number>} A promise that resolves to the user ID or -1 if an error occurs.
+     * @returns {Promise<number>} A promise resolving to the user ID or -1 if not found.
      */
-    public static async getIDOfUser(user:User) : Promise<number>{
+    public static async getIDOfUser(user: User): Promise<number> {
         if (!user?.username) {
             console.error("Invalid user object provided.");
             return -1;
@@ -89,11 +106,6 @@ export class UserService {
 
         try {
             const db = await DatabaseService.getConnection();
-
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return -1;
-            }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT uID FROM users WHERE username = ?",
@@ -106,22 +118,15 @@ export class UserService {
             return -1;
         }
     }
-
 }
-
 
 /**
  * Represents a user account in the system.
  */
 export interface User {
-    readonly username: string; // Unique identifier for the user.
-    readonly email: string;    // Email associated with the account.
-    readonly role: Role;       // The user's role in the system.
-
-    /**
-     * Logs the user out of the system.
-     */
-    logout(): void;
+    readonly username: string;
+    readonly email: string;
+    readonly role: Role;
 }
 
 /**
@@ -130,12 +135,14 @@ export interface User {
 abstract class UserFactory {
     /**
      * Logs in a user using an identifier (email or username) and password.
+     * @async
      * @param identifier - The username or email of the user.
      * @param password - The user's password.
-     * @returns A Promise resolving to a User instance if successful or a LoginStatus on failure.
+     * @returns {Promise<User | LoginStatus>} A promise resolving to a User instance or a LoginStatus on failure.
      */
     public abstract login(identifier: string, password: string): Promise<User | LoginStatus>;
 }
+
 
 /**
  * Class responsible for user creation and authentication.
@@ -143,28 +150,24 @@ abstract class UserFactory {
 export class UserCreator extends UserFactory {
     /**
      * Registers a new user in the system.
+     * @async
      * @param username - The desired username for the new user.
      * @param email - The email address of the new user.
      * @param password - The password for the new user.
      * @param cpassword - The confirmation password to verify correctness.
-     * @returns A Promise resolving to a RegisterStatus indicating success or failure.
+     * @returns {Promise<RegisterStatus>} A promise resolving to a RegisterStatus indicating success or failure.
      */
     public async registerUser(username: string, email: string, password: string, cpassword: string): Promise<RegisterStatus> {
         try {
             const db = await DatabaseService.getConnection();
 
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return RegisterStatus.DATABASE_FAILURE;
-            }
 
-            const email_exists = await UserService.getUserByEmail(email);
-            if (email_exists) return RegisterStatus.EMAIL_USED;
+            const emailExists = await UserService.getUserByEmail(email);
+            if (emailExists) return RegisterStatus.EMAIL_USED;
 
-            const username_exists = await UserService.getUserByUsername(username);
-            if (username_exists) return RegisterStatus.USERNAME_USED;
+            const usernameExists = await UserService.getUserByUsername(username);
+            if (usernameExists) return RegisterStatus.USERNAME_USED;
 
-            // Password requirements: 8+ chars, alphanumeric, at least one uppercase letter.
             if (!UserService.isValidPassword(password)) return RegisterStatus.BAD_PASSWORD;
             if (password !== cpassword) return RegisterStatus.PASSWORD_MISMATCH;
 
@@ -181,26 +184,20 @@ export class UserCreator extends UserFactory {
 
     /**
      * Logs in a user by validating their identifier (email or username) and password.
+     * @async
      * @param identifier - The username or email of the user.
      * @param password - The user's password.
-     * @returns A Promise resolving to a User instance if successful or a LoginStatus on failure.
+     * @returns {Promise<User | LoginStatus>} A promise resolving to a User instance or a LoginStatus on failure.
      */
     public async login(identifier: string, password: string): Promise<User | LoginStatus> {
         try {
             const db = await DatabaseService.getConnection();
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return LoginStatus.DATABASE_FAILURE;
-            }
 
-            // Search for user by username or email
             const userData = await UserService.getUserByIdentifier(identifier);
             if (!userData) return LoginStatus.USER_DOES_NOT_EXIST;
 
             const isPasswordCorrect = await bcrypt.compare(password, userData.hash);
             if (!isPasswordCorrect) return LoginStatus.WRONG_PASSWORD;
-
-            // Return user based on role
 
             switch (userData.role) {
                 case "REGULAR": {
@@ -232,7 +229,6 @@ export class Regular implements User {
     readonly username: string;
     readonly email: string;
     readonly role: Role = Role.REGULAR;
-    private logged_in: boolean;
 
     /**
      * Constructs a new Regular user.
@@ -242,19 +238,10 @@ export class Regular implements User {
     constructor(username: string, email: string) {
         this.username = username;
         this.email = email;
-        this.logged_in = true;
     }
 
     /**
-     * Logs out the user.
-     */
-    logout(): void {
-        this.logged_in = false;
-        console.log(`${this.username} has logged out.`);
-    }
-
-    /**
-     * Adds a card set to the user's collection.
+     * Adds a card set to the user's collection after verifying its validity and checking for duplicates.
      * @param card_set - The card set to be added.
      * @returns A promise resolving to the status of the card set addition.
      */
@@ -263,10 +250,6 @@ export class Regular implements User {
             if (!card_set.setName) return CardSetAddStatus.MISSING_INFORMATION;
 
             const db = await DatabaseService.getConnection();
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return CardSetAddStatus.DATABASE_FAILURE;
-            }
 
             const ownerID = await UserService.getIDOfUser(this);
             const [rows] = await db.connection.execute<RowDataPacket[]>(
@@ -287,7 +270,7 @@ export class Regular implements User {
     }
 
     /**
-     * Deletes a card set by its ID.
+     * Deletes a card set by its ID after verifying its existence.
      * @param setID - The ID of the card set to delete.
      * @returns A promise resolving to the status of the card set deletion.
      */
@@ -296,10 +279,6 @@ export class Regular implements User {
             if (setID <= 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
 
             const db = await DatabaseService.getConnection();
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return CardSetRemoveStatus.DATABASE_FAILURE;
-            }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT 1 FROM card_sets WHERE setID = ? LIMIT 1",
@@ -316,17 +295,13 @@ export class Regular implements User {
     }
 
     /**
-     * Reports a card set.
+     * Reports a card set to the database with a reason.
      * @param report - The report containing set ID and reason.
      * @returns A promise resolving to the status of the report.
      */
     async reportSet(report: Report): Promise<CardSetReportStatus> {
         try {
             const db = await DatabaseService.getConnection();
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return CardSetReportStatus.DATABASE_FAILURE;
-            }
 
             await db.connection.execute<RowDataPacket[]>(
                 "INSERT INTO reports (setID, reason) VALUES (?, ?)",
@@ -341,7 +316,7 @@ export class Regular implements User {
     }
 
     /**
-     * Adds a card to a set.
+     * Adds a card to a specific card set after validating the card data.
      * @param card - The card to be added.
      * @returns A promise resolving to the status of the card addition.
      */
@@ -352,10 +327,6 @@ export class Regular implements User {
             }
 
             const db = await DatabaseService.getConnection();
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return CardAddStatus.DATABASE_FAILURE;
-            }
 
             card.media = card.media || "No Media";
 
@@ -379,48 +350,91 @@ export class Regular implements User {
         }
     }
 
+    /**
+     * Deletes a card from a set (unimplemented).
+     * @param card - The card to be deleted.
+     * @returns A promise resolving to the status of the card removal.
+     */
     async deleteCardFromSet(card: Card): Promise<CardRemoveStatus> {
         console.log('unimplemented');
         return CardRemoveStatus.SUCCESS;
     }
 
+    /**
+     * Retrieves all card sets for the current user.
+     * @returns A promise resolving to an array of card sets or a failure status.
+     */
     async getAllSets(): Promise<CardSet[] | CardSetGetStatus> {
-        try{
+        try {
             const db = await DatabaseService.getConnection();
-            if (db.connection instanceof Error) {
-                console.error(db.connection.message);
-                return CardSetGetStatus.DATABASE_FAILURE;
-            }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT ownerID, tags, set_name FROM card_sets WHERE ownerID = ?",
+                "SELECT ownerID, tags, set_name, setID FROM card_sets WHERE ownerID = ?",
                 [await UserService.getIDOfUser(this)]
-            )
+            );
 
-            let cardSets: CardSet[] = []
-            for (let row of rows) {
-                cardSets.push(makeCardSet(row.ownerID, row.set_name, row.tags));
+            const cardSets: CardSet[] = [];
+            for (const row of rows) {
+                cardSets.push(makeCardSet(row.ownerID, row.set_name, row.tags, row.setID));
             }
             return cardSets;
-
-
-        }catch(error){
+        } catch (error) {
             console.error("Failed to get card sets for user " + this.username + " with error: ", error);
             return CardSetGetStatus.DATABASE_FAILURE;
         }
     }
-    async getSet(setID: number): Promise<CardSet | CardSetGetStatus>{
-        console.log('unimplemented');
-        return CardSetGetStatus.DATABASE_FAILURE;
+
+    /**
+     * Retrieves a specific card set by its ID.
+     * @param setID - The ID of the card set to retrieve.
+     * @returns A promise resolving to the card set or a failure status.
+     */
+    async getSet(setID: number): Promise<CardSet | CardSetGetStatus> {
+        try {
+            const db = await DatabaseService.getConnection();
+
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT ownerID, tags, set_name, setID FROM card_sets WHERE setID = ?",
+                [setID]
+            );
+            if (rows.length === 0) return CardSetGetStatus.SET_DOES_NOT_EXIST;
+            return makeCardSet(rows[0].ownerID, rows[0].set_name, rows[0].tags, rows[0].setID);
+        } catch (error) {
+            console.error("Failed to get card set" + setID + " for user " + this.username + " with error: ", error);
+            return CardSetGetStatus.DATABASE_FAILURE;
+        }
     }
 
+    /**
+     * Retrieves all cards within a specific set by its ID.
+     * @param setID - The ID of the card set.
+     * @returns A promise resolving to an array of cards or a failure status.
+     */
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {
-        console.log('unimplemented');
-        return CardGetStatus.SUCCESS;
+        try {
+            const sets = await this.getSet(setID);
+
+            if (sets === CardSetGetStatus.SET_DOES_NOT_EXIST) return CardGetStatus.SET_DOES_NOT_EXIST;
+            else if (sets === CardSetGetStatus.DATABASE_FAILURE) return CardGetStatus.DATABASE_FAILURE;
+
+            const db = await DatabaseService.getConnection();
+
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT cardID, setID, front_text, back_text, media_url FROM card_data WHERE setID = ?",
+                [setID]
+            );
+            if (rows.length === 0) return CardGetStatus.SET_HAS_NO_CARDS;
+            const cards: Card[] = [];
+            for (const row of rows) {
+                cards.push(makeCard(row.setID, row.front_text, row.back_text, row.media_url));
+            }
+            return cards;
+        } catch (error) {
+            console.error("Failed to get cards for set" + setID + " for user " + this.username + " with error: ", error);
+            return CardGetStatus.DATABASE_FAILURE;
+        }
     }
-
 }
-
 export class Moderator extends Regular {
     readonly role: Role = Role.MODERATOR;
 

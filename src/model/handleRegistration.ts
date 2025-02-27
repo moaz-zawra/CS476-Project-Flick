@@ -1,23 +1,56 @@
 import express = require('express');
 import { UserCreator } from "./user";
-import {RegisterStatus} from "../types/types";
+import { RegisterStatus } from "../types/types";
+
+/**
+ * Helper function to handle registration redirection based on status.
+ *
+ * @param res - The Express response object.
+ * @param status - The registration status to be included in the query string.
+ */
+function redirectWithStatus(res: express.Response, status: string): void {
+    res.redirect(`/register?status=${status}`);
+}
+
+/**
+ * Handles the registration process for new users. Validates input and attempts to register the user.
+ * The response depends on the registration status.
+ *
+ * @param req - The Express request object containing registration form data.
+ * @param res - The Express response object used to return the result of the registration attempt.
+ * @returns A Promise that resolves once the response is sent based on the registration outcome.
+ */
 export async function handleRegistration(req: express.Request, res: express.Response): Promise<void> {
-    const username = req.body.username;
-    const email = req.body.email;
-    const password = req.body.password;
-    const cpassword = req.body.cpassword;
+    const { username, email, password, cpassword } = req.body;
 
-    let registrationStatus = await new UserCreator().registerUser(username, email, password, cpassword);
-    switch (registrationStatus) {
-        case(RegisterStatus.SUCCESS):
-            res.redirect('/login?status=registration-success');
-            break;
-        case(RegisterStatus.EMAIL_USED): return res.redirect('/register?status=email-used');
-        case(RegisterStatus.USERNAME_USED): return res.redirect('/register?status=username-used');
-        case(RegisterStatus.BAD_PASSWORD): return res.redirect('/register?status=bad-password');
-        case(RegisterStatus.PASSWORD_MISMATCH): return res.redirect('/register?status=mismatch-password');
-        case(RegisterStatus.DATABASE_FAILURE): return res.redirect('/register?status=error');
-        default: return res.redirect('/register?status=error');
+    // Basic input validation
+    if (!username || !email || !password || !cpassword) {
+        return redirectWithStatus(res, "missing-fields");  // Bad request if fields are missing
+    }
 
+    try {
+        // Attempt to register the user and get the registration status
+        const registrationStatus = await new UserCreator().registerUser(username, email, password, cpassword);
+
+        // Handle the response based on registration status
+        switch (registrationStatus) {
+            case RegisterStatus.SUCCESS:
+                return res.redirect('/login?status=registration-success');  // Redirect on successful registration
+            case RegisterStatus.EMAIL_USED:
+                return redirectWithStatus(res, "email-used");  // Redirect if the email is already used
+            case RegisterStatus.USERNAME_USED:
+                return redirectWithStatus(res, "username-used");  // Redirect if the username is already used
+            case RegisterStatus.BAD_PASSWORD:
+                return redirectWithStatus(res, "bad-password");  // Redirect if the password is not valid
+            case RegisterStatus.PASSWORD_MISMATCH:
+                return redirectWithStatus(res, "mismatch-password");  // Redirect if passwords do not match
+            case RegisterStatus.DATABASE_FAILURE:
+                return redirectWithStatus(res, "error");  // Redirect if there is a database failure
+            default:
+                return redirectWithStatus(res, "error");  // Default error redirect for any other issues
+        }
+    } catch (error) {
+        console.error('Error in handleRegistration:', error);
+        res.status(500).send("Internal server error!");  // Handle unexpected errors
     }
 }

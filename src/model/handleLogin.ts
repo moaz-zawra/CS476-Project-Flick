@@ -1,42 +1,58 @@
-import {Administrator, Moderator, Regular, UserCreator, User} from "./user";
-import {LoginStatus} from "../types/types";
-import {logUserActivity} from "./utility";
+import { Administrator, Moderator, Regular, UserCreator, User } from "./user";
+import { LoginStatus } from "../types/types";
+import { logUserActivity } from "./utility";
 import express = require("express");
 
-// This is called a type guard
-// https://www.typescriptlang.org/docs/handbook/advanced-types.html
+/**
+ * Type guard to check if the provided object is of type User.
+ *
+ * @param obj - The object to check.
+ * @returns True if the object is of type User, otherwise false.
+ */
 export function isUser(obj: any): obj is User {
     return obj && typeof obj === "object" && "username" in obj && "email" in obj && "role" in obj;
 }
 
+/**
+ * Handles the login process for users. Checks credentials and assigns the appropriate user type to the session.
+ *
+ * @param req - The Express request object containing login credentials.
+ * @param res - The Express response object used to redirect after login attempt.
+ * @returns A Promise that resolves when the login process is complete.
+ */
 export async function handleLogin(req: express.Request, res: express.Response): Promise<void> {
-    let login = await new UserCreator().login(req.body.identifier, req.body.password);
-    if (isUser(login)) {
-        if (login instanceof Administrator) {
-            req.session.user = login;
-            res.redirect('/');
+    try {
+        // Attempt login with provided credentials
+        const login = await new UserCreator().login(req.body.identifier, req.body.password);
 
-        } else if (login instanceof Moderator) {
-            req.session.user = login;
-            res.redirect('/');
-        } else if (login instanceof Regular) {
-            req.session.user = login;
-            res.redirect('/');
+        // Check if the login response is a valid User instance
+        if (isUser(login)) {
+            // Redirect based on user role
+            if (login instanceof Administrator) {
+                req.session.user = login;
+                return res.redirect('/');  // Redirect for administrators
+            } else if (login instanceof Moderator) {
+                req.session.user = login;
+                return res.redirect('/');  // Redirect for moderators
+            } else if (login instanceof Regular) {
+                req.session.user = login;
+                return res.redirect('/');  // Redirect for regular users
+            }
+        } else {
+            // Handle login failure cases
+            switch (login) {
+                case LoginStatus.USER_DOES_NOT_EXIST:
+                    return res.status(404).redirect('/login?status=does-not-exist');  // User does not exist
+                case LoginStatus.DATABASE_FAILURE:
+                    return res.status(500).redirect('/login?status=error');  // Database failure
+                case LoginStatus.WRONG_PASSWORD:
+                    return res.status(401).redirect('/login?status=wrong-password');  // Incorrect password
+                default:
+                    return res.status(500).redirect('/login?status=error');  // Default error
+            }
         }
-    } else {
-        switch (login) {
-            case LoginStatus.USER_DOES_NOT_EXIST:
-                res.redirect('/login?status=does-not-exist');
-                break;
-            case LoginStatus.DATABASE_FAILURE:
-                res.redirect('/login?status=error');
-                break;
-            case LoginStatus.WRONG_PASSWORD:
-                res.redirect('/login?status=wrong-password');
-                break;
-            default:
-                res.redirect('/login?status=error');
-                break;
-        }
+    } catch (error) {
+        console.error('Unexpected error during login:', error);
+        return res.status(500).redirect('/login?status=error');  // Internal server error
     }
 }
