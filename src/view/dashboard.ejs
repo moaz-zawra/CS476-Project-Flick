@@ -34,6 +34,9 @@
     <% } else if (status==="error" ) { %> <p style="color: red;">An error has occurred</p> <% } %>
 
     <br />
+    <div id=""
+
+
     <div id="ejs-flashcard">
         <span class="text-3xl font-bold">Flashcard Sets</span>
         <br />
@@ -46,31 +49,40 @@
         <button class="bg-sky-50 hover:bg-sky-100 text-gray-800 font-bold py-2 px-4 rounded-xl inline-flex items-center border-black" onclick="window.location.href='/newset'">
             <img style='padding-right:10px;' src="add.svg" alt="SVG Image"> <span>New Card Set</span>
         </button>
-
-        <br /><br />
         <!-- The sets with tags displayed here -->
         <% if (sets.length > 0) { %>
-            <input type="text" id="tagFilter" class="text-center border-2 rounded-lg p-0.5 focus:outline-black border-gray-600" placeholder="Search for a tag"><br /> <br />
-            <% for (let i = 0; i < sets.length; i++) {%>
-                <div class="inline-table w-fit bg-sky-50 hover:bg-sky-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
-            <span class="text-1xl">
-                <%= sets[i].setName %> <span class="hidden text-red-500 debug italic"> id#<%= sets[i].setID %> </span><br />
-                <span class="text-xs setTags"><%=sets[i].tags %></span>
-            </span>
-                    <br />
-                    <form action="/view_set" method="post">
-                        <input type="hidden" name="set" value='<%= JSON.stringify(sets[i]) %>'>
-                        <button type="submit" class="bg-green-100 hover:bg-green-200 text-gray-800 font-semibold mr-3 py-2 px-4 border border-gray-400 rounded-xl shadow">
-                            View
-                        </button>
-                    </form>
+            <input type="text" id="tagFilter" class="ml-2 py-1 px-2 text-center border-2 rounded-lg focus:outline-black border-gray-600 mt-1" placeholder="Search for a tag">
+            <br /> <br />
 
-                    <form action="/edit_set" method="post">
-                        <input type="hidden" name="set" value="<%= sets[i] %>">
-                        <button class="bg-amber-100 hover:bg-amber-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
-                            Edit
-                        </button>
-                    </form>
+        <% for (let i = 0; i < sets.length; i++) {%>
+                <div class="inline-table w-fit bg-sky-50 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
+                        <form action="/view_set" method="post">
+                            <input type="hidden" name="set" value='<%= JSON.stringify(sets[i]) %>'>
+                            <button type="submit" class="bg-green-100 hover:bg-green-200 text-gray-800 font-semibold mr-3 py-2 px-4 border border-gray-400 rounded-xl shadow">
+                                <%= sets[i].setName %>
+                            </button>
+                        </form>
+
+                    <hr class="border-t-1 border-black mt-1">
+                        <span class="text-xs setTags"><%=sets[i].tags %></span><span class="hidden text-red-500 debug italic"> id#<%= sets[i].setID %> </span><br />
+                        <form action="/edit_set" method="post">
+                            <input type="hidden" name="set" value="<%= sets[i] %>">
+                            <button class="bg-amber-100 hover:bg-amber-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
+                                Edit
+                            </button>
+                        </form>
+                        <form action="/edit_set" method="post">
+                            <input type="hidden" name="set" value="<%= sets[i] %>">
+                            <button class="bg-cyan-200 hover:bg-cyan-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
+                                Share
+                            </button>
+                        </form>
+                        <form action="/edit_set" method="post">
+                            <input type="hidden" name="set" value="<%= sets[i] %>">
+                            <button class="bg-red-500 hover:bg-red-600 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-xl shadow">
+                                Delete
+                            </button>
+                        </form>
 
                 </div>
             <% } %>

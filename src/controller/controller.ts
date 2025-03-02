@@ -1,23 +1,22 @@
 import path from 'path';
-import express from 'express';
 import axios from 'axios';
 import {
     setupExpress,
-    getCookie,
+    getCookie, logUserActivity, isRegular, isModerator, isAdmin,
 } from "../model/utility";
 import { handleLogin } from "../model/handleLogin";
 import { handleRegistration } from "../model/handleRegistration";
 import { handleNewSet } from "../model/handleNewSet";
 import { handleGetSets } from "../model/handleGetSets";
 import { handleGetCardsInSet } from "../model/handleGetCardsInSet";
-import { setupDashboard } from "../model/dashboard";
+import { Role } from '../types/types';
+import {UserService} from "../model/user";
 
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../view');
 export const port = 3000;
 
 const controller = setupExpress(pub, view);
-
 // API Routes
 controller.post('/api/v2/login', async (req, res) => {
     try {
@@ -73,17 +72,39 @@ controller.get('/api/v2/logout', (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
+controller.get('/test', (req, res) => {
+    res.render("dashboard_new");
+})
 // View Routes
 controller.get('/', async (req, res) => {
-    try {
-        await setupDashboard(req, res);
-    } catch (error) {
-        console.error('Error setting up dashboard:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+    if(req.session.user){
+        logUserActivity('visited dashboard', req.session.user.username);
+        if(req.session.user.role == Role.ADMINISTRATOR){}
+        if(req.session.user.role == Role.MODERATOR){}
+        if(req.session.user.role == Role.REGULAR){
+            try{
+                const cookie = getCookie(req);
+                const response = await axios.get('http://localhost:'+port+'/api/v2/getCardSets', {
+                    headers: {
+                        cookie
+                    }
+                });
 
+                let sets = response.data;
+                return res.render('dashboard', {
+                    user: req.session.user,
+                    uID: await UserService.getIDOfUser(req.session.user),
+                    status: req.query.status,
+                    sets: sets
+                });
+            } catch(error){
+                console.error("Error fetching card sets:", error);
+                res.status(500).send("Error fetching card sets");
+            }
+        }
+    } else res.redirect('/login');
+
+});
 controller.get('/login', (req, res) => {
     if (req.session.user) return res.redirect('/');
     res.render('login', { status: req.query.status });
@@ -133,4 +154,4 @@ controller.get('/newset', (req, res) => {
 // 404 catch-all route
 controller.get('*', (req, res) => res.status(404).sendFile(path.join(pub, "notfound.html")));
 
-controller.listen(port, () => console.log(`Server running on http://localhost:${port}`));
+controller.listen(port, () => console.log("Server running on 24.72.0.105:" + port));

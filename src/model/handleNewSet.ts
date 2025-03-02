@@ -47,16 +47,26 @@ export async function handleNewSet(req: express.Request, res: express.Response):
 
         // Handle different card set creation statuses
         switch (status) {
-            case CardSetAddStatus.SUCCESS:
-                 res.redirect("/?status=success");  // Redirect on success
-            case CardSetAddStatus.DATABASE_FAILURE:
-                 res.status(500).send("ERROR: Database failure!");  // Send error message for database failure
-            case CardSetAddStatus.MISSING_INFORMATION:
-                 res.status(400).send("Missing information!");  // Send error message for missing information
-            case CardSetAddStatus.NAME_USED:
-                 res.status(409).send("Name already used!");  // Send error message for duplicate set name
-            default:
-                 res.status(500).send("ERROR!");  // Default error message for any other issues
+            case CardSetAddStatus.SUCCESS: {
+                res.redirect("/?status=success");
+                break;
+            } // Redirect on success
+            case CardSetAddStatus.DATABASE_FAILURE: {
+                res.status(500).send("ERROR: Database failure!");
+                break;
+            }  // Send error message for database failure
+            case CardSetAddStatus.MISSING_INFORMATION: {
+                res.status(400).send("Missing information!");
+                break
+            }   // Send error message for missing information
+            case CardSetAddStatus.NAME_USED: {
+                res.status(409).send("Name already used!");
+                break;
+            }  // Send error message for duplicate set name
+            default: {
+                res.status(500).send("ERROR!");
+                break;
+            }  // Default error message for any other issues
         }
     } catch (error) {
         console.error('Error in handleNewSet:', error);

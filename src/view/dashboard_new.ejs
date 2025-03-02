@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Flick | Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="p-4 bg-[#B9D2B1]">
+    <div id="set-container"></div>
+
+    <div id="set-container" class="flex flex-wrap gap-4"></div>
+
+    <div id="set-container" class="flex flex-wrap gap-4"></div>
+
+    <script>
+        function generateSet(setName, tags) {
+            // Create the main div container for the set
+            const setDiv = document.createElement('div');
+            setDiv.className = 'inline-flex flex-col items-start bg-[#FBACBE] p-4 border-2 border-black rounded-md m-2'; // Added m-2 for margin
+
+            // Create and populate the set name section
+            const setNameDiv = document.createElement('div');
+            setNameDiv.className = 'flex items-center gap-2';
+            const setNameSpan = document.createElement('span');
+            setNameSpan.textContent = setName;
+            setNameDiv.appendChild(setNameSpan);
+
+            // Create the tag section
+            const tagsDiv = document.createElement('div');
+            tagsDiv.className = 'flex items-center gap-2 mt-1';
+            tags.forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'bg-[#a18276] text-white px-2 py-1 rounded-md';
+                tagSpan.textContent = tag;
+                tagsDiv.appendChild(tagSpan);
+            });
+
+            // Create the buttons section (Share and Delete)
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'flex items-center gap-2 mt-2 w-full';
+
+            // Share Button
+            const shareButton = document.createElement('button');
+            shareButton.className = 'relative group p-1 flex items-center justify-center';
+            shareButton.onclick = () => { window.location.href = '/edit_set'; };
+
+            const shareImg = document.createElement('img');
+            shareImg.src = 'share.svg';
+            shareImg.alt = 'Share Icon';
+            shareImg.className = 'w-6 h-6';
+            shareButton.appendChild(shareImg);
+
+            const shareSpan = document.createElement('span');
+            shareSpan.className = 'absolute left-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap';
+            shareSpan.textContent = 'Share Set';
+            shareButton.appendChild(shareSpan);
+
+            // Delete Button
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'relative group p-1 flex items-center ml-auto';
+            deleteButton.onclick = () => { window.location.href = '/view_set'; };
+
+            const deleteImg = document.createElement('img');
+            deleteImg.src = 'delete.svg';
+            deleteImg.alt = 'Delete Icon';
+            deleteImg.className = 'w-6 h-6';
+            deleteButton.appendChild(deleteImg);
+
+            const deleteSpan = document.createElement('span');
+            deleteSpan.className = 'absolute right-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap';
+            deleteSpan.textContent = 'Delete Set';
+            deleteButton.appendChild(deleteSpan);
+
+            // Append the buttons to the button container
+            buttonsDiv.appendChild(shareButton);
+            buttonsDiv.appendChild(deleteButton);
+
+            // Append everything to the main set div
+            setDiv.appendChild(setNameDiv);
+            setDiv.appendChild(tagsDiv);
+            setDiv.appendChild(buttonsDiv);
+
+            // Append the set div to the container
+            const container = document.getElementById('sets');
+            container.appendChild(setDiv);
+        }
+    </script>
+
+
+
+    <header>
+
+            <div class="inline text-black font-extrabold text-3xl font-mono">
+                <span> flick </span>
+                <div id="header-buttons" class="float-right flex flex-col space-y-1">
+                    <button id="account-button" class="text-xs hover:text-white">account</button>
+                    <button id="logout-button" class="text-xs hover:text-white">logout</button>
+                </div>
+            </div>
+
+            <hr class="border-black">
+
+        </header>
+        <div class=" font-mono mt-7 text-2xl"> Welcome, $username$ </div>
+        <div class="p-2 bg-[#DAC6B5] rounded-md border-2 border-black">
+            <span class=" font-mono text-2xl">Card Sets</span><br />
+            <div class="inline-flex">
+                    <div class="flex items-center">
+                        <!-- Plus Button -->
+                        <button class="relative group p-1">
+                            <img src="add.svg" alt="Plus Icon" class="w-8 h-8">
+                            <span class="absolute left-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                                Create Card Set
+                            </span>
+                        </button>
+
+                        <input type="text" id="tagFilter" class="font-mono ml-2 py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600" placeholder="Filter by tag">
+                    </div>
+            </div>
+            <hr class="border-black border mt-2">
+            <div id="sets" class="inline p-2"></div>
+
+
+        </div>
+
+    </body>
+
+</html>
+
+
