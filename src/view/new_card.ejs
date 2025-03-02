@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flick | New Set</title>
+    <title>Flick | New Card</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -17,25 +17,25 @@
     <hr class="border-black">
 
     <br /><br />
-    <div class="text-black font-extrabold text-center text-3xl font-sans">New Set</div>
+    <div class="text-black font-extrabold text-center text-3xl font-sans">New Card</div>
 </header>
 
 <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
     <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-    <form action="/api/v2/create-set" method="post">
-        <label for="setName" id="setName_label" class="text-black font-bold">Set Name</label><br />
-        <input type="text" id="setName" name="setName"
+    <form action="/api/v2/create-card" method="post">
+        <label for="fText" id="fText_label" class="text-black font-bold">Front Text</label><br />
+        <input type="text" id="fText" name="fText"
                class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" required />
         <br /><br />
 
-        <label for="setDesc" id="setDesc_label" class="text-black font-bold">Set Description <br> (Optional)</label><br />
-        <input type="text" id="setDesc" name="setDesc"
+        <label for="bText" id="bText_label" class="text-black font-bold">Back Text</label><br />
+        <input type="text" id="bText" name="bText"
+               class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" required />
+        <br /><br />
+
+        <label for="mURL" id="mURL_label" class="text-black font-bold">Media URL <br> (Optional)</label><br />
+        <input type="url" id="mURL" name="mURL"
                class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" />
-        <br /><br />
-
-        <label for="tags" class="text-black font-bold">Tags <br> (Comma Separated)</label><br />
-        <input type="text" id="tags" name="tags"
-               class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" required />
         <br /><br />
 
         <input class="border-2 rounded-xl w-40 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400"
@@ -43,7 +43,7 @@
         <br /><br /><br />
 
         <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
-                onclick="window.location.href='/dashboard'">Go back to dashboard</button>
+                onclick="window.location.href='/view_set'">Go back to flashcard set</button>
     </form>
 
 </div>

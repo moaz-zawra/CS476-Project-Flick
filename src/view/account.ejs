@@ -1,16 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flick | account </title>
+    <title>Flick | Account</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-    <body class="p-4 bg-amber-200">
-        <header>
-            <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
-            <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
-            <hr class="border-black">
-        </header>
-    </body>
+
+<body class="p-4 bg-amber-200">
+    <header>
+        <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
+        <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!
+        </div>
+        <hr class="border-black">
+    </header>
+
+    <br /> <br />
+
+    <div class="flow-root">
+        <span class="text-black text-2xl font-sans"> Username: <b>
+                <%=user.username%>
+            </b> </span> <br /><br />
+        <span class="text-black text-2xl font-sans"> Email: <b>
+                <%=user.email%>
+            </b> </span> <br /><br />
+        <span class="text-black text-2xl font-sans"> Role: <b>
+                <%=user.role%>
+            </b> </span> <br /><br />
+
+        <br />
+        
+        <button
+            class="border-2 rounded-xl w-30 p-0.5 mr-2 bg-green-300 text-black font-bold hover:bg-green-400 border-black"
+            onclick="window.location.href='/api/v2/edit_info'">Edit Account Info</button>
+        
+        <!-- To be implemented: Clicking on the button below, returns the user to their appropriate dashboard depending on their role: creator or moderator -->
+        <button
+            class="border-2 rounded-xl w-30 p-0.5 mr-2 bg-sky-300 text-black font-bold hover:bg-sky-400 border-black"
+            onclick="window.location.href='/account'">Go Back to Dashboard</button>
+    </div>
+
+</body>
+
 </html>
