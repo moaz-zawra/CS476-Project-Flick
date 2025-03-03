@@ -2,24 +2,16 @@ import { isRegular } from "./utility";
 import { Regular } from "./user";
 import express = require("express");
 
-/**
- * Handles the request to fetch sets for regular users.
- *
- * @param req - The Express request object.
- * @param res - The Express response object.
- */
-export async function handleGetSets(req: express.Request, res: express.Response) {
+export async function handleDeleteSet(req: express.Request, res: express.Response) {
     // Check if the user is logged in
     if (req.session.user) {
         // Check if the user is a regular user
         if (isRegular(req.session.user)) {
             // Convert session user to Regular instance and fetch all sets
             const user = Object.assign(new Regular("", ""), req.session.user);
-            const sets = await user.getAllSets();
+            const id = req.query.setID;
 
-            // Send the fetched sets as the response
-            console.log(sets);
-            res.send(sets);
+            const status = user.deleteSet(req.query.setID)
         } else {
             // Redirect unauthorized users
             res.redirect("/?status=unauthorized");

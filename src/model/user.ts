@@ -18,6 +18,7 @@ import {
     RegisterStatus, makeCardSet, makeCard
 } from "../types/types";
 import { RowDataPacket } from "mysql2/promise";
+import {parseStringToArray} from "./utility";
 
 export class UserService {
     /**
@@ -375,7 +376,9 @@ export class Regular implements User {
 
             const cardSets: CardSet[] = [];
             for (const row of rows) {
-                cardSets.push(makeCardSet(row.ownerID, row.set_name, row.tags, row.setID));
+                // Ensure tags are parsed into an array
+                const tagsArray = row.tags ? row.tags.split(',').map(tag => tag.trim()) : [];
+                cardSets.push(makeCardSet(row.ownerID, row.set_name, tagsArray, row.setID));
             }
             return cardSets;
         } catch (error) {
@@ -398,12 +401,16 @@ export class Regular implements User {
                 [setID]
             );
             if (rows.length === 0) return CardSetGetStatus.SET_DOES_NOT_EXIST;
-            return makeCardSet(rows[0].ownerID, rows[0].set_name, rows[0].tags, rows[0].setID);
+
+            // Ensure tags are parsed into an array
+            const tagsArray = rows[0].tags ? rows[0].tags.split(',').map(tag => tag.trim()) : [];
+            return makeCardSet(rows[0].ownerID, rows[0].set_name, tagsArray, rows[0].setID);
         } catch (error) {
             console.error("Failed to get card set" + setID + " for user " + this.username + " with error: ", error);
             return CardSetGetStatus.DATABASE_FAILURE;
         }
     }
+
 
     /**
      * Retrieves all cards within a specific set by its ID.

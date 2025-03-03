@@ -1,131 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Flick | Dashboard</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="p-4 bg-[#B9D2B1]">
-    <div id="set-container"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flick | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-4 bg-[#31572C]">
 
-    <div id="set-container" class="flex flex-wrap gap-4"></div>
-
-    <div id="set-container" class="flex flex-wrap gap-4"></div>
-
-    <script>
-        function generateSet(setName, tags) {
-            // Create the main div container for the set
-            const setDiv = document.createElement('div');
-            setDiv.className = 'inline-flex flex-col items-start bg-[#FBACBE] p-4 border-2 border-black rounded-md m-2'; // Added m-2 for margin
-
-            // Create and populate the set name section
-            const setNameDiv = document.createElement('div');
-            setNameDiv.className = 'flex items-center gap-2';
-            const setNameSpan = document.createElement('span');
-            setNameSpan.textContent = setName;
-            setNameDiv.appendChild(setNameSpan);
-
-            // Create the tag section
-            const tagsDiv = document.createElement('div');
-            tagsDiv.className = 'flex items-center gap-2 mt-1';
-            tags.forEach(tag => {
-                const tagSpan = document.createElement('span');
-                tagSpan.className = 'bg-[#a18276] text-white px-2 py-1 rounded-md';
-                tagSpan.textContent = tag;
-                tagsDiv.appendChild(tagSpan);
-            });
-
-            // Create the buttons section (Share and Delete)
-            const buttonsDiv = document.createElement('div');
-            buttonsDiv.className = 'flex items-center gap-2 mt-2 w-full';
-
-            // Share Button
-            const shareButton = document.createElement('button');
-            shareButton.className = 'relative group p-1 flex items-center justify-center';
-            shareButton.onclick = () => { window.location.href = '/edit_set'; };
-
-            const shareImg = document.createElement('img');
-            shareImg.src = 'share.svg';
-            shareImg.alt = 'Share Icon';
-            shareImg.className = 'w-6 h-6';
-            shareButton.appendChild(shareImg);
-
-            const shareSpan = document.createElement('span');
-            shareSpan.className = 'absolute left-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap';
-            shareSpan.textContent = 'Share Set';
-            shareButton.appendChild(shareSpan);
-
-            // Delete Button
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'relative group p-1 flex items-center ml-auto';
-            deleteButton.onclick = () => { window.location.href = '/view_set'; };
-
-            const deleteImg = document.createElement('img');
-            deleteImg.src = 'delete.svg';
-            deleteImg.alt = 'Delete Icon';
-            deleteImg.className = 'w-6 h-6';
-            deleteButton.appendChild(deleteImg);
-
-            const deleteSpan = document.createElement('span');
-            deleteSpan.className = 'absolute right-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap';
-            deleteSpan.textContent = 'Delete Set';
-            deleteButton.appendChild(deleteSpan);
-
-            // Append the buttons to the button container
-            buttonsDiv.appendChild(shareButton);
-            buttonsDiv.appendChild(deleteButton);
-
-            // Append everything to the main set div
-            setDiv.appendChild(setNameDiv);
-            setDiv.appendChild(tagsDiv);
-            setDiv.appendChild(buttonsDiv);
-
-            // Append the set div to the container
-            const container = document.getElementById('sets');
-            container.appendChild(setDiv);
-        }
-    </script>
-
-
-
-    <header>
-
-            <div class="inline text-black font-extrabold text-3xl font-mono">
-                <span> flick </span>
-                <div id="header-buttons" class="float-right flex flex-col space-y-1">
-                    <button id="account-button" class="text-xs hover:text-white">account</button>
-                    <button id="logout-button" class="text-xs hover:text-white">logout</button>
-                </div>
-            </div>
-
-            <hr class="border-black">
-
-        </header>
-        <div class=" font-mono mt-7 text-2xl"> Welcome, $username$ </div>
-        <div class="p-2 bg-[#DAC6B5] rounded-md border-2 border-black">
-            <span class=" font-mono text-2xl">Card Sets</span><br />
-            <div class="inline-flex">
-                    <div class="flex items-center">
-                        <!-- Plus Button -->
-                        <button class="relative group p-1">
-                            <img src="add.svg" alt="Plus Icon" class="w-8 h-8">
-                            <span class="absolute left-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                                Create Card Set
-                            </span>
-                        </button>
-
-                        <input type="text" id="tagFilter" class="font-mono ml-2 py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600" placeholder="Filter by tag">
-                    </div>
-            </div>
-            <hr class="border-black border mt-2">
-            <div id="sets" class="inline p-2"></div>
-
-
+<header>
+    <div class="inline text-white font-extrabold text-3xl font-mono">
+        <span class="text-[#ECF39E]"> flick </span>
+        <div id="header-buttons" class="float-right flex flex-col space-y-1">
+            <button id="account-button" class="text-xs text-[#90A955] hover:text-[#ECF39E]">account</button>
+            <button id="logout-button" class="text-xs text-[#90A955] hover:text-[#ECF39E]">logout</button>
         </div>
+        <br />
+        <span class="text-[#ECF39E] text-sm">your flashcards are a click away!</span>
+    </div>
+    <hr class="border-white">
+</header>
 
-    </body>
+<div class="font-mono mt-7 text-2xl text-[#ECF39E]"> Welcome, <%user.username%> </div>
+<br />
+
+<div id="user-cardsets" class="p-2 bg-[#ECF39E] rounded-md border-2 border-black">
+    <div id="set-bar-user" class="flex items-center justify-between">
+        <span class="font-mono text-2xl">My Card Sets</span>
+        <div class="flex items-center space-x-2">
+            <button class="relative group p-1">
+                <img src="add.svg" alt="Plus Icon" class="w-9 h-9">
+                <span class="absolute left-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                            New Card Set
+                        </span>
+            </button>
+            <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600" placeholder="Filter by tag">
+        </div>
+    </div>
+    <hr class="border-black border mt-2">
+    <div id="user-sets" class="inline p-2"></div>
+</div>
+<br />
+<div id="shared-cardsets" class="p-2 bg-[#ECF39E] rounded-md border-2 border-black">
+    <div id="set-bar-shared" class="flex items-center justify-between">
+        <span class=" font-mono text-2xl">Sets Shared with me</span><br />
+        <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600" placeholder="Filter by tag">
+    </div>
+    <hr class="border-black border mt-2">
+    <div id="shared-sets"></div>
+</div>
+
+<!-- Modal for deletion confirmation -->
+<div id="confirmation-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-[#31572C] p-8 rounded-lg shadow-lg w-1/3 text-center">
+        <p id="confirmation-message" class="text-lg font-mono text-[#ECF39E] mb-4"></p>
+        <div class="flex justify-around">
+            <button id="confirm-delete" class="bg-[#90a955] text-black p-2 rounded-md hover:bg-[#ecf39e]">Yes</button>
+            <button id="cancel-delete" class="bg-[#90a955] text-black p-2 rounded-md hover:bg-[#ecf39e]">No</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for share -->
+<div id="share-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-[#31572C] p-8 rounded-lg shadow-lg w-1/3 text-center">
+        <p id="share-message" class="text-lg font-mono text-[#ECF39E] mb-4">Share this set with a user:</p>
+        <input id="username-input" type="text" placeholder="Enter username" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600 mb-4 w-full">
+        <div class="flex justify-around">
+            <button id="confirm-share" class="bg-[#90a955] text-black p-2 rounded-md hover:bg-[#ecf39e]">Share</button>
+            <button id="cancel-share" class="bg-[#90a955] text-black p-2 rounded-md hover:bg-[#ecf39e]">Cancel</button>
+        </div>
+    </div>
+</div>
+<br />
+</body>
+
+<script>
+    function handleShareButtonClick(setID) {
+        document.getElementById('share-modal').classList.remove('hidden');
+
+        // Set up the share button action
+        document.getElementById('confirm-share').onclick = () => {
+            const username = document.getElementById('username-input').value;
+            if (username) {
+                // Perform the share action (could be sending to backend or other logic)
+                alert(`Set shared with ${username}`);
+                document.getElementById('share-modal').classList.add('hidden');
+            } else {
+                alert('Please enter a username');
+            }
+        };
+
+        // Cancel share action
+        document.getElementById('cancel-share').onclick = () => {
+            document.getElementById('share-modal').classList.add('hidden');
+        };
+    }
+    // Function to insert the test set with ID 0, name 'testset', and tags ['tag1', 'tag2']
+    function insertTestSet() {
+        insertSet(0, 'testset', ['tag1', 'tag2'], 'user');
+    }
+
+    // Function to insert a set into the DOM
+    function insertSet(setID, setName, tags, shared) {
+        // Create the main div container for the set
+        const setDiv = document.createElement('div');
+        setDiv.className = 'inline-flex flex-col items-start bg-[#90A955] p-4 border-2 border-black rounded-md m-2';
+
+        // Create and populate the set name section
+        const setNameDiv = document.createElement('div');
+        setNameDiv.className = 'flex items-center gap-2';
+
+        // Set name display
+        const setNameSpan = document.createElement('span');
+        setNameSpan.className = 'font-mono bold text-[#ECF39E]';
+        setNameSpan.textContent = setName;
+        setNameDiv.appendChild(setNameSpan);
+
+        // Play Button
+        const playButton = document.createElement('button');
+        playButton.className = 'relative group flex items-center justify-center p-1 bg-[#ECF39E] border-2 border-black rounded-md hover:bg-[#CFE892]';
+        playButton.onclick = () => { window.location.href = `/view_set?setID=${setID}`; };
+
+        const playImg = document.createElement('img');
+        playImg.src = 'play.svg';
+        playImg.alt = 'Play Icon';
+        playImg.className = 'w-6 h-6';
+        playButton.appendChild(playImg);
+
+        const playSpan = document.createElement('span');
+        playSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+        playSpan.textContent = 'Play Set';
+        playButton.appendChild(playSpan);
+
+        // Append Play Button beside the set name
+        setNameDiv.appendChild(playButton);
+
+        // Create the tag section
+        const tagsDiv = document.createElement('div');
+        tagsDiv.className = 'flex items-center gap-2 mt-1';
+        tags.forEach(tag => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'bg-[#4F772D] text-[#ECF39E] px-2 py-1 rounded-md';
+            tagSpan.textContent = tag;
+            tagsDiv.appendChild(tagSpan);
+        });
+
+        // Create the buttons section (Share, Edit, Delete)
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'flex items-center gap-2 justify-between mt-2 w-full';
+
+        // Button Styling
+        const buttonBaseClass = 'relative group flex items-center justify-center p-1 bg-[#ECF39E] border-2 border-black rounded-md hover:bg-[#CFE892]';
+
+        const shareButton = document.createElement('button');
+        shareButton.className = buttonBaseClass;
+        shareButton.onclick = () => {
+            handleShareButtonClick(setID);
+        };
+
+        const shareImg = document.createElement('img');
+        shareImg.src = 'share.svg';
+        shareImg.alt = 'Share Icon';
+        shareImg.className = 'w-6 h-6';
+        shareButton.appendChild(shareImg);
+
+        const shareSpan = document.createElement('span');
+        shareSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+        shareSpan.textContent = 'Share Set';
+        shareButton.appendChild(shareSpan);
+
+        // Edit Button
+        const editButton = document.createElement('button');
+        editButton.className = buttonBaseClass;
+        editButton.onclick = () => { window.location.href = `/editSet?setID=${setID}`; };
+
+        const editImg = document.createElement('img');
+        editImg.src = 'edit.svg';
+        editImg.alt = 'Edit Icon';
+        editImg.className = 'w-6 h-6';
+        editButton.appendChild(editImg);
+
+        const editSpan = document.createElement('span');
+        editSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+        editSpan.textContent = 'Edit Set';
+        editButton.appendChild(editSpan);
+
+        // Delete Button
+        const deleteButton = document.createElement('button');
+        deleteButton.className = buttonBaseClass;
+        deleteButton.onclick = () => {
+            document.getElementById('confirmation-modal').classList.remove('hidden');
+            document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
+            document.getElementById('confirm-delete').onclick = () => {
+                // Perform deletion
+                window.location.href = `/deleteSet?setID=${setID}`;
+            };
+        };
+
+        const deleteImg = document.createElement('img');
+        deleteImg.src = 'delete.svg';
+        deleteImg.alt = 'Delete Icon';
+        deleteImg.className = 'w-6 h-6';
+        deleteButton.appendChild(deleteImg);
+
+        const deleteSpan = document.createElement('span');
+        deleteSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+        deleteSpan.textContent = 'Delete Set';
+        deleteButton.appendChild(deleteSpan);
+
+        // Append buttons to button container
+        buttonsDiv.appendChild(shareButton);
+        buttonsDiv.appendChild(editButton);
+        buttonsDiv.appendChild(deleteButton);
+
+        // Append everything to the main set div
+        setDiv.appendChild(setNameDiv);
+        setDiv.appendChild(tagsDiv);
+        setDiv.appendChild(buttonsDiv);
+
+        // Append to the correct container
+        const container = shared ? document.getElementById('shared-sets') : document.getElementById('user-sets');
+        container.appendChild(setDiv);
+    }
+
+    // Cancel delete action
+    document.getElementById('cancel-delete').onclick = () => {
+        document.getElementById('confirmation-modal').classList.add('hidden');
+    };
+</script>
+<% sets.forEach(function(set, index) { %>
+    <script>
+        // Embed the set information as a JSON string and then parse it
+        const setData<%= index %> = '<%- JSON.stringify(set) %>';  // Embed the set data as a string
+        const parsedSet<%= index %> = JSON.parse(setData<%= index %>);         // Parse it back to an object
+
+        // Check if tags are empty, if so, assign 'no tags'
+        const tags<%= index %> = parsedSet<%= index %>.tags.length === 0 ? ['no tags'] : parsedSet<%= index %>.tags;
+
+        // Now you can use the parsed set data in your insertSet function
+        console.log("insertSet(" + parsedSet<%= index %>.setID + ", "+ parsedSet<%= index %>.setName + ", "+ tags<%= index %> + ", true)");
+        insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, tags<%= index %>, false);
+    </script>
+<% }); %>
 
 </html>
-
-

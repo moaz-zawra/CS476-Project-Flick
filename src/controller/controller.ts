@@ -44,7 +44,14 @@ controller.post('/api/v2/create-set', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
+controller.post('/api/v2/delete-set', async (req, res) => {
+    try {
+        await handleNewSet(req, res);
+    } catch (error) {
+        console.error('Error creating new set:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 controller.get('/api/v2/getCardSets', async (req, res) => {
     try {
         await handleGetSets(req, res);
@@ -73,14 +80,21 @@ controller.get('/api/v2/logout', (req, res) => {
     }
 });
 controller.get('/test', (req, res) => {
-    res.render("dashboard_new");
-})
+    const testData = {
+        sets: [
+            { id: 0, setname: 'SetName1', tags: ['tag1', 'tag2'] },
+            { id: 1, setname: 'SetName2', tags: ['tag3', 'tag4'] },
+            { id: 2, setname: 'SetName3', tags: ['tag5', 'tag6'] }
+        ]
+    };
+
+    res.render('dashboard_new', { sets: testData.sets });
+});
+
 // View Routes
 controller.get('/', async (req, res) => {
     if(req.session.user){
         logUserActivity('visited dashboard', req.session.user.username);
-        if(req.session.user.role == Role.ADMINISTRATOR){}
-        if(req.session.user.role == Role.MODERATOR){}
         if(req.session.user.role == Role.REGULAR){
             try{
                 const cookie = getCookie(req);
@@ -91,11 +105,11 @@ controller.get('/', async (req, res) => {
                 });
 
                 let sets = response.data;
-                return res.render('dashboard', {
+                return res.render('dashboard_new', {
                     user: req.session.user,
                     uID: await UserService.getIDOfUser(req.session.user),
                     status: req.query.status,
-                    sets: sets
+                    sets:sets
                 });
             } catch(error){
                 console.error("Error fetching card sets:", error);

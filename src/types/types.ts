@@ -1,11 +1,11 @@
 export interface CardSet {
     ownerID: number;
     setName: string;
-    tags: string;
+    tags: string[];
     setID?: number;
 }
 
-export function makeCardSet(ownerID: number, setName: string, tags: string, setID?:number): CardSet{
+export function makeCardSet(ownerID: number, setName: string, tags: string[], setID?:number): CardSet{
     if (setID) return {ownerID, setName, tags, setID};
     else return {ownerID, setName, tags}
 }
