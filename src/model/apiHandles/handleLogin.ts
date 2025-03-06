@@ -1,13 +1,16 @@
-import { Administrator, Moderator, Regular, UserCreator, User } from "./user";
-import { LoginStatus } from "../types/types";
-import { logUserActivity } from "./utility";
+
+import { logUserActivity } from "../utility";
 import express = require("express");
+import {User} from "../user/user.model";
+import {UserCreator} from "../user/user.auth";
+import {Administrator, Moderator, Regular} from "../user/user.roles";
+import {LoginStatus} from "../user/user.types";
 
 /**
- * Type guard to check if the provided object is of type User.
+ * Type guard to check if the provided object is of type user.
  *
  * @param obj - The object to check.
- * @returns True if the object is of type User, otherwise false.
+ * @returns True if the object is of type user, otherwise false.
  */
 export function isUser(obj: any): obj is User {
     return obj && typeof obj === "object" && "username" in obj && "email" in obj && "role" in obj;
@@ -24,8 +27,8 @@ export async function handleLogin(req: express.Request, res: express.Response): 
     try {
         // Attempt login with provided credentials
         const login = await new UserCreator().login(req.body.identifier, req.body.password);
-
-        // Check if the login response is a valid User instance
+        console.log(login);
+        // Check if the login response is a valid user instance
         if (isUser(login)) {
             // Redirect based on user role
             if (login instanceof Administrator) {
@@ -42,7 +45,7 @@ export async function handleLogin(req: express.Request, res: express.Response): 
             // Handle login failure cases
             switch (login) {
                 case LoginStatus.USER_DOES_NOT_EXIST:
-                    return res.status(404).redirect('/login?status=does-not-exist');  // User does not exist
+                    return res.status(404).redirect('/login?status=does-not-exist');  // user does not exist
                 case LoginStatus.DATABASE_FAILURE:
                     return res.status(500).redirect('/login?status=error');  // Database failure
                 case LoginStatus.WRONG_PASSWORD:

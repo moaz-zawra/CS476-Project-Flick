@@ -1,6 +1,6 @@
 import express = require('express');
-import { UserCreator } from "./user";
-import { RegisterStatus } from "../types/types";
+import {UserCreator} from "../user/user.auth";
+import {RegisterStatus} from "../user/user.types";
 
 /**
  * Helper function to handle registration redirection based on status.

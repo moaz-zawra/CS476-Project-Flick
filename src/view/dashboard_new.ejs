@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flick | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/categories.js"></script>
 </head>
 <body class="p-4 bg-[#31572C]">
 
@@ -12,8 +13,8 @@
     <div class="inline text-white font-extrabold text-3xl font-mono">
         <span class="text-[#ECF39E]"> flick </span>
         <div id="header-buttons" class="float-right flex flex-col space-y-1">
-            <button id="account-button" class="text-xs text-[#90A955] hover:text-[#ECF39E]">account</button>
-            <button id="logout-button" class="text-xs text-[#90A955] hover:text-[#ECF39E]">logout</button>
+            <button id="account-button" onclick="window.location.href='/account'" class="text-xs text-[#90A955] hover:text-[#ECF39E]">account</button>
+            <button id="logout-button" onclick="window.location.href='/api/v2/logout'" class="text-xs text-[#90A955] hover:text-[#ECF39E]">logout</button>
         </div>
         <br />
         <span class="text-[#ECF39E] text-sm">your flashcards are a click away!</span>
@@ -21,20 +22,31 @@
     <hr class="border-white">
 </header>
 
-<div class="font-mono mt-7 text-2xl text-[#ECF39E]"> Welcome, <%user.username%> </div>
+<div class="font-mono mt-7 text-2xl text-[#ECF39E]"> Welcome, <%=user.username%> </div>
 <br />
 
 <div id="user-cardsets" class="p-2 bg-[#ECF39E] rounded-md border-2 border-black">
     <div id="set-bar-user" class="flex items-center justify-between">
         <span class="font-mono text-2xl">My Card Sets</span>
         <div class="flex items-center space-x-2">
-            <button class="relative group p-1">
+            <button onclick="window.location.href='/new_set'" class="relative group p-1">
                 <img src="add.svg" alt="Plus Icon" class="w-9 h-9">
                 <span class="absolute left-full ml-2 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                             New Card Set
                         </span>
             </button>
-            <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600" placeholder="Filter by tag">
+            <select id="categoryFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50">
+                <option value="">All Categories</option>
+                <option value="0">Language</option>
+                <option value="1">Technology</option>
+                <option value="2">Course Subjects</option>
+                <option value="3">Law</option>
+                <option value="4">Medical</option>
+                <option value="5">Military</option>
+            </select>
+            <select id="subcategoryFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 hidden">
+                <option value="">All Subcategories</option>
+            </select>
         </div>
     </div>
     <hr class="border-black border mt-2">
@@ -44,7 +56,20 @@
 <div id="shared-cardsets" class="p-2 bg-[#ECF39E] rounded-md border-2 border-black">
     <div id="set-bar-shared" class="flex items-center justify-between">
         <span class=" font-mono text-2xl">Sets Shared with me</span><br />
-        <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 placeholder-gray-600" placeholder="Filter by tag">
+        <div class="flex items-center space-x-2">
+            <select id="sharedCategoryFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50">
+                <option value="">All Categories</option>
+                <option value="0">Language</option>
+                <option value="1">Technology</option>
+                <option value="2">Course Subjects</option>
+                <option value="3">Law</option>
+                <option value="4">Medical</option>
+                <option value="5">Military</option>
+            </select>
+            <select id="sharedSubcategoryFilter" class="font-mono py-1.5 px-3 text-gray-800 border-2 border-black rounded-lg focus:outline-none shadow-sm bg-sky-50 hidden">
+                <option value="">All Subcategories</option>
+            </select>
+        </div>
     </div>
     <hr class="border-black border mt-2">
     <div id="shared-sets"></div>
@@ -79,47 +104,50 @@
     function handleShareButtonClick(setID) {
         document.getElementById('share-modal').classList.remove('hidden');
 
-        // Set up the share button action
-        document.getElementById('confirm-share').onclick = () => {
+        document.getElementById('confirm-share').onclick = async () => {
             const username = document.getElementById('username-input').value;
             if (username) {
-                // Perform the share action (could be sending to backend or other logic)
-                alert(`Set shared with ${username}`);
-                document.getElementById('share-modal').classList.add('hidden');
+                const response = await fetch('/api/v2/shareSet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ setID, username })
+                });
+                if (response.ok) {
+                    alert(`Set shared with ${username}`);
+                    document.getElementById('share-modal').classList.add('hidden');
+                } else {
+                    alert('Failed to share set.');
+                }
             } else {
                 alert('Please enter a username');
             }
         };
 
-        // Cancel share action
         document.getElementById('cancel-share').onclick = () => {
             document.getElementById('share-modal').classList.add('hidden');
         };
     }
-    // Function to insert the test set with ID 0, name 'testset', and tags ['tag1', 'tag2']
-    function insertTestSet() {
-        insertSet(0, 'testset', ['tag1', 'tag2'], 'user');
-    }
-
     // Function to insert a set into the DOM
-    function insertSet(setID, setName, tags, shared) {
+    function insertSet(setID, setName, category, subCategory, description, shared) {
         // Create the main div container for the set
         const setDiv = document.createElement('div');
-        setDiv.className = 'inline-flex flex-col items-start bg-[#90A955] p-4 border-2 border-black rounded-md m-2';
+        setDiv.className = 'inline-flex flex-col items-start bg-[#90A955] p-4 border-2 border-black rounded-md m-2 w-72';
+        setDiv.dataset.category = category;
+        setDiv.dataset.subcategory = subCategory;
 
         // Create and populate the set name section
         const setNameDiv = document.createElement('div');
-        setNameDiv.className = 'flex items-center gap-2';
+        setNameDiv.className = 'flex items-center gap-2 w-full mb-3';
 
         // Set name display
         const setNameSpan = document.createElement('span');
-        setNameSpan.className = 'font-mono bold text-[#ECF39E]';
+        setNameSpan.className = 'font-mono font-bold text-[#ECF39E] text-xl truncate';
         setNameSpan.textContent = setName;
         setNameDiv.appendChild(setNameSpan);
 
         // Play Button
         const playButton = document.createElement('button');
-        playButton.className = 'relative group flex items-center justify-center p-1 bg-[#ECF39E] border-2 border-black rounded-md hover:bg-[#CFE892]';
+        playButton.className = 'relative group flex items-center justify-center p-1 bg-[#ECF39E] border-2 border-black rounded-md hover:bg-[#CFE892] ml-auto';
         playButton.onclick = () => { window.location.href = `/view_set?setID=${setID}`; };
 
         const playImg = document.createElement('img');
@@ -133,22 +161,35 @@
         playSpan.textContent = 'Play Set';
         playButton.appendChild(playSpan);
 
-        // Append Play Button beside the set name
         setNameDiv.appendChild(playButton);
 
-        // Create the tag section
-        const tagsDiv = document.createElement('div');
-        tagsDiv.className = 'flex items-center gap-2 mt-1';
-        tags.forEach(tag => {
-            const tagSpan = document.createElement('span');
-            tagSpan.className = 'bg-[#4F772D] text-[#ECF39E] px-2 py-1 rounded-md';
-            tagSpan.textContent = tag;
-            tagsDiv.appendChild(tagSpan);
-        });
+        // Create the category section with improved styling
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'flex flex-col gap-1 mb-3 w-full';
+        
+        // Category tag with new styling
+        const categorySpan = document.createElement('span');
+        categorySpan.className = 'bg-[#4F772D] text-[#ECF39E] px-3 py-1.5 rounded-lg text-sm font-semibold inline-block w-fit';
+        categorySpan.textContent = getCategoryName(category);
+        categoryDiv.appendChild(categorySpan);
+
+        // Subcategory tag with new styling
+        const subCategorySpan = document.createElement('span');
+        subCategorySpan.className = 'text-[#ECF39E] text-sm font-medium bg-[#4F772D] bg-opacity-50 px-3 py-1 rounded-lg inline-block w-fit';
+        subCategorySpan.textContent = subCategory;
+        categoryDiv.appendChild(subCategorySpan);
+
+        // Description section with improved styling
+        const descriptionDiv = document.createElement('div');
+        descriptionDiv.className = 'w-full mb-3 bg-[#4F772D] bg-opacity-30 p-3 rounded-lg';
+        const descriptionText = document.createElement('p');
+        descriptionText.className = 'text-[#ECF39E] text-sm leading-relaxed';
+        descriptionText.textContent = description;
+        descriptionDiv.appendChild(descriptionText);
 
         // Create the buttons section (Share, Edit, Delete)
         const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'flex items-center gap-2 justify-between mt-2 w-full';
+        buttonsDiv.className = 'flex items-center gap-2 justify-between mt-auto w-full';
 
         // Button Styling
         const buttonBaseClass = 'relative group flex items-center justify-center p-1 bg-[#ECF39E] border-2 border-black rounded-md hover:bg-[#CFE892]';
@@ -173,7 +214,7 @@
         // Edit Button
         const editButton = document.createElement('button');
         editButton.className = buttonBaseClass;
-        editButton.onclick = () => { window.location.href = `/editSet?setID=${setID}`; };
+        editButton.onclick = () => { window.location.href = `/edit_set?setID=${setID}`; };
 
         const editImg = document.createElement('img');
         editImg.src = 'edit.svg';
@@ -186,15 +227,32 @@
         editSpan.textContent = 'Edit Set';
         editButton.appendChild(editSpan);
 
-        // Delete Button
+        const deleteForm = document.createElement('form');
+        deleteForm.action = '/api/v2/deleteSet';
+        deleteForm.method = 'POST';
+
+        const setIdInput = document.createElement('input');
+        setIdInput.type = 'hidden';
+        setIdInput.name = 'setID';
+        setIdInput.value = setID;
+
+        deleteForm.appendChild(setIdInput);
+
         const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
         deleteButton.className = buttonBaseClass;
-        deleteButton.onclick = () => {
+
+        deleteForm.appendChild(deleteButton);
+        document.body.appendChild(deleteForm);
+
+        deleteButton.onclick = (event) => {
+            event.preventDefault();
             document.getElementById('confirmation-modal').classList.remove('hidden');
             document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
-            document.getElementById('confirm-delete').onclick = () => {
-                // Perform deletion
-                window.location.href = `/deleteSet?setID=${setID}`;
+
+            const confirmButton = document.getElementById('confirm-delete');
+            confirmButton.onclick = () => {
+                deleteForm.submit();
             };
         };
 
@@ -216,7 +274,8 @@
 
         // Append everything to the main set div
         setDiv.appendChild(setNameDiv);
-        setDiv.appendChild(tagsDiv);
+        setDiv.appendChild(categoryDiv);
+        setDiv.appendChild(descriptionDiv);
         setDiv.appendChild(buttonsDiv);
 
         // Append to the correct container
@@ -224,24 +283,102 @@
         container.appendChild(setDiv);
     }
 
+    // Filter sets by category and subcategory
+    function filterSets(containerId, categoryValue, subcategoryValue) {
+        const container = document.getElementById(containerId);
+        const sets = container.querySelectorAll('div[data-category]');
+        
+        sets.forEach(set => {
+            const matchesCategory = !categoryValue || set.dataset.category === categoryValue;
+            const matchesSubcategory = !subcategoryValue || set.dataset.subcategory === subcategoryValue;
+            
+            if (matchesCategory && matchesSubcategory) {
+                set.style.display = 'inline-flex';
+            } else {
+                set.style.display = 'none';
+            }
+        });
+    }
+
+    // Add event listeners for category filters
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        const categoryValue = this.value;
+        const subcategoryDropdown = document.getElementById('subcategoryFilter');
+        
+        // Populate subcategory dropdown
+        populateSubcategory(categoryValue, '', 'subcategoryFilter');
+        
+        // Show/hide subcategory dropdown
+        if (categoryValue) {
+            subcategoryDropdown.classList.remove('hidden');
+        } else {
+            subcategoryDropdown.classList.add('hidden');
+        }
+        
+        // Apply filters
+        filterSets('user-sets', categoryValue, '');
+    });
+
+    document.getElementById('subcategoryFilter').addEventListener('change', function() {
+        const categoryValue = document.getElementById('categoryFilter').value;
+        const subcategoryValue = this.value;
+        
+        // Apply filters
+        filterSets('user-sets', categoryValue, subcategoryValue);
+    });
+
+    document.getElementById('sharedCategoryFilter').addEventListener('change', function() {
+        const categoryValue = this.value;
+        const subcategoryDropdown = document.getElementById('sharedSubcategoryFilter');
+        
+        // Populate subcategory dropdown
+        populateSubcategory(categoryValue, '', 'sharedSubcategoryFilter');
+        
+        // Show/hide subcategory dropdown
+        if (categoryValue) {
+            subcategoryDropdown.classList.remove('hidden');
+        } else {
+            subcategoryDropdown.classList.add('hidden');
+        }
+        
+        // Apply filters
+        filterSets('shared-sets', categoryValue, '');
+    });
+
+    document.getElementById('sharedSubcategoryFilter').addEventListener('change', function() {
+        const categoryValue = document.getElementById('sharedCategoryFilter').value;
+        const subcategoryValue = this.value;
+        
+        // Apply filters
+        filterSets('shared-sets', categoryValue, subcategoryValue);
+    });
+
     // Cancel delete action
     document.getElementById('cancel-delete').onclick = () => {
         document.getElementById('confirmation-modal').classList.add('hidden');
     };
 </script>
-<% sets.forEach(function(set, index) { %>
+
+<% if (typeof sets !== 'undefined' && Array.isArray(sets)) { %>
+    <% sets.forEach(function(set, index) { %>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const setData = <%- JSON.stringify(set) %>;
+                insertSet(
+                    setData.setID, 
+                    setData.setName, 
+                    setData.category, 
+                    setData.subCategory, 
+                    setData.description, 
+                    false
+                );
+            });
+        </script>
+    <% }); %>
+<% } else { %>
     <script>
-        // Embed the set information as a JSON string and then parse it
-        const setData<%= index %> = '<%- JSON.stringify(set) %>';  // Embed the set data as a string
-        const parsedSet<%= index %> = JSON.parse(setData<%= index %>);         // Parse it back to an object
-
-        // Check if tags are empty, if so, assign 'no tags'
-        const tags<%= index %> = parsedSet<%= index %>.tags.length === 0 ? ['no tags'] : parsedSet<%= index %>.tags;
-
-        // Now you can use the parsed set data in your insertSet function
-        console.log("insertSet(" + parsedSet<%= index %>.setID + ", "+ parsedSet<%= index %>.setName + ", "+ tags<%= index %> + ", true)");
-        insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, tags<%= index %>, false);
+        console.log("No sets available to display");
     </script>
-<% }); %>
+<% } %>
 
 </html>

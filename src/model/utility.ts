@@ -2,7 +2,8 @@ import express = require("express");
 import session = require('express-session');
 import path = require('path');
 import dotenv = require('dotenv');
-import {User, Regular, Moderator, Administrator} from "./user";
+import { User } from "./user/user.model";
+
 export function getCookie(req: express.Request): string {
     try{
         let cookieString = req.headers.cookie;

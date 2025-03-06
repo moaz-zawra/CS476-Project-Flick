@@ -5,20 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flick | Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#fde68a', // amber-200
+                            dark: '#31572C', // dark green
+                        },
+                        accent: {
+                            light: '#000000', // black
+                            dark: '#ECF39E', // light yellow-green
+                        },
+                        secondary: {
+                            light: '#e0f2fe', // sky-100
+                            dark: '#90A955', // medium green
+                        },
+                        card: {
+                            light: '#e0f2fe', // sky-100
+                            dark: '#4F772D', // slightly lighter green
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="/theme-toggle.js"></script>
 </head>
 
-<body class="p-4 bg-amber-200">
+<body class="p-4 bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark">
 
 <header>
-    <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
-    <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
-    <hr class="border-black">
-
+    <div class="inline font-extrabold text-3xl font-mono">
+        <span class="text-accent-light dark:text-accent-dark"> flick </span>
+        <div class="float-right flex items-center">
+            <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4">
+                <span class="mr-2 text-sm font-medium">Light</span>
+                <div class="relative">
+                    <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-secondary-light dark:peer-focus:ring-secondary-dark rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-secondary-dark"></div>
+                </div>
+                <span class="ml-2 text-sm font-medium">Dark</span>
+            </label>
+        </div>
+        <br />
+        <span class="text-accent-light dark:text-accent-dark text-sm">your flashcards are a click away!</span>
+    </div>
+    <hr class="border-accent-light dark:border-accent-dark">
     <br /><br />
-    <div class="text-black font-extrabold text-center text-3xl font-sans">Register</div>
+    <div class="text-accent-light dark:text-accent-dark font-extrabold text-center text-3xl font-sans">Register</div>
 </header>
 
-<div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
+<div class="border-2 border-accent-light dark:border-accent-dark bg-card-light dark:bg-card-dark rounded-xl w-80 p-4 text-center mx-auto mt-10">
     <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
     <form action="/api/v2/register" method="post">
 
@@ -43,33 +83,33 @@
         <% } %>
 
         <label for="username" id="uname_label"
-               class="text-black font-bold">Username</label><br />
+               class="text-accent-light dark:text-accent-dark font-bold">Username</label><br />
         <input type="text" id="username" name="username"
-               class="border-2 rounded-lg p-0.5 bg-sky-100  focus:border-black focus:outline focus:outline-black border-gray-600"
+               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
                required /><br /><br />
 
-        <label for="email" id="email_label" class="text-black font-bold">Email</label><br />
+        <label for="email" id="email_label" class="text-accent-light dark:text-accent-dark font-bold">Email</label><br />
         <input type="email" id="email" name="email"
-               class="border-2 rounded-lg p-0.5 bg-sky-100 focus:border-black focus:outline focus:outline-black border-gray-600"
+               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
                required /><br /><br />
 
         <label for="password" id="password_label"
-               class="text-black font-bold">Password</label><br />
+               class="text-accent-light dark:text-accent-dark font-bold">Password</label><br />
         <input type="password" id="password" name="password"
-               class="border-2 rounded-lg p-0.5 bg-sky-100 focus:border-black focus:outline focus:outline-black border-gray-600"
+               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
                required /><br /><br />
 
-        <label for="cpassword" id="cpassword_label" class="text-black font-bold">Confirm
+        <label for="cpassword" id="cpassword_label" class="text-accent-light dark:text-accent-dark font-bold">Confirm
             Password</label><br />
         <input type="password" id="cpassword" name="cpassword"
-               class="border-2 rounded-lg p-0.5 bg-sky-100 focus:border-black focus:outline focus:outline-black border-gray-600"
+               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
                required /><br /><br />
 
         <input
-                class="border-2 rounded-xl w-40 p-0.5 bg-green-300 text-black font-bold hover:bg-green-400 focus:outline-black border-gray-600"
+                class="border-2 rounded-xl w-40 p-0.5 bg-green-300 dark:bg-secondary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-green-400 dark:hover:bg-secondary-light focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
                 type="submit" value="Register"><br /><br />
     </form>
-    <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300 focus:outline-black border-gray-600"
+    <button class="border-2 rounded-xl w-60 p-0.5 bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-amber-300 dark:hover:bg-secondary-dark focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
             onclick="window.location.href='/login'">Existing User? Click to Login</button>
 </div>
 

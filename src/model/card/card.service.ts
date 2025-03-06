@@ -1,0 +1,134 @@
+import { DatabaseService } from "../database/databaseService";
+import { Card } from "./card.model";
+import { CardAddStatus, CardRemoveStatus, CardGetStatus } from "./card.types";
+
+export class CardService {
+    /**
+     * Adds a new card to a card set.
+     * @param card - The card to add, containing setID, front_text, and back_text
+     * @returns Promise resolving to the status of the operation
+     * @throws Will return DATABASE_FAILURE if there's an error with the database operation
+     * @throws Will return MISSING_INFORMATION if required fields are missing
+     * @throws Will return SET_DOES_NOT_EXIST if the target set doesn't exist
+     */
+    public static async addCardToSet(card: Card): Promise<CardAddStatus> {
+        try {
+            // Validate required fields
+            if (!card.setID || !card.front_text || !card.back_text) {
+                return CardAddStatus.MISSING_INFORMATION;
+            }
+
+            const db = await DatabaseService.getConnection();
+
+            // Check if the set exists
+            const [setRows] = await db.connection.execute(
+                "SELECT setID FROM card_sets WHERE setID = ?",
+                [card.setID]
+            );
+
+            if (!setRows || (setRows as any[]).length === 0) {
+                return CardAddStatus.SET_DOES_NOT_EXIST;
+            }
+
+            // Insert the new card
+            await db.connection.execute(
+                "INSERT INTO card_data (setID, front_text, back_text) VALUES (?, ?, ?)",
+                [card.setID, card.front_text, card.back_text]
+            );
+
+            return CardAddStatus.SUCCESS;
+        } catch (error) {
+            console.error("Failed to add card to set:", error);
+            return CardAddStatus.DATABASE_FAILURE;
+        }
+    }
+
+    /**
+     * Deletes a card from a card set.
+     * @param card - The card to delete, containing setID, front_text, and back_text
+     * @returns Promise resolving to the status of the operation
+     * @throws Will return DATABASE_FAILURE if there's an error with the database operation
+     * @throws Will return MISSING_INFORMATION if setID is missing
+     * @throws Will return SET_DOES_NOT_EXIST if the target set doesn't exist
+     * @throws Will return CARD_DOES_NOT_EXIST if the card doesn't exist in the set
+     */
+    public static async deleteCardFromSet(card: Card): Promise<CardRemoveStatus> {
+        try {
+            // Validate required fields
+            if (!card.setID) {
+                return CardRemoveStatus.MISSING_INFORMATION;
+            }
+
+            const db = await DatabaseService.getConnection();
+
+            // Check if the set exists
+            const [setRows] = await db.connection.execute(
+                "SELECT setID FROM card_sets WHERE setID = ?",
+                [card.setID]
+            );
+
+            if (!setRows || (setRows as any[]).length === 0) {
+                return CardRemoveStatus.SET_DOES_NOT_EXIST;
+            }
+
+            // Delete the card
+            const [result] = await db.connection.execute(
+                "DELETE FROM card_data WHERE setID = ? AND front_text = ? AND back_text = ?",
+                [card.setID, card.front_text, card.back_text]
+            );
+
+            if ((result as any).affectedRows === 0) {
+                return CardRemoveStatus.CARD_DOES_NOT_EXIST;
+            }
+
+            return CardRemoveStatus.SUCCESS;
+        } catch (error) {
+            console.error("Failed to delete card from set:", error);
+            return CardRemoveStatus.DATABASE_FAILURE;
+        }
+    }
+
+    /**
+     * Retrieves all cards within a specific set.
+     * @param setID - The ID of the card set to retrieve cards from
+     * @returns Promise resolving to an array of cards or a status code
+     * @throws Will return DATABASE_FAILURE if there's an error with the database operation
+     * @throws Will return SET_DOES_NOT_EXIST if the target set doesn't exist
+     * @throws Will return SET_HAS_NO_CARDS if the set exists but has no cards
+     */
+    public static async getCards(setID: string): Promise<Card[] | CardGetStatus> {
+        try {
+            const db = await DatabaseService.getConnection();
+            console.log("Getting cards for setID" , setID);
+            // Check if the set exists
+            const [setRows] = await db.connection.execute(
+                "SELECT setID FROM card_sets WHERE setID = ?",
+                [setID]
+            );
+
+            if (!setRows || (setRows as any[]).length === 0) {
+                return CardGetStatus.SET_DOES_NOT_EXIST;
+            }
+
+            // Get all cards for the set
+            const [cardRows] = await db.connection.execute(
+                "SELECT * FROM card_data WHERE setID = ?",
+                [setID]
+            );
+
+            if (!cardRows || (cardRows as any[]).length === 0) {
+                return CardGetStatus.SET_HAS_NO_CARDS;
+            }
+
+            // Convert database rows to Card objects
+            return (cardRows as any[]).map(row => ({
+                setID: row.setID,
+                front_text: row.front_text,
+                back_text: row.back_text
+            }));
+        } catch (error) {
+            console.error("Failed to get cards for set:", error);
+            return CardGetStatus.DATABASE_FAILURE;
+        }
+    }
+} 
