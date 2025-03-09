@@ -33,7 +33,7 @@ export class Regular implements User {
     }
 
     async getSet(setID: number): Promise<CardSet | CardSetGetStatus> {
-        return CardSetService.getSet(setID, this);
+        return CardSetService.getSet(setID);
     }
 
     async addCardToSet(card: Card): Promise<CardAddStatus> {
@@ -46,6 +46,9 @@ export class Regular implements User {
 
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {
         return CardService.getCards(setID.toString());
+    }
+    async getSharedSets(): Promise<CardSet[] | CardSetGetStatus> {
+        return CardSetService.getSharedSets(this);
     }
 }
 

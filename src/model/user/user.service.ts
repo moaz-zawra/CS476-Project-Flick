@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { DatabaseService } from "../database/databaseService";
 import { RowDataPacket } from "mysql2/promise";
 import { User } from "./user.model";
-import {UserActivity} from "./user.types";
+import {UserAction, UserActivity} from "./user.types";
 
 export class UserService {
     /**
@@ -97,12 +97,11 @@ export class UserService {
                 return false;
             }
 
-            const [result] = await db.connection.execute<ResultSetHeader>(
+            await db.connection.execute(
                 "INSERT INTO user_activity (uID, action, timestamp) VALUES (?, ?, NOW())",
                 [uID, action]
             );
-
-            return result.affectedRows > 0;
+            return true;
         } catch (error) {
             console.error(`Error logging user action: ${(error as Error).message}`);
             return false;
@@ -166,6 +165,35 @@ export class UserService {
             console.error(`Error fetching user activity (last 7 days): ${(error as Error).message}`);
             return null;
         }
+    }
+    /**
+     * Retrieves all users with the role REGULAR.
+     * @async
+     * @returns {Promise<RowDataPacket[]>} A promise resolving to an array of regular users.
+     */
+    public static async getRegularUsers(): Promise<RowDataPacket[]> {
+        const db = await DatabaseService.getConnection();
+
+        const [rows] = await db.connection.execute<RowDataPacket[]>(
+            "SELECT username, email, role FROM users WHERE role = 'REGULAR'"
+        );
+
+        return rows.length ? rows : [];
+    }
+
+    /**
+     * Retrieves all users with the role MODERATOR.
+     * @async
+     * @returns {Promise<RowDataPacket[]>} A promise resolving to an array of moderator users.
+     */
+    public static async getModeratorUsers(): Promise<RowDataPacket[]> {
+        const db = await DatabaseService.getConnection();
+
+        const [rows] = await db.connection.execute<RowDataPacket[]>(
+            "SELECT username, email, role FROM users WHERE role = 'MODERATOR'"
+        );
+
+        return rows.length ? rows : [];
     }
 }
 export class AuthService{

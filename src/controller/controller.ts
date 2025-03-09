@@ -48,7 +48,7 @@ class APIService{
     //All of these functions assume req.session.user has already been authenticated in the route beforehand
     static async handleGetSets(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
-        const result = await CardSetService.getAllSets(user);
+        const result = await user.getAllSets();
 
         if(result === CardSetGetStatus.DATABASE_FAILURE){
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSets()', error:'Database Error'})
@@ -61,7 +61,8 @@ class APIService{
 
     static async handleGetSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
-        const result = await CardSetService.getSet(setID);
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const result = await user.getSet(setID);
 
         if(result === CardSetGetStatus.DATABASE_FAILURE){
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSet()', error:'Database Error'})
@@ -74,7 +75,8 @@ class APIService{
 
     static async handleGetCardsInSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
-        const result = await CardService.getCards(setID);
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const result = await user.getCards(setID);
 
         if(result === CardGetStatus.DATABASE_FAILURE){
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetCardsInSet()', error:'Database Error'})
@@ -90,7 +92,7 @@ class APIService{
 
     static async handleGetSharedSets(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
-        const result = await CardSetService.getSharedSets(user);
+        const result = await user.getSharedSets();
 
         if(result === CardSetGetStatus.DATABASE_FAILURE){
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSharedSets()', error:'Database Error'})
@@ -116,7 +118,11 @@ class APIService{
                 res.status(GETOK).json(result);
             } else res.status(NOTFOUND).json([""]);
         }
+    }
 
+    static async handleGetRegulars(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const result = UserService.getRegularUsers();
     }
 }
 
