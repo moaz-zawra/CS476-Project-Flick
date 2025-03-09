@@ -33,7 +33,7 @@ export enum Role {
     ADMINISTRATOR = "ADMINISTRATOR" // user with full administrative privileges.
 }
 
-enum UserAction{
+export enum UserAction{
     NEWSET,
     NEWCARD,
     SHARESET,
@@ -41,7 +41,7 @@ enum UserAction{
     OTHER
 }
 
-interface UserActivity{
+export interface UserActivity{
     activityID: number;
     uID: number;
     action: UserAction;

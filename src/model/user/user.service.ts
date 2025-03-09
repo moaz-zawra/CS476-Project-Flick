@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { DatabaseService } from "../database/databaseService";
 import { RowDataPacket } from "mysql2/promise";
 import { User } from "./user.model";
+import {UserActivity} from "./user.types";
 
 export class UserService {
     /**
@@ -78,12 +79,92 @@ export class UserService {
             return -1;
         }
     }
-    public static async getUserActivity(user: User): Promise<RowDataPacket | null> {
-        try{
 
-        } catch(error){
+    /**
+     * Logs a user action into the database.
+     * @async
+     * @param {User} user - The user performing the action.
+     * @param {UserAction} action - The action being logged.
+     * @returns {Promise<boolean>} - Resolves to true if the action was logged successfully, false otherwise.
+     */
+    public static async logUserAction(user: User, action: UserAction): Promise<boolean> {
+        try {
+            const db = await DatabaseService.getConnection();
+            const uID = await this.getIDOfUser(user);
+
+            if (uID === -1) {
+                console.error("Invalid user ID, cannot log activity.");
+                return false;
+            }
+
+            const [result] = await db.connection.execute<ResultSetHeader>(
+                "INSERT INTO user_activity (uID, action, timestamp) VALUES (?, ?, NOW())",
+                [uID, action]
+            );
+
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error(`Error logging user action: ${(error as Error).message}`);
+            return false;
+        }
+    }
+
+    /**
+     * Retrieves all user activity for a given user (all-time).
+     * @async
+     * @param {User} user - The user whose activity is being retrieved.
+     * @returns {Promise<UserActivity[] | null>} - Resolves to an array of user activities or null if an error occurs.
+     */
+    public static async getUserActivityAllTime(user: User): Promise<UserActivity[] | null> {
+        try {
+            const db = await DatabaseService.getConnection();
+            const uID = await this.getIDOfUser(user);
+
+            if (uID === -1) {
+                console.error("Invalid user ID, cannot fetch activity.");
+                return null;
+            }
+
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT activityID, uID, action, timestamp FROM user_activity WHERE uID = ? ORDER BY timestamp DESC",
+                [uID]
+            );
+
+            return rows.length ? (rows as UserActivity[]) : [];
+        } catch (error) {
             console.error(`Error fetching user activity: ${(error as Error).message}`);
-            return
+            return null;
+        }
+    }
+
+    /**
+     * Retrieves user activity for the last 7 days.
+     * @async
+     * @param {User} user - The user whose activity is being retrieved.
+     * @returns {Promise<UserActivity[] | null>} - Resolves to an array of user activities or null if an error occurs.
+     */
+    public static async getUserActivityLast7Days(user: User): Promise<UserActivity[] | null> {
+        try {
+            const db = await DatabaseService.getConnection();
+            const uID = await this.getIDOfUser(user);
+
+            if (uID === -1) {
+                console.error("Invalid user ID, cannot fetch activity.");
+                return null;
+            }
+
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                `SELECT activityID, uID, action, timestamp 
+                 FROM user_activity 
+                 WHERE uID = ? AND timestamp >= NOW() - INTERVAL 7 DAY 
+                 ORDER BY timestamp DESC`,
+                [uID]
+            );
+
+            return rows.length ? (rows as UserActivity[]) : [];
+        } catch (error) {
+            console.error(`Error fetching user activity (last 7 days): ${(error as Error).message}`);
+            return null;
         }
     }
 }

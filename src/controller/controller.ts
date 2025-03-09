@@ -14,8 +14,6 @@ import {
 import {handleLogin} from "../model/apiHandles/handleLogin";
 import {handleRegistration} from "../model/apiHandles/handleRegistration";
 import {handleNewSet} from "../model/apiHandles/handleNewSet";
-import {handleGetSets} from "../model/apiHandles/handleGetSets";
-import {handleGetCardsInSet} from "../model/apiHandles/handleGetCardsInSet";
 import {UserService} from "../model/user/user.service";
 import {Role} from '../model/user/user.types';
 import {
@@ -105,6 +103,20 @@ class APIService{
 
     static async handleGetUserActivity(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const time_period = req.query.time_period as string;
+        if(time_period === "alltime"){
+            const result = await UserService.getUserActivityAllTime(user);
+            if(result){
+                res.status(GETOK).json(result);
+            } else res.status(NOTFOUND).json([""]);
+        }
+        else{
+            const result = await UserService.getUserActivityLast7Days(user);
+            if(result){
+                res.status(GETOK).json(result);
+            } else res.status(NOTFOUND).json([""]);
+        }
+
     }
 }
 
@@ -113,6 +125,13 @@ class APIService{
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //GET API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Retrieves all card sets for the current user
+ * @param req - Express request object
+ * @param res - Express response object containing card sets
+ * @throws {Error} If fetching card sets fails
+ */
 controller.get('/api/getSets', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
 
@@ -121,6 +140,13 @@ controller.get('/api/getSets', isAuthenticated, isRegularUser, logUserActivity, 
         res.status(SERVERERROR).render('error', {action: 'getSets', error: e});
     }
 })
+
+/**
+ * Retrieves all cards within a specific set
+ * @param req - Express request object containing set ID
+ * @param res - Express response object containing cards
+ * @throws {Error} If fetching cards fails
+ */
 controller.get('/api/getSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
 
@@ -189,7 +215,7 @@ controller.delete('/api/deleteSet', isAuthenticated, isRegularUser, async (req, 
 controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, async (req, res) => {
 
 })
-controller.delete('/api/deleteUser', isAuthenticated, isModerator, async (req, res) => {
+controller.delete('/api/deleteUser', isAuthenticated, isModeratorUser, async (req, res) => {
 
 })
 
@@ -256,36 +282,6 @@ controller.post('/api/v2/delete-set', async (req, res) => {
 });
 
 /**
- * Retrieves all card sets for the current user
- * @param req - Express request object
- * @param res - Express response object containing card sets
- * @throws {Error} If fetching card sets fails
- */
-controller.get('/api/v2/getCardSets', async (req, res) => {
-    try {
-        await handleGetSets(req, res);
-    } catch (error) {
-        console.error('Error fetching card sets:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-/**
- * Retrieves all cards within a specific set
- * @param req - Express request object containing set ID
- * @param res - Express response object containing cards
- * @throws {Error} If fetching cards fails
- */
-controller.get('/api/v2/getCards', async (req, res) => {
-    try {
-        await handleGetCardsInSet(req, res);
-    } catch (error) {
-        console.error('Error fetching cards in set:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-/**
  * Handles user logout
  * @param req - Express request object
  * @param res - Express response object
@@ -310,7 +306,6 @@ controller.get('/api/v2/logout', (req, res) => {
  */
 controller.get('/', async (req, res) => {
     if(req.session.user){
-        logUserActivity('visited dashboard', req.session.user.username);
         if(req.session.user.role == Role.REGULAR){
             try{
                 const cookie = getCookie(req);
