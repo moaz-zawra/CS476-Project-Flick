@@ -2,16 +2,7 @@ import express = require('express');
 import {UserCreator} from "../user/user.auth";
 import {RegisterStatus} from "../user/user.types";
 
-/**
- * Helper function to handle registration redirection based on status.
- *
- * @param res - The Express response object.
- * @param status - The registration status to be included in the query string.
- */
-function redirectWithStatus(res: express.Response, status: string): void {
-    res.redirect(`/register?status=${status}`);
-}
-
+r
 /**
  * Handles the registration process for new users. Validates input and attempts to register the user.
  * The response depends on the registration status.

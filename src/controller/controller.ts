@@ -11,11 +11,10 @@ import {
     logUserActivity,
     setupExpress,
 } from "../model/utility";
-import {handleLogin} from "../model/apiHandles/handleLogin";
 import {handleRegistration} from "../model/apiHandles/handleRegistration";
 import {handleNewSet} from "../model/apiHandles/handleNewSet";
 import {UserService} from "../model/user/user.service";
-import {Role} from '../model/user/user.types';
+import {LoginStatus, RegisterStatus, Role} from '../model/user/user.types';
 import {
     Category,
     SubCategory_CourseSubjects,
@@ -26,26 +25,42 @@ import {
     SubCategory_Technology
 } from '../model/cardSet/cardset.model';
 import {Regular} from "../model/user/user.roles";
-import {CardSetService} from "../model/cardSet/cardset.service";
 import {CardSetGetStatus} from "../model/cardSet/cardset.types";
-import {CardService} from "../model/card/card.service";
 import {CardGetStatus} from "../model/card/card.types";
+import {UserCreator} from "../model/user/user.auth";
 
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../../src/view');
 
 const GETOK = 200;
 const POSTOK = 201;
+const BADREQUEST = 400;
 const NOTAUTH = 401;
 const FORBIDDEN = 403;
 const NOTFOUND = 404;
 const SERVERERROR = 500;
+const CONFLICT = 409;
 export const port = 3000;
 
 const controller = setupExpress(pub, view);
 
+/**
+ * Helper function to handle redirection based on status.
+ *
+ * @param res - The Express response object.
+ * @param response_code
+ * @param route
+ * @param status - The registration status to be included in the query string.
+ */
+function redirectWithStatus(res: express.Response, response_code: number, route: string, status: string): void {
+    res.status(response_code).redirect(`/${route}?status=${status}`);
+}
+
+
 class APIService{
     //All of these functions assume req.session.user has already been authenticated in the route beforehand
+
+    //GET handlers
     static async handleGetSets(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
         const result = await user.getAllSets();
@@ -58,7 +73,6 @@ class APIService{
         }
         else res.status(GETOK).json(result);
     }
-
     static async handleGetSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
@@ -72,7 +86,6 @@ class APIService{
         }
         else res.status(GETOK).json(result);
     }
-
     static async handleGetCardsInSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
@@ -89,7 +102,6 @@ class APIService{
         }
         else res.status(GETOK).json(result);
     }
-
     static async handleGetSharedSets(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
         const result = await user.getSharedSets();
@@ -102,7 +114,6 @@ class APIService{
         }
         else res.status(GETOK).json(result);
     }
-
     static async handleGetUserActivity(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
         const time_period = req.query.time_period as string;
@@ -119,11 +130,76 @@ class APIService{
             } else res.status(NOTFOUND).json([""]);
         }
     }
-
     static async handleGetRegulars(req: express.Request, res: express.Response): Promise<void> {
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
-        const result = UserService.getRegularUsers();
+        const result = await UserService.getRegularUsers();
+        if(result){
+            res.status(GETOK).json(result);
+        }
+        res.status(NOTFOUND).json([""]);
     }
+    static async handleGetModerators(req: express.Request, res: express.Response): Promise<void> {
+        const result = await UserService.getModeratorUsers();
+        if(result){
+            res.status(GETOK).json(result);
+        }
+        res.status(NOTFOUND).json([""]);
+    }
+
+    //POST handlers
+    static async handleLogin(req: express.Request, res: express.Response): Promise<void> {
+        const user = await new UserCreator().login(req.body.identifier, req.body.password);
+        if(user === LoginStatus.USER_DOES_NOT_EXIST){
+            redirectWithStatus(res, NOTFOUND,'login','does-not-exist');
+        }
+        else if (user === LoginStatus.WRONG_PASSWORD){
+            redirectWithStatus(res, NOTAUTH,'login','wrong-password');
+        }
+        else if (user === LoginStatus.OTHER || user === LoginStatus.DATABASE_FAILURE){
+            redirectWithStatus(res, SERVERERROR,'login','error');
+        }
+        else{
+            req.session.user = req.body;
+            redirectWithStatus(res, POSTOK,'/','');
+        }
+    }
+    static async handleRegister(req: express.Request, res: express.Response): Promise<void> {
+        const { username, email, password, cpassword } = req.body;
+        if(username && email && password && cpassword){
+            const result = await new UserCreator().registerUser(username,email,password,cpassword);
+            if(result === RegisterStatus.SUCCESS){
+                redirectWithStatus(res, POSTOK,'login','registration-success');
+            }
+            else if(result === RegisterStatus.USERNAME_USED){
+                redirectWithStatus(res, CONFLICT,'register','username-used');
+            }
+            else if(result === RegisterStatus.EMAIL_USED){
+                redirectWithStatus(res, CONFLICT,'register','email-used');
+            }
+            else if(result === RegisterStatus.BAD_PASSWORD){
+                redirectWithStatus(res, BADREQUEST,'register','bad-password');
+            }
+            else if(result === RegisterStatus.PASSWORD_MISMATCH){
+                redirectWithStatus(res, BADREQUEST,'register','mismatch-password');
+            }
+            else if(result === RegisterStatus.DATABASE_FAILURE){
+                redirectWithStatus(res, SERVERERROR,'register','error');
+            }
+        } else redirectWithStatus(res, BADREQUEST,'register','missing-fields');
+    }
+    static async handleNewSet(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleNewCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleBan(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {}
+
+    //PUT handlers
+    static async editUser(req: express.Request, res: express.Response): Promise<void> {}
+    static async editSet(req: express.Request, res: express.Response): Promise<void> {}
+    static async editCard(req: express.Request, res: express.Response): Promise<void> {}
+
+    //DELETE handlers
+    static async deleteSet(req: express.Request, res: express.Response): Promise<void> {}
+    static async deleteCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async deleteUser(req: express.Request, res: express.Response): Promise<void> {}
 }
 
 //All API routes generally require REGULAR authentication, some special routes related to user administration require MODERATOR authentication. Routes for managing MODERATORS require ADMINISTRATOR authentication
@@ -140,7 +216,7 @@ class APIService{
  */
 controller.get('/api/getSets', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetSets(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getSets', error: e});
@@ -155,15 +231,16 @@ controller.get('/api/getSets', isAuthenticated, isRegularUser, logUserActivity, 
  */
 controller.get('/api/getSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetSet(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getSet', error: e});
     }
 })
+
 controller.get('/api/getSharedSets', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetSharedSets(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getSharedSets', error: e});
@@ -171,7 +248,7 @@ controller.get('/api/getSharedSets', isAuthenticated, isRegularUser, logUserActi
 })
 controller.get('/api/getCardsInSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetCardsInSet(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
@@ -179,7 +256,7 @@ controller.get('/api/getCardsInSet', isAuthenticated, isRegularUser, logUserActi
 })
 controller.get('/api/getUserActivity', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetUserActivity(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getUserActivity', error: e});
@@ -187,7 +264,7 @@ controller.get('/api/getUserActivity', isAuthenticated, isModeratorUser, logUser
 })
 controller.get('/api/getRegulars', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetRegulars(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getRegulars', error: e});
@@ -195,7 +272,7 @@ controller.get('/api/getRegulars', isAuthenticated, isModeratorUser, logUserActi
 })
 controller.get('/api/getModerators', isAuthenticated, isAdminUser, logUserActivity, async (req, res) => {
     try{
-
+        await APIService.handleGetModerators(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
@@ -206,10 +283,20 @@ controller.get('/api/getModerators', isAuthenticated, isAdminUser, logUserActivi
 //POST API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 controller.post('/api/handleLogin', isNotAuthenticated, async (req, res) => {
-
+    try{
+        await APIService.handleLogin(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+    }
 })
 controller.post('/api/handleRegister', isNotAuthenticated , async (req, res) => {
-
+    try{
+        await APIService.handleRegister(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+    }
 })
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,23 +311,6 @@ controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, async (req,
 controller.delete('/api/deleteUser', isAuthenticated, isModeratorUser, async (req, res) => {
 
 })
-
-
-
-/**
- * Handles user login requests
- * @param req - Express request object containing login credentials
- * @param res - Express response object
- * @throws {Error} If login process fails
- */
-controller.post('/api/v2/login', async (req, res) => {
-    try {
-        await handleLogin(req, res);
-    } catch (error) {
-        console.error('Error during login:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
 
 /**
  * Handles user registration requests
