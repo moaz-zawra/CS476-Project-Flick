@@ -10,6 +10,11 @@ export enum RegisterStatus {
     SUCCESS            // user registration was successful.
 }
 
+export enum getActivityStatus{
+    NO_ACTIVITY,
+    DATABASE_FAILURE
+}
+
 /**
  * Represents possible statuses when attempting to log in.
  */
@@ -26,4 +31,19 @@ export enum Role {
     REGULAR = "REGULAR",           // Standard user with limited access.
     MODERATOR = "MODERATOR",       // user with moderation privileges.
     ADMINISTRATOR = "ADMINISTRATOR" // user with full administrative privileges.
+}
+
+enum UserAction{
+    NEWSET,
+    NEWCARD,
+    SHARESET,
+    VIEWSET,
+    OTHER
+}
+
+interface UserActivity{
+    activityID: number;
+    uID: number;
+    action: UserAction;
+    timestamp: Date;
 }

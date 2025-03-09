@@ -18,6 +18,65 @@ export function getCookie(req: express.Request): string {
 }
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
+
+export function logUserActivity(req: express.Request, res: express.Response, next: express.NextFunction): void {
+    const timestamp = new Date().toISOString(); // ISO 8601 format timestamp
+    const username = req.session.user?.username || "Visitor";
+    console.log(`${timestamp} - ${username} visited ${req.originalUrl}`);
+    next();
+}
+
+/**
+ * Middleware to check if the user is NOT authenticated.
+ * If a user is already logged in, block access and return a 403 Forbidden response.
+ */
+export function isNotAuthenticated(req: express.Request, res: express.Response, next: express.NextFunction): void {
+    if (req.session.user) {
+        res.status(403).redirect('/');
+        return;
+    }
+    next();
+}
+/**
+ * Middleware to check if the user is authenticated.
+ */
+export function isAuthenticated(req: express.Request, res: express.Response, next: express.NextFunction) {
+    if (!req.session.user) {
+        res.status(401).redirect('/login');
+    }
+    next();
+}
+
+/**
+ * Middleware to check if the user is a Regular user.
+ */
+export function isRegularUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+    if (!req.session.user || !isRegular(req.session.user as User)) {
+        res.status(403).redirect('/');
+    }
+    next();
+}
+
+/**
+ * Middleware to check if the user is a Moderator.
+ */
+export function isModeratorUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+    if (!req.session.user || !isModerator(req.session.user as User)) {
+        res.status(403).redirect('/');
+    }
+    next();
+}
+
+/**
+ * Middleware to check if the user is an Administrator.
+ */
+export function isAdminUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+    if (!req.session.user || !isAdmin(req.session.user as User)) {
+        res.status(403).redirect('/');
+    }
+    next();
+}
+
 export function isRegular(user: User): boolean {
     return user.role === "REGULAR"
 }
@@ -26,24 +85,6 @@ export function isModerator(user: User): boolean {
 }
 export function isAdmin(user: User): boolean {
     return user.role === "ADMINISTRATOR"
-}
-
-
-
-/**
- * Logs a user's activity with a timestamp.
- *
- * @param {string} action - The action performed by the user.
- * @param {string} username - The username of the user performing the action.
- *
- * @description This function records user activity in the console with a timestamp in HH:MM format.
- */
-export function logUserActivity(action: string, username: string): string {
-    const now = new Date();
-    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const msg = `[${time}] ${username} ${action}`;
-    console.log(msg)
-    return msg
 }
 
 /**

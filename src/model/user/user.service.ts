@@ -78,6 +78,14 @@ export class UserService {
             return -1;
         }
     }
+    public static async getUserActivity(user: User): Promise<RowDataPacket | null> {
+        try{
+
+        } catch(error){
+            console.error(`Error fetching user activity: ${(error as Error).message}`);
+            return
+        }
+    }
 }
 export class AuthService{
     /**

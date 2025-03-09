@@ -1,23 +1,199 @@
 import path from 'path';
 import axios from 'axios';
+import express from 'express';
 import {
+    getCookie,
+    isAdminUser,
+    isAuthenticated,
+    isModeratorUser,
+    isNotAuthenticated,
+    isRegularUser,
+    logUserActivity,
     setupExpress,
-    getCookie, logUserActivity, isRegular, isModerator, isAdmin,
 } from "../model/utility";
-import { handleLogin } from "../model/apiHandles/handleLogin";
-import { handleRegistration } from "../model/apiHandles/handleRegistration";
-import { handleNewSet } from "../model/apiHandles/handleNewSet";
-import { handleGetSets } from "../model/apiHandles/handleGetSets";
-import { handleGetCardsInSet } from "../model/apiHandles/handleGetCardsInSet";
-import { UserService } from "../model/user/user.service";
-import { Role } from '../model/user/user.types';
-import { Category, SubCategory_Technology, SubCategory_CourseSubjects, SubCategory_Law, SubCategory_Medical, SubCategory_Military, SubCategory_Language } from '../model/cardSet/cardset.model';
+import {handleLogin} from "../model/apiHandles/handleLogin";
+import {handleRegistration} from "../model/apiHandles/handleRegistration";
+import {handleNewSet} from "../model/apiHandles/handleNewSet";
+import {handleGetSets} from "../model/apiHandles/handleGetSets";
+import {handleGetCardsInSet} from "../model/apiHandles/handleGetCardsInSet";
+import {UserService} from "../model/user/user.service";
+import {Role} from '../model/user/user.types';
+import {
+    Category,
+    SubCategory_CourseSubjects,
+    SubCategory_Language,
+    SubCategory_Law,
+    SubCategory_Medical,
+    SubCategory_Military,
+    SubCategory_Technology
+} from '../model/cardSet/cardset.model';
+import {Regular} from "../model/user/user.roles";
+import {CardSetService} from "../model/cardSet/cardset.service";
+import {CardSetGetStatus} from "../model/cardSet/cardset.types";
+import {CardService} from "../model/card/card.service";
+import {CardGetStatus} from "../model/card/card.types";
 
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../../src/view');
+
+const GETOK = 200;
+const POSTOK = 201;
+const NOTAUTH = 401;
+const FORBIDDEN = 403;
+const NOTFOUND = 404;
+const SERVERERROR = 500;
 export const port = 3000;
 
 const controller = setupExpress(pub, view);
+
+class APIService{
+    //All of these functions assume req.session.user has already been authenticated in the route beforehand
+    static async handleGetSets(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const result = await CardSetService.getAllSets(user);
+
+        if(result === CardSetGetStatus.DATABASE_FAILURE){
+            res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSets()', error:'Database Error'})
+        }
+        if(result === CardSetGetStatus.USER_HAS_NO_SETS){
+            res.status(GETOK).json([""]);
+        }
+        else res.status(GETOK).json(result);
+    }
+
+    static async handleGetSet(req: express.Request, res: express.Response): Promise<void> {
+        const setID = parseInt(req.query.setID as string);
+        const result = await CardSetService.getSet(setID);
+
+        if(result === CardSetGetStatus.DATABASE_FAILURE){
+            res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSet()', error:'Database Error'})
+        }
+        if(result === CardSetGetStatus.SET_DOES_NOT_EXIST){
+            res.status(NOTFOUND).render('error', {action: 'APIService.handleGetSet()', error:'Requested set does not exist in DB'})
+        }
+        else res.status(GETOK).json(result);
+    }
+
+    static async handleGetCardsInSet(req: express.Request, res: express.Response): Promise<void> {
+        const setID = parseInt(req.query.setID as string);
+        const result = await CardService.getCards(setID);
+
+        if(result === CardGetStatus.DATABASE_FAILURE){
+            res.status(SERVERERROR).render('error', {action: 'APIService.handleGetCardsInSet()', error:'Database Error'})
+        }
+        if(result === CardGetStatus.SET_DOES_NOT_EXIST){
+            res.status(NOTFOUND).render('error', {action: 'APIService.handleGetCardsInSet()', error:'Requested set does not exist in DB'})
+        }
+        if(result === CardGetStatus.SET_HAS_NO_CARDS){
+            res.status(GETOK).json([""]);
+        }
+        else res.status(GETOK).json(result);
+    }
+
+    static async handleGetSharedSets(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const result = await CardSetService.getSharedSets(user);
+
+        if(result === CardSetGetStatus.DATABASE_FAILURE){
+            res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSharedSets()', error:'Database Error'})
+        }
+        if(result === CardSetGetStatus.USER_HAS_NO_SETS){
+            res.status(GETOK).json([""]);
+        }
+        else res.status(GETOK).json(result);
+    }
+
+    static async handleGetUserActivity(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+    }
+}
+
+//All API routes generally require REGULAR authentication, some special routes related to user administration require MODERATOR authentication. Routes for managing MODERATORS require ADMINISTRATOR authentication
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//GET API routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+controller.get('/api/getSets', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getSets', error: e});
+    }
+})
+controller.get('/api/getSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getSet', error: e});
+    }
+})
+controller.get('/api/getSharedSets', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getSharedSets', error: e});
+    }
+})
+controller.get('/api/getCardsInSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+    }
+})
+controller.get('/api/getUserActivity', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getUserActivity', error: e});
+    }
+})
+controller.get('/api/getRegulars', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getRegulars', error: e});
+    }
+})
+controller.get('/api/getModerators', isAuthenticated, isAdminUser, logUserActivity, async (req, res) => {
+    try{
+
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+    }
+})
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//POST API routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+controller.post('/api/handleLogin', isNotAuthenticated, async (req, res) => {
+
+})
+controller.post('/api/handleRegister', isNotAuthenticated , async (req, res) => {
+
+})
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//DELETE API routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+controller.delete('/api/deleteSet', isAuthenticated, isRegularUser, async (req, res) => {
+
+})
+controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, async (req, res) => {
+
+})
+controller.delete('/api/deleteUser', isAuthenticated, isModerator, async (req, res) => {
+
+})
+
+
 
 /**
  * Handles user login requests

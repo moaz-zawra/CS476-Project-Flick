@@ -1,9 +1,9 @@
-import { DatabaseService } from "../database/databaseService";
-import { RowDataPacket } from "mysql2/promise";
-import { UserService } from "../user/user.service";
-import { User } from "../user/user.model";
-import { CardSet, Category } from "./cardset.model";
-import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus } from "./cardset.types";
+import {DatabaseService} from "../database/databaseService";
+import {RowDataPacket} from "mysql2/promise";
+import {UserService} from "../user/user.service";
+import {User} from "../user/user.model";
+import {CardSet, Category} from "./cardset.model";
+import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus} from "./cardset.types";
 
 export class CardSetService {
     /**
@@ -129,7 +129,7 @@ export class CardSetService {
      * @returns Promise resolving to the card set or a status code
      * @throws Will return DATABASE_FAILURE if there's an error with the database operation
      */
-    static async getSet(setID: number, user?: User): Promise<CardSet | CardSetGetStatus> {
+    static async getSet(setID: number): Promise<CardSet | CardSetGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
             const [rows] = await db.connection.execute<RowDataPacket[]>(
@@ -148,8 +148,34 @@ export class CardSetService {
                 setID: row.setID
             };
         } catch (error) {
-            console.error("Failed to get card set" + setID + " for user " + (user?.username || "unknown") + " with error: ", error);
+            console.error("Failed to get card set" + setID + " with error: ", error);
             return CardSetGetStatus.DATABASE_FAILURE;
         }
+    }
+
+    static async getSharedSets(user: User): Promise<CardSet[] | CardSetGetStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT setID FROM shared_sets WHERE ownerID = ?",
+                [await UserService.getIDOfUser(user)],
+            );
+
+            let sets: CardSet[] = [];
+            if(rows.length === 0) return CardSetGetStatus.USER_HAS_NO_SETS;
+            for (const row of rows) {
+                if(row.setID){
+                    let res = await this.getSet(row.setID);
+                    if(res !== CardSetGetStatus.USER_HAS_NO_SETS && res !== CardSetGetStatus.SET_DOES_NOT_EXIST  && res !== CardSetGetStatus.DATABASE_FAILURE){
+                        sets.push(res);
+                    }
+                }
+            }
+            return sets;
+        } catch(error){
+            console.error("Failed to get shared card sets with error: ", error);
+            return CardSetGetStatus.DATABASE_FAILURE;
+        }
+
     }
 }
