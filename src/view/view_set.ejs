@@ -5,78 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flick | View Set</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            light: '#fde68a', // amber-200
-                            dark: '#31572C', // dark green
-                        },
-                        accent: {
-                            light: '#000000', // black
-                            dark: '#ECF39E', // light yellow-green
-                        },
-                        secondary: {
-                            light: '#e0f2fe', // sky-100
-                            dark: '#90A955', // medium green
-                        },
-                        card: {
-                            light: '#e0f2fe', // sky-100
-                            dark: '#4F772D', // slightly lighter green
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="/theme-toggle.js"></script>
+    <script src="/js/color-scheme.js"></script>
+    <script src="/js/categories.js"></script>
+    <script src="/js/script.js"></script>
 </head>
 
-<body class="p-4 bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark">
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 
-<header>
+<header class="">
     <div class="inline font-extrabold text-3xl font-mono">
-        <span class="text-accent-light dark:text-accent-dark"> flick </span>
-        <div class="float-right flex items-center">
-            <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4">
-                <span class="mr-2 text-sm font-medium">Light</span>
+        <a href='/'> <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">flick</span> </a>
+        <div id="header-buttons" class="float-right flex items-center space-x-4">
+            <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
+                <span class="mr-2 text-sm font-medium text-text-light dark:text-text-dark">Light</span>
                 <div class="relative">
                     <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-secondary-light dark:peer-focus:ring-secondary-dark rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-secondary-dark"></div>
+                    <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
                 </div>
-                <span class="ml-2 text-sm font-medium">Dark</span>
+                <span class="ml-2 text-sm font-medium text-text-light dark:text-text-dark">Dark</span>
             </label>
-        </div>
-        <div id="header-buttons" class="float-right flex flex-col space-y-1 mr-4">
-            <button id="account-button" onclick="window.location.href='/account'" class="text-xs text-accent-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-accent-dark">account</button>
-            <button id="logout-button" onclick="window.location.href='/api/v2/logout'" class="text-xs text-accent-light dark:text-secondary-dark hover:text-primary-light dark:hover:text-accent-dark">logout</button>
+            <div class="flex flex-col space-y-1">
+                <button id="account-button" onclick="window.location.href='/account'" 
+                        class="text-sm text-accent-light dark:text-accent-dark hover:text-highlight-light dark:hover:text-highlight-dark transition-colors">
+                    account
+                </button>
+                <button id="logout-button" onclick="window.location.href='/api/v2/logout'" 
+                        class="text-sm text-accent-light dark:text-accent-dark hover:text-highlight-light dark:hover:text-highlight-dark transition-colors">
+                    logout
+                </button>
+            </div>
         </div>
         <br />
-        <span class="text-accent-light dark:text-accent-dark text-sm">your flashcards are a click away!</span>
+        <span class="text-accent-light dark:text-accent-dark text-sm italic">your flashcards are a click away!</span>
     </div>
-    <hr class="border-accent-light dark:border-accent-dark">
+    <hr class="border-accent-light dark:border-accent-dark mt-4">
+    <div class="text-accent-light dark:text-accent-dark font-extrabold text-center text-4xl font-sans mt-8 mb-6">View Set</div>
 </header>
-<br />
 
-<div class="font-mono text-2xl text-accent-light dark:text-accent-dark">Set Name: <%=set.setName%></div>
-<div class="font-mono text-xl text-accent-light dark:text-accent-dark">
-    <% if(cards.length === 0){%>
-        <br/> This set has no cards
-    <%} else{
-        // Display cards here
-    }%>
-</div>
+<div class="container mx-auto px-4">
+    <div class="font-mono text-2xl text-text-light dark:text-text-dark mb-4">Set Name: <%=set.setName%></div>
+    <div class="font-mono text-xl text-text-light dark:text-text-dark">
+        <% if(cards.length === 0){%>
+            <br/> This set has no cards
+        <%} else{
+            // Display cards here
+        }%>
+    </div>
 
-<div class="mt-4">
-    <button class="border-2 rounded-xl p-2 bg-green-300 dark:bg-secondary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-green-400 dark:hover:bg-secondary-light border-accent-light dark:border-accent-dark"
-            onclick="window.location.href='/new_card'">Add New Card</button>
-    <button class="border-2 rounded-xl p-2 bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-amber-300 dark:hover:bg-secondary-dark border-accent-light dark:border-accent-dark ml-2"
-            onclick="window.location.href='/'">Back to Dashboard</button>
+    <div class="flex space-x-4 mt-8">
+        <button onclick="window.location.href='/new_card'"
+                class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+            Add New Card
+        </button>
+        <button onclick="window.location.href='/'"
+                class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+            Back to Dashboard
+        </button>
+    </div>
 </div>
 
 </body>
-
 </html>

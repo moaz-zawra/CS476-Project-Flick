@@ -12,12 +12,6 @@ import { handleGetCardsInSet } from "../model/apiHandles/handleGetCardsInSet";
 import { UserService } from "../model/user/user.service";
 import { Role } from '../model/user/user.types';
 import { Category, SubCategory_Technology, SubCategory_CourseSubjects, SubCategory_Law, SubCategory_Medical, SubCategory_Military, SubCategory_Language } from '../model/cardSet/cardset.model';
-import {handleDeleteSet} from "../model/apiHandles/handleDeleteSet";
-import { handleGetSet } from '../model/apiHandles/handleGetSet';
-import { handleAddCard } from '../model/apiHandles/handleAddCard';
-import { CardService } from '../model/card/card.service';
-import { CardAddStatus } from '../model/card/card.types';
-import { makeCard } from '../model/card/card.model';
 
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../../src/view');
@@ -76,9 +70,9 @@ controller.post('/api/v2/create-set', async (req, res) => {
  * @param res - Express response object
  * @throws {Error} If set deletion fails
  */
-controller.post('/api/v2/deleteSet', async (req, res) => {
+controller.post('/api/v2/delete-set', async (req, res) => {
     try {
-        await handleDeleteSet(req, res);
+        await handleNewSet(req, res);
     } catch (error) {
         console.error('Error creating new set:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -96,15 +90,6 @@ controller.get('/api/v2/getCardSets', async (req, res) => {
         await handleGetSets(req, res);
     } catch (error) {
         console.error('Error fetching card sets:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-controller.get('/api/v2/getCardSet', async (req,res) =>{
-    try{
-        await handleGetSet(req,res);
-    } catch (error) {
-        console.error('Error fetching card set:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -201,7 +186,7 @@ controller.get('/register', (req, res) => {
  */
 controller.get('/account', (req, res) => {
     if (!req.session.user) return res.redirect('/login');
-    res.render('account', { user: req.session.user });
+    res.render('account', { account: req.session.user });
 });
 
 /**
@@ -219,14 +204,9 @@ controller.post('/view_set', async (req, res) => {
 
         try {
             set = JSON.parse(req.body.set);
-            // Ensure the set has all required fields including subCategory
-            if (!set.setID || !set.setName || !set.category || !set.subCategory || !set.description) {
-                throw new Error('Invalid set data: missing required fields');
-            }
         } catch (parseError) {
             console.error('Error parsing set JSON:', parseError);
             res.status(400).json({error: 'Invalid set data'});
-            return;
         }
 
         const response = await axios.get(`http://localhost:${port}/api/v2/getCards`, {
@@ -238,40 +218,6 @@ controller.post('/view_set', async (req, res) => {
     } catch (error) {
         console.error('Error fetching set data:', error);
         res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-controller.get('/edit_set', async (req, res) => {
-    if (!req.session.user) return res.redirect('/');
-    if(req.session.user.role == Role.REGULAR){
-        try{
-            const cookie = getCookie(req);
-            const setID = req.query.setID;
-            
-            // Get the set data
-            const setResponse = await axios.get(`http://localhost:${port}/api/v2/getCardSet`, {
-                params: { setID },
-                headers: { cookie }
-            });
-
-            let cardsResponse = { data: [] };
-            try {
-                cardsResponse = await axios.get(`http://localhost:${port}/api/v2/getCards`, {
-                    params: { setID: setResponse.data.setID},
-                    headers: { cookie }
-                });
-            } catch (cardError) {
-                console.error('Error fetching cards:', cardError);
-                // Continue with empty cards array if there's an error
-            }
-
-            res.render('edit_set', { 
-                set: setResponse.data,
-                cards: cardsResponse.data 
-            });
-        } catch (error) {
-            console.error('Error fetching set data:', error);
-            res.status(500).send("Error fetching set data");
-        }
     }
 });
 
@@ -293,36 +239,18 @@ controller.get('/new_set', (req, res) => {
         [Category.Military]: 'Military'
     };
 
-    // Create a mapping of subcategories for each category
-    const subcategories = {
-        [Category.Language]: SubCategory_Language,
-        [Category.Technology]: SubCategory_Technology,
-        [Category.CourseSubjects]: SubCategory_CourseSubjects,
-        [Category.Law]: SubCategory_Law,
-        [Category.Medical]: SubCategory_Medical,
-        [Category.Military]: SubCategory_Military
-    };
-
     res.render("new_set", {
         categories: Category,
         categoryNames,
-        subcategories
+        subcategories: {
+            [Category.Language]: SubCategory_Language,
+            [Category.Technology]: SubCategory_Technology,
+            [Category.CourseSubjects]: SubCategory_CourseSubjects,
+            [Category.Law]: SubCategory_Law,
+            [Category.Medical]: SubCategory_Medical,
+            [Category.Military]: SubCategory_Military
+        }
     });
-});
-
-/**
- * Handles adding a new card to a set
- * @param req - Express request object containing card data
- * @param res - Express response object
- * @throws {Error} If card creation fails
- */
-controller.post('/api/v2/addCard', async (req, res) => {
-    try {
-        await handleAddCard(req, res);
-    } catch (error) {
-        console.error('Error adding card:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
 });
 
 /**
@@ -332,4 +260,11 @@ controller.post('/api/v2/addCard', async (req, res) => {
  */
 controller.get('*', (req, res) => res.status(404).sendFile(path.join(pub, "notfound.html")));
 
-controller.listen(port, () => console.log("Server running on 24.72.0.105:" + port));
+// Start the server
+if (require.main === module) {
+    controller.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
+
+export default controller;

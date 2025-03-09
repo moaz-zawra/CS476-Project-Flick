@@ -1,9 +1,10 @@
 import express = require('express');
 import { isRegular } from "../utility";
-import { Regular } from "../user/user.roles";
-import { UserService } from "../user/user.service";
-import { makeCardSet, Category } from "../cardSet/cardset.model";
-import { CardSetAddStatus } from "../cardSet/cardset.types";
+import {Regular} from "../user/user.roles";
+import {UserService} from "../user/user.service";
+import {makeCardSet} from "../cardSet/cardset.model";
+import {CardSetAddStatus} from "../cardSet/cardset.types";
+
 
 /**
  * Handles the creation of a new card set for a regular user.
@@ -27,30 +28,8 @@ export async function handleNewSet(req: express.Request, res: express.Response):
         // Convert the session user to a Regular instance
         const user = Object.assign(new Regular("", ""), req.session.user);
 
-        // Get required fields from request body
-        const { setName, setDesc: description, category, subCategory } = req.body;
-
-        // Validate category
-        const categoryNum = parseInt(category);
-        if (isNaN(categoryNum) || !Object.values(Category).includes(categoryNum)) {
-            res.status(400).send("Invalid category!");
-            return;
-        }
-
-        // Validate subCategory
-        if (!subCategory) {
-            res.status(400).send("Subcategory is required!");
-            return;
-        }
-
-        // Create a new card set
-        const set = makeCardSet(
-            await UserService.getIDOfUser(req.session.user),
-            setName,
-            categoryNum as Category,
-            subCategory,
-            description
-        );
+        // Create a new card set with formatted tags
+        const set = makeCardSet(await UserService.getIDOfUser(req.session.user), req.body.setName, req.body.category, req.body.subCategory, req.body.setDesc);
 
         // Attempt to add the set and handle the status
         const status = await user.addSet(set);
@@ -67,7 +46,7 @@ export async function handleNewSet(req: express.Request, res: express.Response):
             }  // Send error message for database failure
             case CardSetAddStatus.MISSING_INFORMATION: {
                 res.status(400).send("Missing information!");
-                break;
+                break
             }   // Send error message for missing information
             case CardSetAddStatus.NAME_USED: {
                 res.status(409).send("Name already used!");

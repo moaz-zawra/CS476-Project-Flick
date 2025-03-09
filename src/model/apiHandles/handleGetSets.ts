@@ -16,8 +16,6 @@ import {CardSetGetStatus} from "../cardSet/cardset.types";
  * @throws Will handle any database errors that occur during set fetching
  */
 export async function handleGetSets(req: express.Request, res: express.Response) {
-    console.log("In handleGetSets");
-    console.log(req.session.user);
     // Check if the user is logged in
     if (req.session.user) {
         // Check if the user is a regular user

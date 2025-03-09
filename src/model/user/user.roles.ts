@@ -45,7 +45,7 @@ export class Regular implements User {
     }
 
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {
-        return CardService.getCards(setID);
+        return CardService.getCards(setID.toString());
     }
 }
 

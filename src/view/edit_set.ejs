@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flick | Edit Set</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/color-scheme.js"></script>
+    <script src="/js/categories.js"></script>
+    <script src="/js/script.js"></script>
+</head>
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
+
+    <header class="">
+        <div class="inline font-extrabold text-3xl font-mono">
+            <a href='/'> <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">flick</span> </a>
+            <div id="header-buttons" class="float-right flex items-center space-x-4">
+                <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
+                    <span class="mr-2 text-sm font-medium text-text-light dark:text-text-dark">Light</span>
+                    <div class="relative">
+                        <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
+                        <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-text-light dark:text-text-dark">Dark</span>
+                </label>
+                <div class="flex flex-col space-y-1">
+                    <button id="account-button" onclick="window.location.href='/account'" 
+                            class="text-sm text-accent-light dark:text-accent-dark hover:text-highlight-light dark:hover:text-highlight-dark transition-colors">
+                        account
+                    </button>
+                    <button id="logout-button" onclick="window.location.href='/api/v2/logout'" 
+                            class="text-sm text-accent-light dark:text-accent-dark hover:text-highlight-light dark:hover:text-highlight-dark transition-colors">
+                        logout
+                    </button>
+                </div>
+            </div>
+            <br />
+            <span class="text-accent-light dark:text-accent-dark text-sm italic">your flashcards are a click away!</span>
+        </div>
+        <hr class="border-accent-light dark:border-accent-dark mt-4">
+    </header>
+
+<div class="container mx-auto px-4">
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <form id="edit-form" action="/api/v2/editSet" method="POST" class="space-y-6">
+            <input type="hidden" name="setID" value="<%= set.setID %>">
+
+            <div>
+                <label for="setName" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Set Name</label>
+                <input type="text" id="setName" name="setName" value="<%= set.setName %>"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="category" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Category</label>
+                    <select id="category" name="category" 
+                            class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+                        <option value="0" <%= set.category === 0 ? 'selected' : '' %>>Language</option>
+                        <option value="1" <%= set.category === 1 ? 'selected' : '' %>>Technology</option>
+                        <option value="2" <%= set.category === 2 ? 'selected' : '' %>>Course Subjects</option>
+                        <option value="3" <%= set.category === 3 ? 'selected' : '' %>>Law</option>
+                        <option value="4" <%= set.category === 4 ? 'selected' : '' %>>Medical</option>
+                        <option value="5" <%= set.category === 5 ? 'selected' : '' %>>Military</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="subcategory" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Subcategory</label>
+                    <select id="subcategory" name="subcategory" 
+                            class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+                        <option value="none">None</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="description" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Description</label>
+                <textarea id="description" name="description" rows="4"
+                          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"><%= set.description %></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="window.location.href='/dashboard'"
+                        class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-8 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Cards</h2>
+
+        <div class="flex flex-wrap gap-4 justify-center">
+            <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
+                <% cards.forEach(function(card) { %>
+                    <div class="p-4 bg-accent-light dark:bg-accent-dark rounded-lg w-[300px] h-[300px] relative">
+                        <div class="grid grid-cols-1 h-full gap-4">
+                            <div class="flex flex-col justify-center">
+                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
+                                <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.front_text %></p>
+                            </div>
+                            <div class="flex flex-col justify-center border-t-2 border-surface-light dark:border-surface-dark pt-4">
+                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Back</h3>
+                                <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.back_text %></p>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 right-4">
+                            <button onclick="editCard('<%= card.cardID %>')"
+                                    class="border-2 rounded-xl px-4 py-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+
+            <button onclick="addNewCard()"
+                    class="w-[300px] h-[300px] bg-accent-light dark:bg-accent-dark rounded-lg border-2 border-dashed border-surface-light dark:border-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add New Card</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="cardModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[700px] max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Add New Card</h2>
+
+        <form id="cardForm" class="space-y-6">
+            <div>
+                <label for="cardFront" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Front Text</label>
+                <textarea id="cardFront" name="front" rows="3"
+                          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
+            </div>
+
+            <div>
+                <label for="cardBack" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Back Text</label>
+                <textarea id="cardBack" name="back" rows="3"
+                          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeCardModal()"
+                        class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Cancel
+                </button>
+                <button type="button" onclick="saveCard()"
+                        class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                    Save Card
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

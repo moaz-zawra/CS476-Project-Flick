@@ -5,114 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flick | Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/color-scheme.js"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            light: '#fde68a', // amber-200
-                            dark: '#31572C', // dark green
-                        },
-                        accent: {
-                            light: '#000000', // black
-                            dark: '#ECF39E', // light yellow-green
-                        },
-                        secondary: {
-                            light: '#e0f2fe', // sky-100
-                            dark: '#90A955', // medium green
-                        },
-                        card: {
-                            light: '#e0f2fe', // sky-100
-                            dark: '#4F772D', // slightly lighter green
-                        }
-                    }
-                }
-            }
-        }
+        tailwind.config = window.tailwindConfig;
     </script>
-    <script src="/theme-toggle.js"></script>
 </head>
 
-<body class="p-4 bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark">
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
+    <header class="">
+        <div class="inline font-extrabold text-3xl font-mono">
+            <a href='/'> <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">flick</span> </a>
+            <div class="float-right flex items-center">
+                <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
+                    <span class="mr-2 text-sm font-medium text-text-light dark:text-text-dark">Light</span>
+                    <div class="relative">
+                        <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
+                        <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
+                    </div>
+                    <span class="ml-2 text-sm font-medium text-text-light dark:text-text-dark">Dark</span>
+                </label>
+            </div>
+            <br />
+            <span class="text-accent-light dark:text-accent-dark text-sm italic">your flashcards are a click away!</span>
+        </div>
+        <hr class="border-accent-light dark:border-accent-dark mt-4">
+        <div class="text-accent-light dark:text-accent-dark font-extrabold text-center text-4xl font-sans mt-8 mb-6">Register</div>
+    </header>
 
-<header>
-    <div class="inline font-extrabold text-3xl font-mono">
-        <span class="text-accent-light dark:text-accent-dark"> flick </span>
-        <div class="float-right flex items-center">
-            <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4">
-                <span class="mr-2 text-sm font-medium">Light</span>
-                <div class="relative">
-                    <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-secondary-light dark:peer-focus:ring-secondary-dark rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-secondary-dark"></div>
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <form action="/api/v2/register" method="post" class="space-y-4 max-w-sm mx-auto">
+            <% if (status==="bad-password" ) { %>
+                <div class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
+                    <p>Bad Password. Must meet the following:</p>
+                    <ul class="list-disc list-inside">
+                        <li>Length of 8 or more</li>
+                        <li>Alphanumerical</li>
+                        <li>At least one uppercase letter</li>
+                    </ul>
                 </div>
-                <span class="ml-2 text-sm font-medium">Dark</span>
-            </label>
-        </div>
-        <br />
-        <span class="text-accent-light dark:text-accent-dark text-sm">your flashcards are a click away!</span>
+            <% } else if (status==="username-used" ) { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">Username is in use.</p>
+            <% } else if (status==="email-used" ) { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">Email is in use.</p>
+            <% } else if (status==="mismatch-password" ) { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">Passwords don't match.</p>
+            <% } else if (status==="Error" ) { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">Something went wrong. Please try again later.</p>
+            <% } %>
+
+            <div class="mb-4">
+                <label for="username" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Username</label>
+                <input type="text" id="username" name="username"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                       required />
+            </div>
+
+            <div class="mb-4">
+                <label for="email" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Email</label>
+                <input type="email" id="email" name="email"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                       required />
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Password</label>
+                <input type="password" id="password" name="password"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                       required />
+            </div>
+
+            <div class="mb-6">
+                <label for="cpassword" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Confirm Password</label>
+                <input type="password" id="cpassword" name="cpassword"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                       required />
+            </div>
+
+            <button type="submit"
+                    class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105 w-full mb-4">
+                Register
+            </button>
+
+            <button class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
+                    onclick="window.location.href='/login'">
+                Existing User? Click to Login
+            </button>
+        </form>
     </div>
-    <hr class="border-accent-light dark:border-accent-dark">
-    <br /><br />
-    <div class="text-accent-light dark:text-accent-dark font-extrabold text-center text-3xl font-sans">Register</div>
-</header>
 
-<div class="border-2 border-accent-light dark:border-accent-dark bg-card-light dark:bg-card-dark rounded-xl w-80 p-4 text-center mx-auto mt-10">
-    <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-    <form action="/api/v2/register" method="post">
+    <script>
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
 
-        <% if (status==="bad-password" ) { %>
-        <div class="text-red-500 font-sans text-1xl font-bold">
-            <p >Bad Password. Must meet the following:</p>
-            <ul>
-                <li>Length of 8 or more</li>
-                <li>Alphanumerical</li>
-                <li>Atleast one uppercase letter</li>
-            </ul>
-        </div>
-
-        <% } else if (status==="username-used" ) { %>
-            <p class="text-red-500 font-sans text-1xl font-bold">Username is in use.</p>
-        <% } else if (status==="email-used" ) { %>
-            <p class="text-red-500 font-sans text-1xl font-bold">Email is in use.</p>
-        <% } else if (status==="mismatch-password" ) { %>
-            <p class="text-red-500 font-sans text-1xl font-bold">Passwords don't match.</p>
-        <% } else if (status==="Error" ) { %>
-                <p class="text-red-500 font-sans text-1xl font-bold">Something went wrong. Please try again later.</p>
-        <% } %>
-
-        <label for="username" id="uname_label"
-               class="text-accent-light dark:text-accent-dark font-bold">Username</label><br />
-        <input type="text" id="username" name="username"
-               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
-               required /><br /><br />
-
-        <label for="email" id="email_label" class="text-accent-light dark:text-accent-dark font-bold">Email</label><br />
-        <input type="email" id="email" name="email"
-               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
-               required /><br /><br />
-
-        <label for="password" id="password_label"
-               class="text-accent-light dark:text-accent-dark font-bold">Password</label><br />
-        <input type="password" id="password" name="password"
-               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
-               required /><br /><br />
-
-        <label for="cpassword" id="cpassword_label" class="text-accent-light dark:text-accent-dark font-bold">Confirm
-            Password</label><br />
-        <input type="password" id="cpassword" name="cpassword"
-               class="border-2 rounded-lg p-0.5 bg-card-light dark:bg-card-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
-               required /><br /><br />
-
-        <input
-                class="border-2 rounded-xl w-40 p-0.5 bg-green-300 dark:bg-secondary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-green-400 dark:hover:bg-secondary-light focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
-                type="submit" value="Register"><br /><br />
-    </form>
-    <button class="border-2 rounded-xl w-60 p-0.5 bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-amber-300 dark:hover:bg-secondary-dark focus:outline-accent-light dark:focus:outline-accent-dark border-gray-600"
-            onclick="window.location.href='/login'">Existing User? Click to Login</button>
-</div>
-
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-toggle').checked = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('theme-toggle').checked = false;
+        }
+    </script>
 </body>
-
 </html>
