@@ -29,8 +29,9 @@
 
             <div class="flex flex-col space-y-4 mt-8">
                 <button onclick="window.location.href='/api/v2/edit_info'"
-                        class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full">
+                        class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full relative group">
                     Edit Account Info
+                    <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Edit your account information</span>
                 </button>
                 <button onclick="window.location.href='/'"
                         class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full">

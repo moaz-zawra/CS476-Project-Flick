@@ -69,15 +69,19 @@
                 <input type="password" id="password" name="password" autocomplete="new-password"
                        class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
                        required />
+                <div id="password-strength" class="mt-2 text-left text-sm"></div>
             </div>
 
             <div class="mb-6">
                 <label for="cpassword" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
                     Confirm Password
                 </label>
-                <input type="password" id="cpassword" name="cpassword" autocomplete="new-password"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
+                <div class="relative">
+                    <input type="password" id="cpassword" name="cpassword" autocomplete="new-password"
+                           class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                           required />
+                    <span id="password-match" class="absolute right-3 top-3 text-lg"></span>
+                </div>
             </div>
 
             <button type="submit"
@@ -93,5 +97,34 @@
         </form>
     </div>
 </main>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('cpassword');
+    const passwordStrength = document.getElementById('password-strength');
+    const passwordMatch = document.getElementById('password-match');
+    const regex = /^(?=.*[A-Z])(?=.*[a-zA-Z0-9]).{8,}$/;
+
+    passwordInput.addEventListener('input', () => {
+        const value = passwordInput.value;
+        if (regex.test(value)) {
+            passwordStrength.textContent = 'Strong password';
+            passwordStrength.className = 'text-green-500';
+        } else {
+            passwordStrength.textContent = 'Weak password';
+            passwordStrength.className = 'text-red-500';
+        }
+    });
+
+    confirmPasswordInput.addEventListener('input', () => {
+        if (confirmPasswordInput.value === passwordInput.value) {
+            passwordMatch.textContent = '✔ Passwords Match';
+            passwordMatch.className = 'text-green-500';
+        } else {
+            passwordMatch.textContent = '✖ Passwords don\'t Match';
+            passwordMatch.className = 'text-red-500';
+        }
+    });
+</script>
 </body>
 </html>

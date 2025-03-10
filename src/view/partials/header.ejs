@@ -4,13 +4,14 @@
 
         <div id="header-buttons" class="float-right flex items-center gap-3">
             <div class="flex items-center">
-                <label for="theme-toggle" class="inline-flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+                <label for="theme-toggle" class="inline-flex items-center cursor-pointer hover:opacity-80 transition-opacity relative group">
                     <span class="mr-2 text-sm font-medium text-text-light dark:text-text-dark">Light</span>
                     <div class="relative">
                         <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
                         <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
                     </div>
                     <span class="ml-2 text-sm font-medium text-text-light dark:text-text-dark">Dark</span>
+                    <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Toggle Theme</span>
                 </label>
             </div>
 
