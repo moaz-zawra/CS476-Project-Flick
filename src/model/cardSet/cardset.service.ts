@@ -114,7 +114,6 @@ export class CardSetService {
                 description: row.description,
                 setID: row.setID
             }));
-            console.log("Sets: ", sets);
             return sets;
         } catch (error) {
             console.error("Failed to get card sets for user " + user.username + " with error: ", error);
@@ -157,7 +156,7 @@ export class CardSetService {
         try{
             const db = await DatabaseService.getConnection();
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT setID FROM shared_sets WHERE ownerID = ?",
+                "SELECT setID FROM shared_sets WHERE uID = ?",
                 [await UserService.getIDOfUser(user)],
             );
 

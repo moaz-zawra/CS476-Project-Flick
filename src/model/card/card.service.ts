@@ -99,7 +99,6 @@ export class CardService {
     public static async getCards(setID: string): Promise<Card[] | CardGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
-            console.log("Getting cards for setID" , setID);
             // Check if the set exists
             const [setRows] = await db.connection.execute(
                 "SELECT setID FROM card_sets WHERE setID = ?",

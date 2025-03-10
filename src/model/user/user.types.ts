@@ -15,6 +15,19 @@ export enum getActivityStatus{
     DATABASE_FAILURE
 }
 
+export enum banResult{
+    SUCCESS,
+    USER_ALREADY_BANNED,
+    USER_IS_ADMIN,
+    DATABASE_FAILURE,
+}
+
+export enum unbanResult{
+    SUCCESS,
+    USER_NOT_BANNED,
+    DATABASE_FAILURE,
+}
+
 /**
  * Represents possible statuses when attempting to log in.
  */

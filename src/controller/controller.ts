@@ -7,16 +7,16 @@ import {
     isAuthenticated,
     isModeratorUser,
     isNotAuthenticated,
+    isRegular,
     isRegularUser,
     logUserActivity,
     setupExpress,
 } from "../model/utility";
-import {handleRegistration} from "../model/apiHandles/handleRegistration";
-import {handleNewSet} from "../model/apiHandles/handleNewSet";
 import {UserService} from "../model/user/user.service";
-import {LoginStatus, RegisterStatus, Role} from '../model/user/user.types';
+import {LoginStatus, RegisterStatus} from '../model/user/user.types';
 import {
     Category,
+    makeCardSet,
     SubCategory_CourseSubjects,
     SubCategory_Language,
     SubCategory_Law,
@@ -24,10 +24,11 @@ import {
     SubCategory_Military,
     SubCategory_Technology
 } from '../model/cardSet/cardset.model';
-import {Regular} from "../model/user/user.roles";
-import {CardSetGetStatus} from "../model/cardSet/cardset.types";
-import {CardGetStatus} from "../model/card/card.types";
+import {Administrator, Moderator, Regular} from "../model/user/user.roles";
+import {CardSetAddStatus, CardSetGetStatus} from "../model/cardSet/cardset.types";
+import {CardAddStatus, CardGetStatus} from "../model/card/card.types";
 import {UserCreator} from "../model/user/user.auth";
+import {makeCard} from "../model/card/card.model";
 
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../../src/view');
@@ -53,7 +54,7 @@ const controller = setupExpress(pub, view);
  * @param status - The registration status to be included in the query string.
  */
 function redirectWithStatus(res: express.Response, response_code: number, route: string, status: string): void {
-    res.status(response_code).redirect(`/${route}?status=${status}`);
+    return res.status(response_code).redirect(`/${route}?status=${status}`);
 }
 
 
@@ -69,7 +70,7 @@ class APIService{
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSets()', error:'Database Error'})
         }
         if(result === CardSetGetStatus.USER_HAS_NO_SETS){
-            res.status(GETOK).json([""]);
+            res.status(GETOK).json([]);
         }
         else res.status(GETOK).json(result);
     }
@@ -98,7 +99,7 @@ class APIService{
             res.status(NOTFOUND).render('error', {action: 'APIService.handleGetCardsInSet()', error:'Requested set does not exist in DB'})
         }
         if(result === CardGetStatus.SET_HAS_NO_CARDS){
-            res.status(GETOK).json([""]);
+            res.status(GETOK).json([]);
         }
         else res.status(GETOK).json(result);
     }
@@ -110,7 +111,7 @@ class APIService{
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetSharedSets()', error:'Database Error'})
         }
         if(result === CardSetGetStatus.USER_HAS_NO_SETS){
-            res.status(GETOK).json([""]);
+            res.status(GETOK).json([]);
         }
         else res.status(GETOK).json(result);
     }
@@ -118,29 +119,53 @@ class APIService{
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
         const time_period = req.query.time_period as string;
         if(time_period === "alltime"){
-            const result = await UserService.getUserActivityAllTime(user);
+            const result = await user.getAllTimeActivity();
             if(result){
                 res.status(GETOK).json(result);
-            } else res.status(NOTFOUND).json([""]);
+            } else res.status(NOTFOUND).json([]);
         }
         else{
-            const result = await UserService.getUserActivityLast7Days(user);
+            const result = await user.getWeeklyActivity();
             if(result){
                 res.status(GETOK).json(result);
+            } else res.status(NOTFOUND).json([]);
+        }
+    }
+
+    static async handleGetUsersActivity(req: express.Request, res: express.Response): Promise<void> {
+        const user: Moderator = Object.assign(new Moderator("", ""), req.session.user);
+        const time_period = req.query.time_period as string;
+        if(time_period === "alltime"){
+            const result = await user.getUsersAllTimeActivity()
+            if(result){
+                res.status(GETOK).json(result);
+                return;
+            } else res.status(NOTFOUND).json([]);
+        }
+        else{
+            const result = await user.getUsersWeeklyActivity()
+            if(result){
+                res.status(GETOK).json(result);
+                return;
             } else res.status(NOTFOUND).json([""]);
         }
     }
+
     static async handleGetRegulars(req: express.Request, res: express.Response): Promise<void> {
-        const result = await UserService.getRegularUsers();
+        const user: Moderator = Object.assign(new Moderator("", ""), req.session.user);
+        const result = await user.getRegularUsers()
         if(result){
             res.status(GETOK).json(result);
+            return;
         }
         res.status(NOTFOUND).json([""]);
     }
     static async handleGetModerators(req: express.Request, res: express.Response): Promise<void> {
-        const result = await UserService.getModeratorUsers();
+        const user: Administrator = Object.assign(new Administrator("", ""), req.session.user);
+        const result = await user.getModeratorUsers()
         if(result){
             res.status(GETOK).json(result);
+            return;
         }
         res.status(NOTFOUND).json([""]);
     }
@@ -158,8 +183,8 @@ class APIService{
             redirectWithStatus(res, SERVERERROR,'login','error');
         }
         else{
-            req.session.user = req.body;
-            redirectWithStatus(res, POSTOK,'/','');
+            req.session.user = user;
+            res.redirect('/')
         }
     }
     static async handleRegister(req: express.Request, res: express.Response): Promise<void> {
@@ -186,8 +211,52 @@ class APIService{
             }
         } else redirectWithStatus(res, BADREQUEST,'register','missing-fields');
     }
-    static async handleNewSet(req: express.Request, res: express.Response): Promise<void> {}
-    static async handleNewCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleNewSet(req: express.Request, res: express.Response): Promise<void> {
+        const user = Object.assign(new Regular("", ""), req.session.user);
+        const uID = await UserService.getIDOfUser(user);
+
+        const {setName, category, subCategory, setDesc} = req.body;
+        if(setName && category && subCategory && setDesc){
+            const set = makeCardSet(uID, setName, category, subCategory, setDesc);
+            const result = await user.addSet(set);
+
+            if(result === CardSetAddStatus.SUCCESS){
+                redirectWithStatus(res,POSTOK,'/','success');
+            }
+            else if(result === CardSetAddStatus.MISSING_INFORMATION){
+                redirectWithStatus(res,BADREQUEST,'/','missing-fields');
+            }
+            else if(result === CardSetAddStatus.NAME_USED){
+                redirectWithStatus(res,CONFLICT,'/','name-used');
+            }
+            else if(result === CardSetAddStatus.DATABASE_FAILURE){
+                redirectWithStatus(res,SERVERERROR,'/','error');
+            }
+        } else redirectWithStatus(res, BADREQUEST,'/','missing-fields');
+    }
+    static async handleNewCard(req: express.Request, res: express.Response): Promise<void> {
+        const user = Object.assign(new Regular("", ""), req.session.user);
+        const { front_text, back_text, setID } = req.body;
+
+        if(front_text && back_text && setID){
+            const card = makeCard(setID, front_text, back_text);
+            const result = await user.addCardToSet(card);
+
+            if(result === CardAddStatus.SUCCESS){
+                redirectWithStatus(res,POSTOK,'/','success');
+            }
+            else if(result === CardAddStatus.MISSING_INFORMATION){
+                redirectWithStatus(res,BADREQUEST,'/','missing-fields');
+            }
+            else if(result === CardAddStatus.SET_DOES_NOT_EXIST){
+                redirectWithStatus(res,NOTFOUND,'/','set-does-not-exist');
+            }
+            else if(result === CardAddStatus.DATABASE_FAILURE){
+                redirectWithStatus(res,SERVERERROR,'/','error');
+            }
+        } else redirectWithStatus(res, BADREQUEST,'/','missing-fields');
+    }
+    
     static async handleBan(req: express.Request, res: express.Response): Promise<void> {}
     static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {}
 
@@ -254,9 +323,17 @@ controller.get('/api/getCardsInSet', isAuthenticated, isRegularUser, logUserActi
         res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
     }
 })
-controller.get('/api/getUserActivity', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
+controller.get('/api/getUserActivity',isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
     try{
         await APIService.handleGetUserActivity(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getUserActivity', error: e});
+    }
+})
+controller.get('/api/getUsersActivity',isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
+    try{
+        await APIService.handleGetUsersActivity(req,res);
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getUserActivity', error: e});
@@ -282,7 +359,7 @@ controller.get('/api/getModerators', isAuthenticated, isAdminUser, logUserActivi
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //POST API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-controller.post('/api/handleLogin', isNotAuthenticated, async (req, res) => {
+controller.post('/api/login', isNotAuthenticated, async (req, res) => {
     try{
         await APIService.handleLogin(req,res);
     } catch (e) {
@@ -290,7 +367,13 @@ controller.post('/api/handleLogin', isNotAuthenticated, async (req, res) => {
         res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
     }
 })
-controller.post('/api/handleRegister', isNotAuthenticated , async (req, res) => {
+/**
+ * Handles user registration requests
+ * @param req - Express request object containing registration data
+ * @param res - Express response object
+ * @throws {Error} If registration process fails
+ */
+controller.post('/api/register', isNotAuthenticated , async (req, res) => {
     try{
         await APIService.handleRegister(req,res);
     } catch (e) {
@@ -298,80 +381,49 @@ controller.post('/api/handleRegister', isNotAuthenticated , async (req, res) => 
         res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
     }
 })
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//DELETE API routes
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-controller.delete('/api/deleteSet', isAuthenticated, isRegularUser, async (req, res) => {
-
-})
-controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, async (req, res) => {
-
-})
-controller.delete('/api/deleteUser', isAuthenticated, isModeratorUser, async (req, res) => {
-
-})
-
-/**
- * Handles user registration requests
- * @param req - Express request object containing registration data
- * @param res - Express response object
- * @throws {Error} If registration process fails
- */
-controller.post('/api/v2/register', async (req, res) => {
-    try {
-        await handleRegistration(req, res);
-    } catch (error) {
-        console.error('Error during registration:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
 /**
  * Handles creation of new card sets
  * @param req - Express request object containing set data
  * @param res - Express response object
  * @throws {Error} If set creation fails
  */
-controller.post('/api/v2/create-set', async (req, res) => {
-    try {
-        await handleNewSet(req, res);
-    } catch (error) {
-        console.error('Error creating new set:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+controller.post('/api/newSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
 
-/**
- * Handles deletion of card sets
- * @param req - Express request object containing set ID
- * @param res - Express response object
- * @throws {Error} If set deletion fails
- */
-controller.post('/api/v2/delete-set', async (req, res) => {
-    try {
-        await handleNewSet(req, res);
-    } catch (error) {
-        console.error('Error creating new set:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
+})
 /**
  * Handles user logout
  * @param req - Express request object
  * @param res - Express response object
  * @throws {Error} If logout process fails
  */
-controller.get('/api/v2/logout', (req, res) => {
-    try {
-        delete req.session.user;
-        res.redirect('/');
-    } catch (error) {
-        console.error('Error during logout:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+controller.post('/api/logout', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+    try{
+        req.session.destroy(err =>{
+            if(err) console.error(err); res.redirect('/login')
+        });
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
     }
-});
+})
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//DELETE API routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * Handles deletion of card sets
+ * @param req - Express request object containing set ID
+ * @param res - Express response object
+ * @throws {Error} If set deletion fails
+ */
+controller.delete('/api/deleteSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+
+})
+controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+
+})
+controller.delete('/api/deleteUser', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
+
+})
 
 
 /**
@@ -380,30 +432,36 @@ controller.get('/api/v2/logout', (req, res) => {
  * @param res - Express response object
  * @throws {Error} If fetching user data or card sets fails
  */
-controller.get('/', async (req, res) => {
-    if(req.session.user){
-        if(req.session.user.role == Role.REGULAR){
-            try{
-                const cookie = getCookie(req);
-                const response = await axios.get('http://localhost:'+port+'/api/v2/getCardSets', {
-                    headers: {
-                        cookie
-                    }
-                });
+controller.get('/', isAuthenticated, logUserActivity, async (req, res) => {
+    if(isRegular(req.session.user)){
+        try {
+            const cookie = getCookie(req); // gets authentication cookie
+            const userSets = await axios.get('http://localhost:' + port + '/api/getSets', {
+                headers: {
+                    cookie
+                }
+            });
+            const sharedSets = await axios.get('http://localhost:' + port + '/api/getSharedSets', {
+                headers: {
+                    cookie
+                }
+            });
 
-                let sets = response.data;
-                return res.render('dashboard_new', {
-                    user: req.session.user,
-                    uID: await UserService.getIDOfUser(req.session.user),
-                    status: req.query.status,
-                    sets:sets
-                });
-            } catch(error){
-                console.error("Error fetching card sets:", error);
-                res.status(500).send("Error fetching card sets");
-            }
+            const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+            return res.render('regular_dashboard', {
+                user: user,
+                uID: await UserService.getIDOfUser(user),
+                status: req.query.status,
+                userSets: userSets.data,
+                sharedSets: sharedSets.data
+            });
+        } catch (e) {
+            console.error(e);
+            res.status(SERVERERROR).render('error', {action: 'GET /', error: e});
         }
-    } else res.redirect('/login');
+    }
+    else{
+    }
 });
 
 /**
@@ -411,8 +469,8 @@ controller.get('/', async (req, res) => {
  * @param req - Express request object
  * @param res - Express response object
  */
-controller.get('/login', (req, res) => {
-    if (req.session.user) return res.redirect('/');
+controller.get('/login', logUserActivity, (req, res) => {
+    if (req.session.user) return res.redirect('/test');
     res.render('login', { status: req.query.status });
 });
 
@@ -421,7 +479,7 @@ controller.get('/login', (req, res) => {
  * @param req - Express request object
  * @param res - Express response object
  */
-controller.get('/register', (req, res) => {
+controller.get('/register', logUserActivity, (req, res) => {
     if (req.session.user) return res.redirect('/');
     res.render('register', { status: req.query.status });
 });
@@ -431,7 +489,7 @@ controller.get('/register', (req, res) => {
  * @param req - Express request object
  * @param res - Express response object
  */
-controller.get('/account', (req, res) => {
+controller.get('/account', logUserActivity, (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     res.render('account', { account: req.session.user });
 });
@@ -442,7 +500,7 @@ controller.get('/account', (req, res) => {
  * @param res - Express response object
  * @throws {Error} If fetching set data or cards fails
  */
-controller.post('/view_set', async (req, res) => {
+controller.post('/view_set', logUserActivity, async (req, res) => {
     if (!req.session.user) return res.redirect('/');
 
     try {
@@ -499,6 +557,59 @@ controller.get('/new_set', (req, res) => {
         }
     });
 });
+
+controller.get('/test', isAuthenticated, async (req, res) => {
+    const baseURL = `${req.protocol}://${req.get('host')}/api`;
+
+    // List of endpoints to test
+    const endpoints = [
+        { path: '/getSets', role: 'regular' },
+        { path: '/getSet', role: 'regular', params: { setID: '40' } },
+        { path: '/getSharedSets', role: 'regular' },
+        { path: '/getCardsInSet', role: 'regular', params: { setID: '40' } },
+        { path: '/getUserActivity', role: 'moderator', params: { time_period: 'alltime' }},
+        { path: '/getUsersActivity', role: 'moderator', params: { time_period: 'alltime' }},
+        { path: '/getRegulars', role: 'moderator' },
+        { path: '/getModerators', role: 'admin' },
+    ];
+
+    const results: { [key: string]: any } = {};
+
+    await Promise.all(
+        endpoints.map(async endpoint => {
+            const url = `${baseURL}${endpoint.path}`;
+            try {
+                const response = await axios.get(url, {
+                    params: endpoint.params,
+                    headers: {Cookie: req.headers.cookie || ''} // Pass user session cookies for authentication
+                });
+                results[endpoint.path] = {
+                    status: response.status,
+                    data: (Array.isArray(response.data) && response.data.length === 0) ? "Nothing Returned" : response.data
+                };
+
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    results[endpoint.path] = {
+                        status: error.response?.status || 500, // Use actual status code if available
+                        error: 'Request failed: ' + (error.response?.statusText || 'Unknown Error'),
+                    };
+                } else {
+                    results[endpoint.path] = {
+                        status: 500,
+                        error: 'Request failed due to an unexpected error',
+                    };
+                }
+            }
+        })
+    );
+
+    res.render("test_results", { results });
+});
+
+
+
+
 
 /**
  * Handles 404 errors by serving the not found page

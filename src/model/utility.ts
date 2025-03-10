@@ -43,6 +43,8 @@ export function isNotAuthenticated(req: express.Request, res: express.Response, 
 export function isAuthenticated(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.session.user) {
         res.status(401).redirect('/login');
+        return;
+
     }
     next();
 }
@@ -52,7 +54,8 @@ export function isAuthenticated(req: express.Request, res: express.Response, nex
  */
 export function isRegularUser(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.session.user || !isRegular(req.session.user as User)) {
-        res.status(403).redirect('/');
+        res.status(403).json({ error: 'Forbidden: You do not have permission.' });
+        return;
     }
     next();
 }
@@ -62,7 +65,8 @@ export function isRegularUser(req: express.Request, res: express.Response, next:
  */
 export function isModeratorUser(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.session.user || !isModerator(req.session.user as User)) {
-        res.status(403).redirect('/');
+        res.status(403).json({ error: 'Forbidden: You do not have permission.' });
+        return;
     }
     next();
 }
@@ -72,18 +76,22 @@ export function isModeratorUser(req: express.Request, res: express.Response, nex
  */
 export function isAdminUser(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.session.user || !isAdmin(req.session.user as User)) {
-        res.status(403).redirect('/');
+        res.status(403).json({ error: 'Forbidden: You do not have permission.' });
+        return;
     }
     next();
 }
 
 export function isRegular(user: User): boolean {
-    return user.role === "REGULAR"
+    if(!user) return false;
+    return user.role === "REGULAR" || user.role === "MODERATOR" || user.role === "ADMINISTRATOR"
 }
 export function isModerator(user: User): boolean {
-    return user.role === "MODERATOR"
+    if(!user) return false;
+    return user.role === "MODERATOR" || user.role === "ADMINISTRATOR"
 }
 export function isAdmin(user: User): boolean {
+    if(!user) return false;
     return user.role === "ADMINISTRATOR"
 }
 

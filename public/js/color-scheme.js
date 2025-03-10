@@ -12,7 +12,7 @@ window.tailwindConfig = {
                 'accent-dark': '#4d908e',      // Teal accent
                 'highlight-dark': '#f05454',   // Coral red highlight
                 'contrast-dark': '#9d4edd',    // Deep purple
-                
+
                 // Light theme
                 'bg-light': '#f8f9fa',         // Lighter gray for better contrast
                 'surface-light': '#ffffff',    // Pure white
@@ -20,7 +20,7 @@ window.tailwindConfig = {
                 'accent-light': '#457b9d',     // Steel blue accent
                 'highlight-light': '#e63946',  // Soft red highlight
                 'contrast-light': '#2a9d8f',   // Teal green
-                
+
                 // Additional colors
                 'primary-dark': '#0f3460',     // Deep blue for emphasis
                 'primary-light': '#a8dadc',    // Light blue for emphasis
@@ -32,4 +32,31 @@ window.tailwindConfig = {
             }
         }
     }
-}; 
+};
+
+function toggleTheme() {
+    if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.theme = 'light';
+    } else {
+        document.documentElement.classList.add('dark');
+        localStorage.theme = 'dark';
+    }
+}
+
+// Initialize theme based on localStorage or media query after DOM loads
+document.addEventListener("DOMContentLoaded", function() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (localStorage.theme === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        if (themeToggle) {
+            themeToggle.checked = true;
+        }
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (themeToggle) {
+            themeToggle.checked = false;
+        }
+    }
+});

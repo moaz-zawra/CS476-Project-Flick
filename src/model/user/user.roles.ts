@@ -5,7 +5,8 @@ import { CardSet } from "../cardSet/cardset.model";
 import { CardSetService } from "../cardSet/cardset.service";
 import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus } from "../cardSet/cardset.types";
 import { User } from "./user.model";
-import { Role } from "./user.types";
+import {banResult, Role, unbanResult, UserActivity} from "./user.types";
+import {UserService} from "./user.service";
 
 export class Regular implements User {
     readonly username: string;
@@ -47,15 +48,78 @@ export class Regular implements User {
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {
         return CardService.getCards(setID.toString());
     }
+
+    async getWeeklyActivity(): Promise<UserActivity[]>{
+        const activity = await UserService.getUserActivityLast7Days(this);
+        return activity ?? [];
+    }
+    async getAllTimeActivity(): Promise<UserActivity[]>{
+        const activity = await UserService.getUserActivityAllTime(this);
+        return activity ?? [];
+    }
+
     async getSharedSets(): Promise<CardSet[] | CardSetGetStatus> {
         return CardSetService.getSharedSets(this);
     }
 }
 
+
 export class Moderator extends Regular {
     readonly role: Role = Role.MODERATOR;
+
+    async getRegularUsers(): Promise<Regular[]> {
+        return UserService.getRegularUsers();
+    }
+    async getUsersWeeklyActivity(): Promise<{ [username: string]: UserActivity[] }> {
+        //Get the regular users
+        const regularUsers = await this.getRegularUsers();
+
+        //Fetch the activity for each user and format the result
+        const userActivities: { [username: string]: UserActivity[] } = {};
+
+        for (const user of regularUsers) {
+            const username = user.username;
+            const activity = await UserService.getUserActivityLast7Days(user);
+
+            //Only add the activity if it's not null
+            if (activity) {
+                userActivities[username] = activity;
+            }
+        }
+
+        return userActivities;
+    }
+    async getUsersAllTimeActivity(): Promise<{ [username: string]: UserActivity[] }> {
+        //Get the regular users
+        const regularUsers = await this.getRegularUsers();
+
+        //Fetch the activity for each user and format the result
+        const userActivities: { [username: string]: UserActivity[] } = {};
+
+        for (const user of regularUsers) {
+            const username = user.username;
+            const activity = await UserService.getUserActivityAllTime(user);
+
+            //Only add the activity if it's not null
+            if (activity) {
+                userActivities[username] = activity;
+            }
+        }
+
+        return userActivities;
+    }
+    async banUser(): Promise<banResult>{
+        return banResult.SUCCESS
+    }
+    async unbanUser(): Promise<unbanResult>{
+        return unbanResult.SUCCESS
+    }
 }
 
 export class Administrator extends Moderator {
     readonly role: Role = Role.ADMINISTRATOR;
+
+    async getModeratorUsers(): Promise<Moderator[]> {
+        return UserService.getModeratorUsers();
+    }
 }

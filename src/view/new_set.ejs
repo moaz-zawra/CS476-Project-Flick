@@ -10,16 +10,7 @@
 
 <body class="p-4 bg-amber-200">
 
-<header>
-
-    <div class="text-black font-extrabold text-center text-3xl font-mono">Flick</div>
-    <div class="text-black font-extrabold text-center text-xl font-mono italic">Your Flashcards are a Click Away!</div>
-    <hr class="border-black">
-
-    <br /><br />
-    <div class="text-black font-extrabold text-center text-3xl font-sans">New Set</div>
-</header>
-
+<%- include('partials/header') %>
 <div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
     <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
     <form action="/api/v2/create-set" method="post">

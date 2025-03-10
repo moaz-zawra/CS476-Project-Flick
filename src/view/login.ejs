@@ -6,57 +6,49 @@
     <title>Flick | Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
-    <script src="/js/categories.js"></script>
-    <script src="/js/toggle-theme.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
 </head>
-
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
-    <header class="">
-        <div class="inline font-extrabold text-3xl font-mono">
-            <a href='/'> <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">flick</span> </a>
-            <div class="float-right flex items-center">
-                <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
-                    <span class="mr-2 text-sm font-medium text-text-light dark:text-text-dark">Light</span>
-                    <div class="relative">
-                        <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
-                        <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
-                    </div>
-                    <span class="ml-2 text-sm font-medium text-text-light dark:text-text-dark">Dark</span>
-                </label>
-            </div>
-            <br />
-            <span class="text-accent-light dark:text-accent-dark text-sm italic">your flashcards are a click away!</span>
-        </div>
-        <hr class="border-accent-light dark:border-accent-dark mt-4">
-        <div class="text-accent-light dark:text-accent-dark font-extrabold text-center text-4xl font-sans mt-8 mb-6">Login</div>
-    </header>
+<%- include('partials/visitor-header') %>
 
+<main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-        <form action="/api/v2/login" method="post" class="space-y-4 max-w-sm mx-auto">
-            <% if (status==="wrong-password" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">Incorrect password. Please try again.</p>
-            <% } else if (status==="does-not-exist" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">User does not exist. Please sign up.</p>
-            <% } else if (status==="error" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">Something went wrong. Please try again later.</p>
-            <% } else if (status==="registration-success" ) { %>
-                <p class="text-contrast-light dark:text-contrast-dark font-sans text-lg font-bold animate-pulse">Registration successful. Please login.</p>
+        <form action="/api/login" method="post" class="space-y-4 max-w-sm mx-auto">
+            <% if (status === "wrong-password") { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
+                    Incorrect password. Please try again.
+                </p>
+            <% } else if (status === "does-not-exist") { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
+                    User does not exist. Please sign up.
+                </p>
+            <% } else if (status === "error") { %>
+                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
+                    Something went wrong. Please try again later.
+                </p>
+            <% } else if (status === "registration-success") { %>
+                <p class="text-contrast-light dark:text-contrast-dark font-sans text-lg font-bold animate-pulse">
+                    Registration successful. Please login.
+                </p>
             <% } %>
 
             <div class="mb-4">
-                <label for="identifier" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Username or Email</label>
-                <input type="text" id="identifier" name="identifier"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200" 
+                <label for="identifier" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                    Username or Email
+                </label>
+                <input type="text" id="identifier" name="identifier" autocomplete="username"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
                        required />
             </div>
 
             <div class="mb-6">
-                <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Password</label>
-                <input type="password" id="password" name="password"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200" 
+                <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                    Password
+                </label>
+                <input type="password" id="password" name="password" autocomplete="current-password"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
                        required />
             </div>
 
@@ -65,13 +57,13 @@
                 Login
             </button>
 
-            <button class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
+            <button type="button"
+                    class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
                     onclick="window.location.href='/register'">
                 New User? Click to Register
             </button>
         </form>
     </div>
-
-
+</main>
 </body>
 </html>

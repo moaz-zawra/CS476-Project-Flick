@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('partials/head') %>
+    <title>Flick | Test Results</title>
+</head>
+
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
+
+
+<div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom">
+    <table class="w-full border-collapse">
+        <thead>
+        <tr class="bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark">
+            <th class="p-3 text-left">Endpoint</th>
+            <th class="p-3 text-left">Status</th>
+            <th class="p-3 text-left">Response</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% Object.keys(results).forEach(function(endpoint) { %>
+            <tr class="border-b border-accent-light dark:border-accent-dark hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all">
+                <td class="p-3 text-text-light dark:text-text-dark"><%= endpoint %></td>
+                <td class="p-3 font-bold <%= results[endpoint].status >= 200 && results[endpoint].status < 300 ? 'text-green-500' : 'text-red-500' %>">
+                    <%= results[endpoint].status %>
+                </td>
+                <td class="p-3 text-text-light dark:text-text-dark">
+                    <pre class="whitespace-pre-wrap break-words"><%= JSON.stringify(results[endpoint].data || results[endpoint].error, null, 2) %></pre>
+                </td>
+            </tr>
+        <% }); %>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

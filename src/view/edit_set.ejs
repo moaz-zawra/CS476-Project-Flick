@@ -10,35 +10,7 @@
     <script src="/js/script.js"></script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
-
-    <header class="">
-        <div class="inline font-extrabold text-3xl font-mono">
-            <a href='/'> <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">flick</span> </a>
-            <div id="header-buttons" class="float-right flex items-center space-x-4">
-                <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
-                    <span class="mr-2 text-sm font-medium text-text-light dark:text-text-dark">Light</span>
-                    <div class="relative">
-                        <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
-                        <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
-                    </div>
-                    <span class="ml-2 text-sm font-medium text-text-light dark:text-text-dark">Dark</span>
-                </label>
-                <div class="flex flex-col space-y-1">
-                    <button id="account-button" onclick="window.location.href='/account'" 
-                            class="text-sm text-accent-light dark:text-accent-dark hover:text-highlight-light dark:hover:text-highlight-dark transition-colors">
-                        account
-                    </button>
-                    <button id="logout-button" onclick="window.location.href='/api/v2/logout'" 
-                            class="text-sm text-accent-light dark:text-accent-dark hover:text-highlight-light dark:hover:text-highlight-dark transition-colors">
-                        logout
-                    </button>
-                </div>
-            </div>
-            <br />
-            <span class="text-accent-light dark:text-accent-dark text-sm italic">your flashcards are a click away!</span>
-        </div>
-        <hr class="border-accent-light dark:border-accent-dark mt-4">
-    </header>
+<%- include('partials/header') %>
 
 <div class="container mx-auto px-4">
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
@@ -160,4 +132,5 @@
 </div>
 
 </body>
+
 </html>

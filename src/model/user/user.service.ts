@@ -3,6 +3,7 @@ import { DatabaseService } from "../database/databaseService";
 import { RowDataPacket } from "mysql2/promise";
 import { User } from "./user.model";
 import {UserAction, UserActivity} from "./user.types";
+import {Moderator, Regular} from "./user.roles";
 
 export class UserService {
     /**
@@ -125,7 +126,7 @@ export class UserService {
             }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT activityID, uID, action, timestamp FROM user_activity WHERE uID = ? ORDER BY timestamp DESC",
+                "SELECT activityID, uID, action, time FROM user_activity WHERE uID = ? ORDER BY time DESC",
                 [uID]
             );
 
@@ -153,10 +154,10 @@ export class UserService {
             }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                `SELECT activityID, uID, action, timestamp 
+                `SELECT activityID, uID, action, time 
                  FROM user_activity 
-                 WHERE uID = ? AND timestamp >= NOW() - INTERVAL 7 DAY 
-                 ORDER BY timestamp DESC`,
+                 WHERE uID = ? AND time >= NOW() - INTERVAL 7 DAY 
+                 ORDER BY time DESC`,
                 [uID]
             );
 
@@ -169,36 +170,38 @@ export class UserService {
     /**
      * Retrieves all users with the role REGULAR.
      * @async
-     * @returns {Promise<RowDataPacket[]>} A promise resolving to an array of regular users.
+     * @returns {Promise<Regular[]>} A promise resolving to an array of regular users.
      */
-    public static async getRegularUsers(): Promise<RowDataPacket[]> {
+    public static async getRegularUsers(): Promise<Regular[]> {
         const db = await DatabaseService.getConnection();
 
         const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT username, email, role FROM users WHERE role = 'REGULAR'"
+            "SELECT username, email FROM users WHERE role = 'REGULAR'"
         );
 
-        return rows.length ? rows : [];
+        // Map RowDataPacket to Regular instances
+        return rows.map(row => new Regular(row.username, row.email));
     }
+
 
     /**
      * Retrieves all users with the role MODERATOR.
      * @async
      * @returns {Promise<RowDataPacket[]>} A promise resolving to an array of moderator users.
      */
-    public static async getModeratorUsers(): Promise<RowDataPacket[]> {
+    public static async getModeratorUsers(): Promise<Moderator[]> {
         const db = await DatabaseService.getConnection();
 
         const [rows] = await db.connection.execute<RowDataPacket[]>(
             "SELECT username, email, role FROM users WHERE role = 'MODERATOR'"
         );
 
-        return rows.length ? rows : [];
+        return rows.map(row => new Moderator(row.username, row.email));
     }
 }
 export class AuthService{
     /**
-     * Validates whether the provided password meets basic criteria.
+     * Validates whether the provided password meets criteria.
      * @param password - The password to validate.
      * @returns {boolean} True if the password is valid, false otherwise.
      */
