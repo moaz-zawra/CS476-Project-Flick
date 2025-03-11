@@ -47,7 +47,7 @@ controller.use((0, method_override_1.default)('_method'));
  * @param status - The registration status to be included in the query string.
  */
 function redirectWithStatus(res, response_code, route, status) {
-    return res.status(response_code).redirect(`/${route}?status=${status}`);
+    res.status(response_code).redirect(`/${route}?status=${status}`);
 }
 class APIService {
     //All of these functions assume req.session.user has already been authenticated in the route beforehand
@@ -89,10 +89,10 @@ class APIService {
             if (result === card_types_1.CardGetStatus.DATABASE_FAILURE) {
                 res.status(SERVERERROR).render('error', { action: 'APIService.handleGetCardsInSet()', error: 'Database Error' });
             }
-            if (result === card_types_1.CardGetStatus.SET_DOES_NOT_EXIST) {
+            else if (result === card_types_1.CardGetStatus.SET_DOES_NOT_EXIST) {
                 res.status(NOTFOUND).render('error', { action: 'APIService.handleGetCardsInSet()', error: 'Requested set does not exist in DB' });
             }
-            if (result === card_types_1.CardGetStatus.SET_HAS_NO_CARDS) {
+            else if (result === card_types_1.CardGetStatus.SET_HAS_NO_CARDS) {
                 res.status(GETOK).json([]);
             }
             else
@@ -259,24 +259,25 @@ class APIService {
             const user = Object.assign(new user_roles_1.Regular("", ""), req.session.user);
             const { front_text, back_text, setID } = req.body;
             if (front_text && back_text && setID) {
-                user_service_1.UserService.logUserAction(user, user_types_1.UserAction.NEWSET);
+                user_service_1.UserService.logUserAction(user, user_types_1.UserAction.NEWCARD);
                 const card = (0, card_model_1.makeCard)(setID, front_text, back_text);
                 const result = yield user.addCardToSet(card);
                 if (result === card_types_1.CardAddStatus.SUCCESS) {
-                    redirectWithStatus(res, POSTOK, '/', 'success');
+                    return res.status(BADREQUEST).redirect('/edit_set?setID=' + setID + '&status=success');
                 }
                 else if (result === card_types_1.CardAddStatus.MISSING_INFORMATION) {
-                    redirectWithStatus(res, BADREQUEST, '/', 'missing-fields');
+                    return res.status(BADREQUEST).redirect('/edit_set?setID=' + setID + '&status=missing-fields');
                 }
                 else if (result === card_types_1.CardAddStatus.SET_DOES_NOT_EXIST) {
-                    redirectWithStatus(res, NOTFOUND, '/', 'set-does-not-exist');
+                    return res.status(NOTFOUND).redirect('/edit_set?setID=' + setID + '&status=set-does-not-exist');
                 }
                 else if (result === card_types_1.CardAddStatus.DATABASE_FAILURE) {
-                    redirectWithStatus(res, SERVERERROR, '/', 'error');
+                    return res.status(SERVERERROR).redirect('/edit_set?setID=' + setID + '&status=error');
                 }
             }
-            else
-                redirectWithStatus(res, BADREQUEST, '/', 'missing-fields');
+            else {
+                return res.status(BADREQUEST).redirect('/edit_set?setID=' + setID + '&status=missing-fields');
+            }
         });
     }
     static handleBan(req, res) {
@@ -502,6 +503,15 @@ controller.post('/api/newSet', utility_1.isAuthenticated, utility_1.isRegularUse
     catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', { action: 'getCardsInSet', error: e });
+    }
+}));
+controller.post('/api/addCardToSet', utility_1.isAuthenticated, utility_1.isRegularUser, utility_1.logUserActivity, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield APIService.handleNewCard(req, res);
+    }
+    catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', { action: 'addCardToSet', error: e });
     }
 }));
 /**

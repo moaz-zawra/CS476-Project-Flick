@@ -58,7 +58,7 @@ controller.use(methodOverride('_method'))
  * @param status - The registration status to be included in the query string.
  */
 function redirectWithStatus(res: express.Response, response_code: number, route: string, status: string): void {
-    return res.status(response_code).redirect(`/${route}?status=${status}`);
+    res.status(response_code).redirect(`/${route}?status=${status}`);
 }
 
 
@@ -99,10 +99,10 @@ class APIService{
         if(result === CardGetStatus.DATABASE_FAILURE){
             res.status(SERVERERROR).render('error', {action: 'APIService.handleGetCardsInSet()', error:'Database Error'})
         }
-        if(result === CardGetStatus.SET_DOES_NOT_EXIST){
+        else if(result === CardGetStatus.SET_DOES_NOT_EXIST){
             res.status(NOTFOUND).render('error', {action: 'APIService.handleGetCardsInSet()', error:'Requested set does not exist in DB'})
         }
-        if(result === CardGetStatus.SET_HAS_NO_CARDS){
+        else if(result === CardGetStatus.SET_HAS_NO_CARDS){
             res.status(GETOK).json([]);
         }
         else res.status(GETOK).json(result);
@@ -243,24 +243,23 @@ class APIService{
         const user = Object.assign(new Regular("", ""), req.session.user);
         const { front_text, back_text, setID } = req.body;
 
-        if(front_text && back_text && setID){
-            UserService.logUserAction(user, UserAction.NEWSET);
+        if (front_text && back_text && setID) {
+            UserService.logUserAction(user, UserAction.NEWCARD);
             const card = makeCard(setID, front_text, back_text);
             const result = await user.addCardToSet(card);
-
-            if(result === CardAddStatus.SUCCESS){
-                redirectWithStatus(res,POSTOK,'/','success');
+           
+            if (result === CardAddStatus.SUCCESS) {
+                return res.status(BADREQUEST).redirect('/edit_set?setID=' + setID + '&status=success');
+            } else if (result === CardAddStatus.MISSING_INFORMATION) {
+                return res.status(BADREQUEST).redirect('/edit_set?setID=' + setID + '&status=missing-fields');
+            } else if (result === CardAddStatus.SET_DOES_NOT_EXIST) {
+                return res.status(NOTFOUND).redirect('/edit_set?setID=' + setID + '&status=set-does-not-exist');
+            } else if (result === CardAddStatus.DATABASE_FAILURE) {
+                return res.status(SERVERERROR).redirect('/edit_set?setID=' + setID + '&status=error');
             }
-            else if(result === CardAddStatus.MISSING_INFORMATION){
-                redirectWithStatus(res,BADREQUEST,'/','missing-fields');
-            }
-            else if(result === CardAddStatus.SET_DOES_NOT_EXIST){
-                redirectWithStatus(res,NOTFOUND,'/','set-does-not-exist');
-            }
-            else if(result === CardAddStatus.DATABASE_FAILURE){
-                redirectWithStatus(res,SERVERERROR,'/','error');
-            }
-        } else redirectWithStatus(res, BADREQUEST,'/','missing-fields');
+        } else {
+            return res.status(BADREQUEST).redirect('/edit_set?setID=' + setID + '&status=missing-fields');
+        }
     }
     
     static async handleBan(req: express.Request, res: express.Response): Promise<void> {}
@@ -461,6 +460,14 @@ controller.post('/api/newSet', isAuthenticated, isRegularUser, logUserActivity, 
     } catch (e) {
         console.error(e);
         res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+    }
+})
+controller.post('/api/addCardToSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
+    try{
+        await APIService.handleNewCard(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'addCardToSet', error: e});
     }
 })
 /**
