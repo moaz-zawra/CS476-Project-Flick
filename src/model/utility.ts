@@ -42,6 +42,7 @@ export function isNotAuthenticated(req: express.Request, res: express.Response, 
  */
 export function isAuthenticated(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.session.user) {
+        console.log("not authenticated")
         res.status(401).redirect('/login');
         return;
 

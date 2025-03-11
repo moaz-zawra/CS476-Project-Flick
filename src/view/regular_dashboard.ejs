@@ -23,12 +23,12 @@
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">My Card Sets</span>
         <div class="flex items-center space-x-2">
             <button onclick="window.location.href='/new_set'" class="relative group p-1">
-                <img src="add.svg" alt="Plus Icon" class="w-9 h-9">
+                <img src="add.svg" alt="Plus Icon" class="w-9 h-9 light:invert">
                 <span class="absolute left-full ml-2 bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                     New Card Set
                 </span>
             </button>
-            <input type="text" id="userTagFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark" placeholder="Filter by tag">
+            <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark" placeholder="Filter by tag">
         </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mt-2">
@@ -39,7 +39,7 @@
 <div id="shared-cardsets" class="p-2 bg-surface-light dark:bg-surface-dark rounded-md border-2 border-accent-light dark:border-accent-dark">
     <div id="set-bar-shared" class="flex items-center justify-between">
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">Sets Shared with me</span><br />
-        <input type="text" id="sharedTagFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark" placeholder="Filter by tag">
+        <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark" placeholder="Filter by tag">
     </div>
     <hr class="border-accent-light dark:border-accent-dark mt-2">
     <div id="shared-sets"></div>
@@ -124,7 +124,7 @@
         const playImg = document.createElement('img');
         playImg.src = 'play.svg';
         playImg.alt = 'Play Icon';
-        playImg.className = 'w-6 h-6 filter dark:invert';
+        playImg.className = 'w-6 h-6 filter light:invert';
         playButton.appendChild(playImg);
 
         const playSpan = document.createElement('span');
@@ -159,7 +159,7 @@
         const shareImg = document.createElement('img');
         shareImg.src = 'share.svg';
         shareImg.alt = 'Share Icon';
-        shareImg.className = 'w-6 h-6 filter dark:invert';
+        shareImg.className = 'w-6 h-6 filter light:invert';
         shareButton.appendChild(shareImg);
 
         const shareSpan = document.createElement('span');
@@ -175,7 +175,7 @@
         const editImg = document.createElement('img');
         editImg.src = 'edit.svg';
         editImg.alt = 'Edit Icon';
-        editImg.className = 'w-6 h-6 filter dark:invert';
+        editImg.className = 'w-6 h-6 filter light:invert';
         editButton.appendChild(editImg);
 
         const editSpan = document.createElement('span');
@@ -197,7 +197,7 @@
         const deleteImg = document.createElement('img');
         deleteImg.src = 'delete.svg';
         deleteImg.alt = 'Delete Icon';
-        deleteImg.className = 'w-6 h-6 filter dark:invert';
+        deleteImg.className = 'w-6 h-6 filter light:invert';
         deleteButton.appendChild(deleteImg);
 
         const deleteSpan = document.createElement('span');

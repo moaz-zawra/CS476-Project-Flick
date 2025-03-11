@@ -5,7 +5,7 @@ import { CardSet } from "../cardSet/cardset.model";
 import { CardSetService } from "../cardSet/cardset.service";
 import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus } from "../cardSet/cardset.types";
 import { User } from "./user.model";
-import {banResult, Role, unbanResult, UserActivity} from "./user.types";
+import {banResult, Role, unbanResult, UserActivity, UserChangeStatus} from "./user.types";
 import {UserService} from "./user.service";
 
 export class Regular implements User {
@@ -60,6 +60,13 @@ export class Regular implements User {
 
     async getSharedSets(): Promise<CardSet[] | CardSetGetStatus> {
         return CardSetService.getSharedSets(this);
+    }
+
+    async changeDetails(username:string, email:string): Promise<UserChangeStatus>{
+        return UserService.changeUserDetails(this,username,email);
+    }
+    async changePassword(currentPassword:string, newPassword:string): Promise<UserChangeStatus>{
+        return UserService.changeUserPassword(this,currentPassword,newPassword);
     }
 }
 

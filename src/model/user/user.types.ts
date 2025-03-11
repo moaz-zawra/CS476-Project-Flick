@@ -15,6 +15,13 @@ export enum getActivityStatus{
     DATABASE_FAILURE
 }
 
+export enum UserChangeStatus{
+    SUCCESS,
+    USER_DOES_NOT_EXIST,
+    INCORRECT_PASSWORD,
+    DATABASE_FAILURE
+}
+
 export enum banResult{
     SUCCESS,
     USER_ALREADY_BANNED,

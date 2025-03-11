@@ -2,10 +2,50 @@ import bcrypt from 'bcrypt';
 import { DatabaseService } from "../database/databaseService";
 import { RowDataPacket } from "mysql2/promise";
 import { User } from "./user.model";
-import {UserAction, UserActivity} from "./user.types";
+import {LoginStatus, UserAction, UserActivity, UserChangeStatus} from "./user.types";
 import {Moderator, Regular} from "./user.roles";
 
 export class UserService {
+    public static async changeUserDetails(user:User, username:string, email:string): Promise<UserChangeStatus>{
+        try {
+            const db = await DatabaseService.getConnection();
+
+            if (username !="" && email !="" && user){
+                await db.connection.execute(
+                        "UPDATE users SET username = ?, email = ? WHERE username = ?",
+                        [username,email,user.username],)
+                return UserChangeStatus.SUCCESS
+            } else return UserChangeStatus.USER_DOES_NOT_EXIST
+        } catch(e){
+            console.error(`Error changing user details: ${(e as Error).message}`);
+            return UserChangeStatus.DATABASE_FAILURE;
+        }
+    }
+
+    public static async changeUserPassword(user:User, currentPassword: string, newPassword:string): Promise<UserChangeStatus>{
+        try {
+            const db = await DatabaseService.getConnection();
+
+            const userData = await UserService.getUserByIdentifier(user.email);
+
+            if (userData){
+                const isPasswordCorrect = await bcrypt.compare(currentPassword, userData.hash);
+                if(isPasswordCorrect){
+                    const hash = await AuthService.hashPassword(newPassword)
+                    await db.connection.execute(
+                        "UPDATE users SET hash = ? WHERE username = ?",
+                        [hash, userData.username],
+                    )
+                    return UserChangeStatus.SUCCESS
+                } else return UserChangeStatus.INCORRECT_PASSWORD
+            } else return UserChangeStatus.USER_DOES_NOT_EXIST;
+
+        } catch(e){
+            console.error(`Error changing user passwowrd: ${(e as Error).message}`);
+            return UserChangeStatus.DATABASE_FAILURE;
+        }
+    }
+    
     /**
      * Retrieves a user by their email address.
      * @async
@@ -13,14 +53,19 @@ export class UserService {
      * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
      */
     public static async getUserByEmail(email: string): Promise<RowDataPacket | null> {
-        const db = await DatabaseService.getConnection();
+        try {
+            const db = await DatabaseService.getConnection();
 
-        const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT username, email, hash, role FROM users WHERE email = ?",
-            [email]
-        );
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT username, email, hash, role FROM users WHERE email = ?",
+                [email]
+            );
 
-        return rows.length ? rows[0] : null;
+            return rows.length ? rows[0] : null;
+        } catch (e) {
+            console.error(`Error getting user by email: ${(e as Error).message}`);
+            return null;
+        }
     }
     /**
      * Retrieves a user by their username.
@@ -99,7 +144,7 @@ export class UserService {
             }
 
             await db.connection.execute(
-                "INSERT INTO user_activity (uID, action, timestamp) VALUES (?, ?, NOW())",
+                "INSERT INTO user_activity (uID, action) VALUES (?, ?)",
                 [uID, action]
             );
             return true;

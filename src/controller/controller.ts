@@ -1,6 +1,7 @@
 import path from 'path';
 import axios from 'axios';
 import express from 'express';
+import methodOverride from 'method-override';
 import {
     getCookie,
     isAdminUser,
@@ -13,7 +14,7 @@ import {
     setupExpress,
 } from "../model/utility";
 import {UserService} from "../model/user/user.service";
-import {LoginStatus, RegisterStatus} from '../model/user/user.types';
+import {LoginStatus, RegisterStatus, UserChangeStatus} from '../model/user/user.types';
 import {
     Category,
     makeCardSet,
@@ -44,6 +45,8 @@ const CONFLICT = 409;
 export const port = 3000;
 
 const controller = setupExpress(pub, view);
+
+controller.use(methodOverride('_method'))
 
 /**
  * Helper function to handle redirection based on status.
@@ -388,7 +391,12 @@ controller.post('/api/register', isNotAuthenticated , async (req, res) => {
  * @throws {Error} If set creation fails
  */
 controller.post('/api/newSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
-
+    try{
+        await APIService.handleNewSet(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+    }
 })
 /**
  * Handles user logout
@@ -403,9 +411,61 @@ controller.post('/api/logout', isAuthenticated, isRegularUser, logUserActivity, 
         });
     } catch (e) {
         console.error(e);
-        res.status(SERVERERROR).render('error', {action: 'getCardsInSet', error: e});
+        res.status(SERVERERROR).render('error', {action: 'logout', error: e});
     }
 })
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//PUT API routes
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+controller.put('/api/editUser', async (req, res) => {
+    const action = req.body.action;
+
+    if (action === 'change_details') {
+
+        const {username, email, oldUsername, oldEmail} = req.body;
+        if(username && email && oldUsername && oldEmail){
+            if (username === oldUsername && email === oldEmail){
+                redirectWithStatus(res,POSTOK,'account','');
+            }else{
+                const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+                const result = await user.changeDetails(username,email);
+
+                if(result === UserChangeStatus.SUCCESS){
+                    req.session.user = Object.assign(req.session.user, { username, email });
+                    redirectWithStatus(res,POSTOK,'account','success');
+                } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
+                    redirectWithStatus(res,BADREQUEST,'account','user-does-not-exist');
+                } else if(result === UserChangeStatus.DATABASE_FAILURE){
+                    redirectWithStatus(res,SERVERERROR,'account','error');
+                } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
+                    redirectWithStatus(res,NOTAUTH,'account','incorrect-password');
+                }
+            }
+        }else redirectWithStatus(res,BADREQUEST,'account','missing-fields');
+
+    } else if (action === 'change_password') {
+        const {current_password, new_password} = req.body;
+        if(current_password && new_password){
+            const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+
+            const result = await user.changePassword(current_password,new_password);
+
+            if(result === UserChangeStatus.SUCCESS){
+                redirectWithStatus(res,POSTOK,'account','success');
+            } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
+                redirectWithStatus(res,BADREQUEST,'account','user-does-not-exist');
+            } else if(result === UserChangeStatus.DATABASE_FAILURE){
+                redirectWithStatus(res,SERVERERROR,'account','error');
+            } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
+                redirectWithStatus(res,NOTAUTH,'account','incorrect-password');
+            }
+        } else redirectWithStatus(res,BADREQUEST,'account','missing-fields');
+    } else {
+        res.status(BADREQUEST).json({ success: false, message: 'Invalid action' });
+        return;
+    }
+});
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //DELETE API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -424,6 +484,8 @@ controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, logUserActi
 controller.delete('/api/deleteUser', isAuthenticated, isModeratorUser, logUserActivity, async (req, res) => {
 
 })
+
+
 
 
 /**
@@ -453,7 +515,8 @@ controller.get('/', isAuthenticated, logUserActivity, async (req, res) => {
                 uID: await UserService.getIDOfUser(user),
                 status: req.query.status,
                 userSets: userSets.data,
-                sharedSets: sharedSets.data
+                sharedSets: sharedSets.data,
+                currentPage: 'dashboard'
             });
         } catch (e) {
             console.error(e);
@@ -471,7 +534,7 @@ controller.get('/', isAuthenticated, logUserActivity, async (req, res) => {
  */
 controller.get('/login', logUserActivity, (req, res) => {
     if (req.session.user) return res.redirect('/test');
-    res.render('login', { status: req.query.status });
+    res.render('login', { status: req.query.status, currentPage: 'login' });
 });
 
 /**
@@ -481,7 +544,7 @@ controller.get('/login', logUserActivity, (req, res) => {
  */
 controller.get('/register', logUserActivity, (req, res) => {
     if (req.session.user) return res.redirect('/');
-    res.render('register', { status: req.query.status });
+    res.render('register', { status: req.query.status, currentPage: 'register' });
 });
 
 /**
@@ -491,7 +554,7 @@ controller.get('/register', logUserActivity, (req, res) => {
  */
 controller.get('/account', logUserActivity, (req, res) => {
     if (!req.session.user) return res.redirect('/login');
-    res.render('account', { account: req.session.user });
+    res.render('account', { account: req.session.user, status: req.query.status, currentPage: 'account' });
 });
 
 /**
@@ -519,7 +582,7 @@ controller.post('/view_set', logUserActivity, async (req, res) => {
             headers: { cookie }
         });
 
-        res.render("view_set", { set, cards: response.data });
+        res.render("view_set", { set, cards: response.data, status: req.query.status, currentPage: 'view_set' });
     } catch (error) {
         console.error('Error fetching set data:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -554,7 +617,9 @@ controller.get('/new_set', (req, res) => {
             [Category.Law]: SubCategory_Law,
             [Category.Medical]: SubCategory_Medical,
             [Category.Military]: SubCategory_Military
-        }
+        },
+        status: req.query.status,
+        currentPage: 'new_set'
     });
 });
 
@@ -618,11 +683,5 @@ controller.get('/test', isAuthenticated, async (req, res) => {
  */
 controller.get('*', (req, res) => res.status(404).sendFile(path.join(pub, "notfound.html")));
 
-// Start the server
-if (require.main === module) {
-    controller.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-}
+controller.listen(port, () => {console.log(`Server is running on port ${port}`);});
 
-export default controller;

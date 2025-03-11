@@ -1,6 +1,10 @@
 <header>
     <div class="inline font-extrabold text-3xl font-mono">
-        <span class="text-accent-light dark:text-accent-dark"> flick </span>
+        <a href="/">
+            <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">
+              flick
+            </span>
+        </a>
 
         <div id="header-buttons" class="float-right flex items-center gap-3">
             <div class="flex items-center">
@@ -17,11 +21,17 @@
 
             <div class="flex flex-col gap-1 items-start">
                 <!-- Account Button -->
-                <button id="account-button" onclick="window.location.href='/account'" class="m-0 p-0 inline-block text-xs text-secondary-light dark:text-secondary-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                    account
-                </button>
+                <% if (currentPage === 'account') { %>
+                    <button id="dashboard-button" onclick="window.location.href='/'" class="m-0 p-0 inline-block text-xs text-secondary-light dark:text-secondary-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                        dashboard
+                    </button>
+                <% } else { %>
+                    <button id="account-button" onclick="window.location.href='/account'" class="m-0 p-0 inline-block text-xs text-secondary-light dark:text-secondary-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                        account
+                    </button>
+                <% } %>
 
-                <button id="run-tests-button" onclick="window.location.href='/test_results'" class="m-0 p-0 inline-block text-xs text-secondary-light dark:text-secondary-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                <button id="run-tests-button" onclick="window.location.href='/test'" class="m-0 p-0 inline-block text-xs text-secondary-light dark:text-secondary-dark hover:text-accent-light dark:hover:text-accent-dark transition-colors">
                     run tests
                 </button>
 
