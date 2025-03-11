@@ -23,7 +23,7 @@
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">My Card Sets</span>
         <div class="flex items-center space-x-2">
             <button onclick="window.location.href='/new_set'" class="relative group p-1">
-                <img src="add.svg" alt="Plus Icon" class="w-9 h-9 light:invert">
+                <img src="add.svg" alt="Plus Icon" class="w-9 h-9 invert dark:invert-0">
                 <span class="absolute left-full ml-2 bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                     New Card Set
                 </span>
@@ -101,7 +101,7 @@
     }
 
     // Function to insert a set into the DOM
-    function insertSet(setID, setName, category, shared) {
+    function insertSet(setID, setName, category, subcategory, shared) {
         // Create the main div container for the set
         const setDiv = document.createElement('div');
         setDiv.className = 'inline-flex flex-col items-start bg-surface-light dark:bg-surface-dark p-4 border-2 border-accent-light dark:border-accent-dark rounded-md m-2';
@@ -124,7 +124,7 @@
         const playImg = document.createElement('img');
         playImg.src = 'play.svg';
         playImg.alt = 'Play Icon';
-        playImg.className = 'w-6 h-6 filter light:invert';
+        playImg.className = 'w-6 h-6 invert dark:invert-0';
         playButton.appendChild(playImg);
 
         const playSpan = document.createElement('span');
@@ -137,11 +137,18 @@
 
         // Create the category section
         const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'flex items-center gap-2 mt-1';
+        categoryDiv.className = 'flex flex-col items-start gap-1 mt-1';
+
         const categorySpan = document.createElement('span');
         categorySpan.className = 'bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
         categorySpan.textContent = getCategoryName(category);
         categoryDiv.appendChild(categorySpan);
+
+        // Create the subcategory section
+        const subcategorySpan = document.createElement('span');
+        subcategorySpan.className = 'bg-secondary-light dark:bg-secondary-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
+        subcategorySpan.textContent = subcategory;
+        categoryDiv.appendChild(subcategorySpan);
 
         // Create the buttons section (Share, Edit, Delete)
         const buttonsDiv = document.createElement('div');
@@ -159,7 +166,7 @@
         const shareImg = document.createElement('img');
         shareImg.src = 'share.svg';
         shareImg.alt = 'Share Icon';
-        shareImg.className = 'w-6 h-6 filter light:invert';
+        shareImg.className = 'w-6 h-6 invert dark:invert-0';
         shareButton.appendChild(shareImg);
 
         const shareSpan = document.createElement('span');
@@ -170,12 +177,12 @@
         // Edit Button
         const editButton = document.createElement('button');
         editButton.className = buttonBaseClass;
-        editButton.onclick = () => { window.location.href = `/editSet?setID=${setID}`; };
+        editButton.onclick = () => { window.location.href = `/edit_set?setID=${setID}`; };
 
         const editImg = document.createElement('img');
         editImg.src = 'edit.svg';
         editImg.alt = 'Edit Icon';
-        editImg.className = 'w-6 h-6 filter light:invert';
+        editImg.className = 'w-6 h-6 invert dark:invert-0';
         editButton.appendChild(editImg);
 
         const editSpan = document.createElement('span');
@@ -190,14 +197,26 @@
             document.getElementById('confirmation-modal').classList.remove('hidden');
             document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
             document.getElementById('confirm-delete').onclick = () => {
-                window.location.href = `/deleteSet?setID=${setID}`;
+            const form = document.createElement('form');
+            form.action = '/api/deleteSet?_method=DELETE';
+            form.method = 'post';
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'setID';
+            input.value = setID;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
             };
         };
 
         const deleteImg = document.createElement('img');
         deleteImg.src = 'delete.svg';
         deleteImg.alt = 'Delete Icon';
-        deleteImg.className = 'w-6 h-6 filter light:invert';
+        deleteImg.className = 'w-6 h-6 invert dark:invert-0';
         deleteButton.appendChild(deleteImg);
 
         const deleteSpan = document.createElement('span');
@@ -236,7 +255,8 @@
         <script>
             const setData<%= index %> = '<%- JSON.stringify(set) %>';
             const parsedSet<%= index %> = JSON.parse(setData<%= index %>);
-            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, false);
+            console.log(parsedSet<%= index %>);
+            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, parsedSet<%= index %>.subCategory, false);
         </script>
     <% }); %>
 <% } else { %>
@@ -250,7 +270,8 @@
         <script>
             const setData<%= index %> = '<%- JSON.stringify(set) %>';
             const parsedSet<%= index %> = JSON.parse(setData<%= index %>);
-            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, false);
+            
+            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, parsedSet<%= index %>.subCategory, true);
         </script>
     <% }); %>
 <% } else { %>

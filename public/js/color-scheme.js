@@ -11,15 +11,17 @@ window.tailwindConfig = {
                 'text-dark': '#e2e2e2',        // Off-white text
                 'accent-dark': '#4d908e',      // Teal accent
                 'highlight-dark': '#f05454',   // Coral red highlight
-                'contrast-dark': '#9d4edd',    // Deep purple
+                'contrast-dark': '#1565C0',    // Dark blue
 
                 // Light theme
-                'bg-light': '#f8f9fa',         // Lighter gray for better contrast
+                'bg-light': '#FFE082',         // Amber for better contrast
                 'surface-light': '#ffffff',    // Pure white
-                'text-light': '#2b2d42',       // Dark blue-gray text
-                'accent-light': '#457b9d',     // Steel blue accent
+                'text-light': '#212121',       // Black
+                'accent-light': '#212121',     // Black accent
                 'highlight-light': '#e63946',  // Soft red highlight
-                'contrast-light': '#2a9d8f',   // Teal green
+                'contrast-light': '#4d908e',   // Teal green
+                'main-button-light': '#4CAF50',  // Light green
+                'secondary-button-light': '#4FC3F7',    // Sky blue
 
                 // Additional colors
                 'primary-dark': '#0f3460',     // Deep blue for emphasis

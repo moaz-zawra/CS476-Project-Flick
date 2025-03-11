@@ -5,86 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flick | New Set</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/color-scheme.js"></script>
+    <script>
+        tailwind.config = window.tailwindConfig;
+    </script>
 </head>
 
-
-<body class="p-4 bg-amber-200">
-
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
-<div class="border-2 border-black bg-sky-100 rounded-xl w-80 p-4 text-center mx-auto mt-10">
-    <!-- DO NOT CHANGE THE name ATTRIBUTE OF THE INPUT FIELDS PLEASE -->
-    <form action="/api/v2/create-set" method="post">
-        <label for="setName" id="setName_label" class="text-black font-bold">Set Name</label><br />
-        <input type="text" id="setName" name="setName"
-               class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" required />
-        <br /><br />
 
-        <label for="setDesc" id="setDesc_label" class="text-black font-bold">Set Description</label><br />
-        <input type="text" id="setDesc" name="setDesc"
-               class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" required />
-        <br /><br />
+<main>
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <form action="/api/newSet" method="post" class="space-y-4 max-w-sm mx-auto">
+            <div class="mb-4">
+                <label for="setName" id="setName_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                    Set Name
+                </label>
+                <input type="text" id="setName" name="setName"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                       required />
+            </div>
 
-        <label for="category" class="text-black font-bold">Category</label><br />
-        <select id="category" name="category" class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black" required>
-            <option value="" disabled selected>Select a category</option>
-            <% Object.entries(categories).forEach(([key, value]) => { %>
-                <% if (!isNaN(Number(key))) { %>
-                    <option value="<%= key %>"><%= categoryNames[key] %></option>
-                <% } %>
-            <% }); %>
-        </select>
-        <br /><br />
+            <div class="mb-4">
+                <label for="setDesc" id="setDesc_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                    Set Description
+                </label>
+                <input type="text" id="setDesc" name="setDesc"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                       required />
+            </div>
 
-        <div id="subcategory-container" class="hidden">
-            <label for="subcategory" class="text-black font-bold">Subcategory</label><br />
-            <select id="subcategory" name="subcategory" class="border-2 rounded-lg p-0.5 border-gray-600 bg-sky-100 focus:border-black focus:outline focus:outline-black">
-                <option value="" disabled selected>Select a subcategory</option>
-            </select>
-            <br /><br />
-        </div>
+            <div class="mb-4">
+                <label for="category" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                    Category
+                </label>
+                <select id="category" name="category"
+                        class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                        required>
+                    <option value="" disabled selected>Select a category</option>
+                    <% Object.entries(categories).forEach(([key, value]) => { %>
+                        <% if (!isNaN(Number(key))) { %>
+                            <option value="<%= key %>"><%= categoryNames[key] %></option>
+                        <% } %>
+                    <% }); %>
+                </select>
+            </div>
 
-        <input class="border-2 rounded-xl w-40 p-0.5 bg-green-300 dark:bg-secondary-dark text-accent-light dark:text-accent-dark font-bold hover:bg-green-400 dark:hover:bg-secondary-light border-accent-light dark:border-accent-dark"
-               type="submit" value="Create Set">
-        <br /><br /><br />
+            <div id="subcategory-container" class="hidden mb-4">
+                <label for="subcategory" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                    Subcategory
+                </label>
+                <select id="subcategory" name="subcategory"
+                        class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+                    <option value="" disabled selected>Select a subcategory</option>
+                </select>
+            </div>
 
-        <button class="border-2 rounded-xl w-60 p-0.5 bg-amber-200 text-black font-bold hover:bg-amber-300"
-                onclick="window.location.href='/'">Go back to dashboard</button>
-    </form>
+            <button type="submit"
+                    class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105 w-full mb-4">
+                Create Set
+            </button>
 
-</div>
+            <button type="button"
+                    class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
+                    onclick="window.location.href='/'">
+                Go back to dashboard
+            </button>
+        </form>
+    </div>
+</main>
 
 <script>
-// Convert the server-side enums to JavaScript objects
-const subcategories = <%- JSON.stringify(subcategories) %>;
-const categoryNames = <%- JSON.stringify(categoryNames) %>;
+    const subcategories = <%- JSON.stringify(subcategories) %>;
+    const categoryNames = <%- JSON.stringify(categoryNames) %>;
 
-document.getElementById('category').addEventListener('change', function() {
-    const subcategoryContainer = document.getElementById('subcategory-container');
-    const subcategorySelect = document.getElementById('subcategory');
-    const selectedCategory = this.value;
+    document.getElementById('category').addEventListener('change', function() {
+        const subcategoryContainer = document.getElementById('subcategory-container');
+        const subcategorySelect = document.getElementById('subcategory');
+        const selectedCategory = this.value;
 
-    // Clear existing options
-    subcategorySelect.innerHTML = '<option value="" disabled selected>Select a subcategory</option>';
+        // Clear existing options
+        subcategorySelect.innerHTML = '<option value="" disabled selected>Select a subcategory</option>';
 
-    if (selectedCategory && subcategories[selectedCategory]) {
-        // Add new options from the enum
-        const subCategoryEnum = subcategories[selectedCategory];
-        Object.entries(subCategoryEnum).forEach(([key, value]) => {
-            // Skip numeric keys (enum creates both number->string and string->number mappings)
-            if (isNaN(Number(key))) {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = value;
-                subcategorySelect.appendChild(option);
-            }
-        });
-        subcategoryContainer.classList.remove('hidden');
-    } else {
-        subcategoryContainer.classList.add('hidden');
-    }
-});
+        if (selectedCategory && subcategories[selectedCategory]) {
+            // Add new options from the enum
+            const subCategoryEnum = subcategories[selectedCategory];
+            Object.entries(subCategoryEnum).forEach(([key, value]) => {
+                if (isNaN(Number(key))) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = value;
+                    subcategorySelect.appendChild(option);
+                }
+            });
+            subcategoryContainer.classList.remove('hidden');
+        } else {
+            subcategoryContainer.classList.add('hidden');
+        }
+    });
 </script>
 
 </body>
-
 </html>

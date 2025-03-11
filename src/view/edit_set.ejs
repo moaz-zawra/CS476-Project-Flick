@@ -7,7 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
-    <script src="/js/script.js"></script>
+    <script>
+        tailwind.config = window.tailwindConfig;
+    </script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
@@ -53,7 +55,7 @@
             </div>
 
             <div class="flex justify-end space-x-4">
-                <button type="button" onclick="window.location.href='/dashboard'"
+                <button type="button" onclick="window.location.href='/'"
                         class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                     Cancel
                 </button>
@@ -104,16 +106,18 @@
     <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[700px] max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Add New Card</h2>
 
-        <form id="cardForm" class="space-y-6">
+        <form id="cardForm" action="/api/addCardToSet" method="POST" class="space-y-6">
+            <input type="hidden" id="cardSetID" name="setID" value="<%= set.setID %>">
+
             <div>
                 <label for="cardFront" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Front Text</label>
-                <textarea id="cardFront" name="front" rows="3"
+                <textarea id="cardFront" name="front_text" rows="3"
                           class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
             </div>
 
             <div>
                 <label for="cardBack" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Back Text</label>
-                <textarea id="cardBack" name="back" rows="3"
+                <textarea id="cardBack" name="back_text" rows="3"
                           class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
             </div>
 
@@ -122,7 +126,7 @@
                         class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                     Cancel
                 </button>
-                <button type="button" onclick="saveCard()"
+                <button type="submit"
                         class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
                     Save Card
                 </button>
@@ -132,5 +136,36 @@
 </div>
 
 </body>
+<script>
+function editCard(cardId) {
+    console.log('Edit card:', cardId);
+}
+
+function addNewCard() {
+    document.getElementById('cardModal').classList.remove('hidden');
+    document.getElementById('cardForm').reset();
+    // Ensure the setID is correctly set when opening the modal
+    document.getElementById('cardSetID').value = <%= set.setID %>;
+}
+
+function closeCardModal() {
+    document.getElementById('cardModal').classList.add('hidden');
+}
+
+// Check for status parameter and show feedback to user
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    
+    if (status === 'success') {
+        alert('Card added successfully!');
+    } else if (status === 'error') {
+        alert('Error adding card. Please try again.');
+    } else if (status === 'missing-fields') {
+        alert('Please fill in all fields.');
+    }
+});
+</script>
+
 
 </html>
