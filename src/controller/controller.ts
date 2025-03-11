@@ -14,7 +14,7 @@ import {
     setupExpress,
 } from "../model/utility";
 import {UserService} from "../model/user/user.service";
-import {LoginStatus, RegisterStatus, UserChangeStatus} from '../model/user/user.types';
+import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from '../model/user/user.types';
 import {
     Category,
     makeCardSet,
@@ -30,6 +30,7 @@ import {CardSetAddStatus, CardSetGetStatus} from "../model/cardSet/cardset.types
 import {CardAddStatus, CardGetStatus} from "../model/card/card.types";
 import {UserCreator} from "../model/user/user.auth";
 import {makeCard} from "../model/card/card.model";
+import { CardSetService } from '../model/cardSet/cardset.service';
 
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../../src/view');
@@ -218,30 +219,32 @@ class APIService{
         const user = Object.assign(new Regular("", ""), req.session.user);
         const uID = await UserService.getIDOfUser(user);
 
-        const {setName, category, subCategory, setDesc} = req.body;
-        if(setName && category && subCategory && setDesc){
-            const set = makeCardSet(uID, setName, category, subCategory, setDesc);
+        const {setName, category, subcategory, setDesc} = req.body;
+        if(setName && category && subcategory && setDesc){
+            const set = makeCardSet(uID, setName, category, subcategory, setDesc);
             const result = await user.addSet(set);
 
             if(result === CardSetAddStatus.SUCCESS){
-                redirectWithStatus(res,POSTOK,'/','success');
+                UserService.logUserAction(user, UserAction.NEWSET);
+                redirectWithStatus(res,POSTOK,'','success');
             }
             else if(result === CardSetAddStatus.MISSING_INFORMATION){
-                redirectWithStatus(res,BADREQUEST,'/','missing-fields');
+                redirectWithStatus(res,BADREQUEST,'','missing-fields');
             }
             else if(result === CardSetAddStatus.NAME_USED){
-                redirectWithStatus(res,CONFLICT,'/','name-used');
+                redirectWithStatus(res,CONFLICT,'','name-used');
             }
             else if(result === CardSetAddStatus.DATABASE_FAILURE){
-                redirectWithStatus(res,SERVERERROR,'/','error');
+                redirectWithStatus(res,SERVERERROR,'','error');
             }
-        } else redirectWithStatus(res, BADREQUEST,'/','missing-fields');
+        } else redirectWithStatus(res, BADREQUEST,'','missing-fields');
     }
     static async handleNewCard(req: express.Request, res: express.Response): Promise<void> {
         const user = Object.assign(new Regular("", ""), req.session.user);
         const { front_text, back_text, setID } = req.body;
 
         if(front_text && back_text && setID){
+            UserService.logUserAction(user, UserAction.NEWSET);
             const card = makeCard(setID, front_text, back_text);
             const result = await user.addCardToSet(card);
 
@@ -264,7 +267,54 @@ class APIService{
     static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {}
 
     //PUT handlers
-    static async editUser(req: express.Request, res: express.Response): Promise<void> {}
+    static async editUser(req: express.Request, res: express.Response): Promise<void> {
+        const action = req.body.action;
+
+        if (action === 'change_details') {
+    
+            const {username, email, oldUsername, oldEmail} = req.body;
+            if(username && email && oldUsername && oldEmail){
+                if (username === oldUsername && email === oldEmail){
+                    redirectWithStatus(res,POSTOK,'account','');
+                }else{
+                    const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+                    const result = await user.changeDetails(username,email);
+    
+                    if(result === UserChangeStatus.SUCCESS){
+                        req.session.user = Object.assign(req.session.user, { username, email });
+                        redirectWithStatus(res,POSTOK,'account','success');
+                    } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
+                        redirectWithStatus(res,BADREQUEST,'account','user-does-not-exist');
+                    } else if(result === UserChangeStatus.DATABASE_FAILURE){
+                        redirectWithStatus(res,SERVERERROR,'account','error');
+                    } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
+                        redirectWithStatus(res,NOTAUTH,'account','incorrect-password');
+                    }
+                }
+            }else redirectWithStatus(res,BADREQUEST,'account','missing-fields');
+    
+        } else if (action === 'change_password') {
+            const {current_password, new_password} = req.body;
+            if(current_password && new_password){
+                const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+    
+                const result = await user.changePassword(current_password,new_password);
+    
+                if(result === UserChangeStatus.SUCCESS){
+                    redirectWithStatus(res,POSTOK,'account','success');
+                } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
+                    redirectWithStatus(res,BADREQUEST,'account','user-does-not-exist');
+                } else if(result === UserChangeStatus.DATABASE_FAILURE){
+                    redirectWithStatus(res,SERVERERROR,'account','error');
+                } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
+                    redirectWithStatus(res,NOTAUTH,'account','incorrect-password');
+                }
+            } else redirectWithStatus(res,BADREQUEST,'account','missing-fields');
+        } else {
+            res.status(BADREQUEST).json({ success: false, message: 'Invalid action' });
+            return;
+        }
+    }
     static async editSet(req: express.Request, res: express.Response): Promise<void> {}
     static async editCard(req: express.Request, res: express.Response): Promise<void> {}
 
@@ -418,51 +468,11 @@ controller.post('/api/logout', isAuthenticated, isRegularUser, logUserActivity, 
 //PUT API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 controller.put('/api/editUser', async (req, res) => {
-    const action = req.body.action;
-
-    if (action === 'change_details') {
-
-        const {username, email, oldUsername, oldEmail} = req.body;
-        if(username && email && oldUsername && oldEmail){
-            if (username === oldUsername && email === oldEmail){
-                redirectWithStatus(res,POSTOK,'account','');
-            }else{
-                const user: Regular = Object.assign(new Regular("", ""), req.session.user);
-                const result = await user.changeDetails(username,email);
-
-                if(result === UserChangeStatus.SUCCESS){
-                    req.session.user = Object.assign(req.session.user, { username, email });
-                    redirectWithStatus(res,POSTOK,'account','success');
-                } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
-                    redirectWithStatus(res,BADREQUEST,'account','user-does-not-exist');
-                } else if(result === UserChangeStatus.DATABASE_FAILURE){
-                    redirectWithStatus(res,SERVERERROR,'account','error');
-                } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
-                    redirectWithStatus(res,NOTAUTH,'account','incorrect-password');
-                }
-            }
-        }else redirectWithStatus(res,BADREQUEST,'account','missing-fields');
-
-    } else if (action === 'change_password') {
-        const {current_password, new_password} = req.body;
-        if(current_password && new_password){
-            const user: Regular = Object.assign(new Regular("", ""), req.session.user);
-
-            const result = await user.changePassword(current_password,new_password);
-
-            if(result === UserChangeStatus.SUCCESS){
-                redirectWithStatus(res,POSTOK,'account','success');
-            } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
-                redirectWithStatus(res,BADREQUEST,'account','user-does-not-exist');
-            } else if(result === UserChangeStatus.DATABASE_FAILURE){
-                redirectWithStatus(res,SERVERERROR,'account','error');
-            } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
-                redirectWithStatus(res,NOTAUTH,'account','incorrect-password');
-            }
-        } else redirectWithStatus(res,BADREQUEST,'account','missing-fields');
-    } else {
-        res.status(BADREQUEST).json({ success: false, message: 'Invalid action' });
-        return;
+    try{
+        await APIService.editUser(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'getSets', error: e});
     }
 });
 
@@ -563,31 +573,77 @@ controller.get('/account', logUserActivity, (req, res) => {
  * @param res - Express response object
  * @throws {Error} If fetching set data or cards fails
  */
-controller.post('/view_set', logUserActivity, async (req, res) => {
+controller.get('/view_set', logUserActivity, async (req, res) => {
     if (!req.session.user) return res.redirect('/');
 
     try {
         const cookie = getCookie(req);
-        let set;
+        let setID;
 
         try {
-            set = JSON.parse(req.body.set);
+            setID = req.query.setID;
         } catch (parseError) {
             console.error('Error parsing set JSON:', parseError);
             res.status(400).json({error: 'Invalid set data'});
+            return;
         }
 
-        const response = await axios.get(`http://localhost:${port}/api/v2/getCards`, {
-            params: { set },
+        const cards = await axios.get(`http://localhost:${port}/api/getCardsInSet`, {
+            params: { setID },
             headers: { cookie }
         });
 
-        res.render("view_set", { set, cards: response.data, status: req.query.status, currentPage: 'view_set' });
+        const set = await axios.get(`http://localhost:${port}/api/getSet`, {
+            params: { setID },
+            headers: { cookie }
+        });
+        
+        res.render("view_set", { set: set.data, cards: cards.data, status: req.query.status, currentPage: 'view_set' });
     } catch (error) {
         console.error('Error fetching set data:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+/**
+ * Renders the edit set page with cards
+ * @param req - Express request object containing set data
+ * @param res - Express response object
+ * @throws {Error} If fetching set data or cards fails
+ */
+controller.get('/edit_set', logUserActivity, async (req, res) => {
+    if (!req.session.user) return res.redirect('/');
+
+    try {
+        const cookie = getCookie(req);
+        let setID;
+
+        try {
+            setID = req.query.setID;
+        } catch (parseError) {
+            console.error('Error parsing set JSON:', parseError);
+            res.status(400).json({error: 'Invalid set data'});
+            return;
+        }
+
+        const cards = await axios.get(`http://localhost:${port}/api/getCardsInSet`, {
+            params: { setID },
+            headers: { cookie }
+        });
+
+        const set = await axios.get(`http://localhost:${port}/api/getSet`, {
+            params: { setID },
+            headers: { cookie }
+        });
+        
+        res.render("edit_set", { set: set.data, cards: cards.data, status: req.query.status, currentPage: 'edit_set' });
+    } catch (error) {
+        console.error('Error fetching set data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 /**
  * Renders the new set creation page
@@ -669,7 +725,7 @@ controller.get('/test', isAuthenticated, async (req, res) => {
         })
     );
 
-    res.render("test_results", { results });
+    res.render("test_results", { results , currentPage: 'test'});
 });
 
 

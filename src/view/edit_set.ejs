@@ -8,6 +8,9 @@
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        tailwind.config = window.tailwindConfig;
+    </script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
@@ -53,7 +56,7 @@
             </div>
 
             <div class="flex justify-end space-x-4">
-                <button type="button" onclick="window.location.href='/dashboard'"
+                <button type="button" onclick="window.location.href='/'"
                         class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                     Cancel
                 </button>

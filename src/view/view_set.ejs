@@ -8,34 +8,50 @@
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        tailwind.config = window.tailwindConfig;
+    </script>
 </head>
 
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
-
 <%- include('partials/header') %>
 
+<main>
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <div class="font-mono text-2xl text-text-light dark:text-text-dark mb-4">Set Name: <%= set.setName %></div>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
+                <% cards.forEach(function(card) { %>
+                    <div class="inline-flex flex-col items-start bg-surface-light dark:bg-surface-dark p-4 border-2 border-accent-light dark:border-accent-dark rounded-md m-2 w-[300px] h-[300px] relative">
+                        <div class="grid grid-cols-1 h-full gap-4">
+                            <div class="flex flex-col justify-center">
+                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
+                                <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.front_text %></p>
+                            </div>
+                            <div class="flex flex-col justify-center border-t-2 border-surface-light dark:border-surface-dark pt-4">
+                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Back</h3>
+                                <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.back_text %></p>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
 
-<div class="container mx-auto px-4">
-    <div class="font-mono text-2xl text-text-light dark:text-text-dark mb-4">Set Name: <%=set.setName%></div>
-    <div class="font-mono text-xl text-text-light dark:text-text-dark">
-        <% if(cards.length === 0){%>
-            <br/> This set has no cards
-        <%} else{
-            // Display cards here
-        }%>
+            <div class="flex items-center gap-2 mt-4">
+                <button onclick="window.location.href='/edit_set?setID=<%= set.setID %>'"
+                        class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
+                    <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
+                    <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                        Edit Set
+                    </span>
+                </button>
+                <button onclick="window.location.href='/'"
+                        class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
     </div>
-
-    <div class="flex space-x-4 mt-8">
-        <button onclick="window.location.href='/new_card'"
-                class="border-2 rounded-xl px-8 py-3 bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
-            Add New Card
-        </button>
-        <button onclick="window.location.href='/'"
-                class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-            Back to Dashboard
-        </button>
-    </div>
-</div>
-
+</main>
 </body>
 </html>
