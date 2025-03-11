@@ -58,7 +58,8 @@ export enum UserAction{
     NEWCARD,
     SHARESET,
     VIEWSET,
-    OTHER
+    OTHER,
+    PAGE_VIEW
 }
 
 export interface UserActivity{

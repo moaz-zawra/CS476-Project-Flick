@@ -58,6 +58,11 @@ class Regular {
             return card_service_1.CardService.getCards(setID.toString());
         });
     }
+    logAction(action) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return user_service_1.UserService.logUserAction(this, action);
+        });
+    }
     getWeeklyActivity() {
         return __awaiter(this, void 0, void 0, function* () {
             const activity = yield user_service_1.UserService.getUserActivityLast7Days(this);

@@ -64,4 +64,5 @@ var UserAction;
     UserAction[UserAction["SHARESET"] = 2] = "SHARESET";
     UserAction[UserAction["VIEWSET"] = 3] = "VIEWSET";
     UserAction[UserAction["OTHER"] = 4] = "OTHER";
+    UserAction[UserAction["PAGE_VIEW"] = 5] = "PAGE_VIEW";
 })(UserAction || (exports.UserAction = UserAction = {}));

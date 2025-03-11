@@ -5,7 +5,7 @@ import { CardSet } from "../cardSet/cardset.model";
 import { CardSetService } from "../cardSet/cardset.service";
 import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus } from "../cardSet/cardset.types";
 import { User } from "./user.model";
-import {banResult, Role, unbanResult, UserActivity, UserChangeStatus} from "./user.types";
+import {banResult, Role, unbanResult, UserAction, UserActivity, UserChangeStatus} from "./user.types";
 import {UserService} from "./user.service";
 
 export class Regular implements User {
@@ -47,6 +47,9 @@ export class Regular implements User {
 
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {
         return CardService.getCards(setID.toString());
+    }
+    async logAction(action: UserAction){
+        return UserService.logUserAction(this, action);
     }
 
     async getWeeklyActivity(): Promise<UserActivity[]>{

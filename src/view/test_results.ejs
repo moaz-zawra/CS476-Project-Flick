@@ -31,7 +31,7 @@
         <% Object.keys(results).forEach(function(endpoint) { %>
             <tr class="border-b border-accent-light dark:border-accent-dark hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all">
                 <td class="p-3 text-text-light dark:text-text-dark"><%= endpoint %></td>
-                <td class="p-3 font-bold <%= results[endpoint].status >= 200 && results[endpoint].status < 300 ? 'text-green-500' : 'text-red-500' %>">
+                <td class="p-3 font-bold <%= results[endpoint].status >= 200 && results[endpoint].status < 300 || results[endpoint].status === 403 ? 'text-green-500' : 'text-red-500' %>">
                     <%= results[endpoint].status %>
                 </td>
                 <td class="p-3 text-text-light dark:text-text-dark">

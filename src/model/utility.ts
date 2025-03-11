@@ -2,7 +2,95 @@ import express = require("express");
 import session = require('express-session');
 import path = require('path');
 import dotenv = require('dotenv');
+import methodOverride from 'method-override';
 import { User } from "./user/user.model";
+import { UserActivitySubject } from "./observer/user.activity.observer";
+import { UserAction } from "./user/user.types";
+import {Regular} from "./user/user.roles";
+import { DatabaseActivityLogger } from "./observer/activity.logger";
+import { ConsoleActivityLogger } from "./observer/console.logger";
+import { SERVERERROR } from "./api";
+
+
+
+/**
+ * Wraps route handlers with error handling
+ * @param fn - Express route handler function
+ * @returns Route handler with error handling
+ */
+export const asyncHandler = (fn: (req: express.Request, res: express.Response, next?: express.NextFunction) => Promise<any>) => 
+    (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+      Promise.resolve(fn(req, res, next)).catch((err) => {
+        console.error(err);
+        res.status(SERVERERROR).render('error', { 
+          action: req.path, 
+          error: err.message || 'An unexpected error occurred' 
+        });
+      });
+};
+
+/**
+ * Error handling middleware for non-async route handlers
+ * @param fn - Route handler function
+ * @returns Express middleware that catches errors
+ */
+export const routeHandler = (fn: (req: express.Request, res: express.Response, next?: express.NextFunction) => void) => {
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      fn(req, res, next);
+    } catch (error) {
+      console.error('Route error:', error);
+      res.status(500).render('error', { action: req.path, error });
+    }
+  };
+};
+
+export function setupActivityLogger() : UserActivitySubject{
+    const activitySubject = UserActivitySubject.getInstance();
+    activitySubject.attach(new DatabaseActivityLogger());
+    activitySubject.attach(new ConsoleActivityLogger());
+    return activitySubject;
+}
+/**
+ * Sets up and configures an Express application.
+ *
+ * @param {string} path_to_pub - Path to the public directory for static files.
+ * @param {string} path_to_view - Path to the views directory for templates.
+ * @returns {express.Express} An instance of an Express application.
+ *
+ * @description This function initializes an Express application,
+ * adds middleware for JSON and URL-encoded data parsing, and configures the session.
+ * It returns the configured Express app instance.
+ */
+export function setupExpress(path_to_pub: string, path_to_view: string): express.Express {
+    let controller = express();
+    controller.use(express.json());
+    controller.use(express.urlencoded({ extended: true }));
+
+    const secret = process.env.SESSION_SECRET || "NULL";
+    if (secret === "NULL") {
+        throw new Error("Failed to load .env file in fn setupExpress()");
+    }
+
+    controller.use(session({
+        secret: secret,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false }, // Change to true if running on HTTPS
+    }));
+
+    controller.use(methodOverride('_method'))
+    controller.use(express.static(path_to_pub));
+    controller.set("view engine", "ejs");
+    controller.set("views", path_to_view);
+
+    return controller;
+}
+export function setupServer(path_to_pub: string, path_to_view: string): [UserActivitySubject, express.Express] {
+    const activityLogger = setupActivityLogger();
+    const controller = setupExpress(path_to_pub, path_to_view);
+    return [activityLogger, controller];
+}
 
 export function getCookie(req: express.Request): string {
     try{
@@ -18,12 +106,46 @@ export function getCookie(req: express.Request): string {
 }
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
+/**
+ * Creates a properly typed user object from session
+ * @param req - Express request object
+ * @param UserClass - User class to cast to
+ * @returns Properly typed user object
+ */
+function createUserFromSession<T extends Regular>(req: express.Request, UserClass: new (username: string, email: string) => T): T {
+    return Object.assign(new UserClass("", ""), req.session.user);
+}
 
 export function logUserActivity(req: express.Request, res: express.Response, next: express.NextFunction): void {
-    const timestamp = new Date().toISOString(); // ISO 8601 format timestamp
-    const username = req.session.user?.username || "Visitor";
-    console.log(`${timestamp} - ${username} visited ${req.originalUrl}`);
-    next();
+  const activitySubject = UserActivitySubject.getInstance();
+  const user = createUserFromSession(req,Regular);
+  
+  // Create metadata with URL information
+  const metadata = {
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.headers['user-agent']
+  };
+  // Notify all observers of this activity
+  activitySubject.notify(user, UserAction.PAGE_VIEW, metadata);
+  
+  // Continue to the next middleware
+  next();
+}
+
+export function logUserAction(req: express.Request, res: express.Response, action: UserAction): void {
+    const activitySubject = UserActivitySubject.getInstance();
+    const user = createUserFromSession(req,Regular);
+
+    // Create metadata with URL information
+    const metadata = {
+        url: req.originalUrl,
+        method: req.method,
+        ip: req.ip,
+        userAgent: req.headers['user-agent']
+    };
+    activitySubject.notify(user, action, metadata);
 }
 
 /**
@@ -96,40 +218,7 @@ export function isAdmin(user: User): boolean {
     return user.role === "ADMINISTRATOR"
 }
 
-/**
- * Sets up and configures an Express application.
- *
- * @param {string} path_to_pub - Path to the public directory for static files.
- * @param {string} path_to_view - Path to the views directory for templates.
- * @returns {express.Express} An instance of an Express application.
- *
- * @description This function initializes an Express application,
- * adds middleware for JSON and URL-encoded data parsing, and configures the session.
- * It returns the configured Express app instance.
- */
-export function setupExpress(path_to_pub: string, path_to_view: string): express.Express {
-    let controller = express();
-    controller.use(express.json());
-    controller.use(express.urlencoded({ extended: true }));
 
-    const secret = process.env.SESSION_SECRET || "NULL";
-    if (secret === "NULL") {
-        throw new Error("Failed to load .env file in fn setupExpress()");
-    }
-
-    controller.use(session({
-        secret: secret,
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false }, // Change to true if running on HTTPS
-    }));
-
-    controller.use(express.static(path_to_pub));
-    controller.set("view engine", "ejs");
-    controller.set("views", path_to_view);
-
-    return controller;
-}
 
 
 /**
