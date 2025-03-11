@@ -26,7 +26,7 @@ import {
     SubCategory_Technology
 } from '../model/cardSet/cardset.model';
 import {Administrator, Moderator, Regular} from "../model/user/user.roles";
-import {CardSetAddStatus, CardSetGetStatus} from "../model/cardSet/cardset.types";
+import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus} from "../model/cardSet/cardset.types";
 import {CardAddStatus, CardGetStatus} from "../model/card/card.types";
 import {UserCreator} from "../model/user/user.auth";
 import {makeCard} from "../model/card/card.model";
@@ -267,7 +267,7 @@ class APIService{
     static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {}
 
     //PUT handlers
-    static async editUser(req: express.Request, res: express.Response): Promise<void> {
+    static async handleEditUser(req: express.Request, res: express.Response): Promise<void> {
         const action = req.body.action;
 
         if (action === 'change_details') {
@@ -315,13 +315,28 @@ class APIService{
             return;
         }
     }
-    static async editSet(req: express.Request, res: express.Response): Promise<void> {}
-    static async editCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleEditSet(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleEditCard(req: express.Request, res: express.Response): Promise<void> {}
 
     //DELETE handlers
-    static async deleteSet(req: express.Request, res: express.Response): Promise<void> {}
-    static async deleteCard(req: express.Request, res: express.Response): Promise<void> {}
-    static async deleteUser(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleDeleteSet(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const setID = parseInt(req.body.setID as string);
+        console.log('deleting' + setID);
+        const result = await user.deleteSet(setID);
+
+        if(result === CardSetRemoveStatus.SUCCESS){
+            redirectWithStatus(res,POSTOK,'','success');
+        }
+        else if(result === CardSetRemoveStatus.DATABASE_FAILURE){
+            redirectWithStatus(res,POSTOK,'','error');
+        }
+        else if(result === CardSetRemoveStatus.SET_DOES_NOT_EXIST){
+            redirectWithStatus(res,POSTOK,'','does-not-exist');
+        }
+    }
+    static async handleDeleteCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleDeleteUser(req: express.Request, res: express.Response): Promise<void> {}
 }
 
 //All API routes generally require REGULAR authentication, some special routes related to user administration require MODERATOR authentication. Routes for managing MODERATORS require ADMINISTRATOR authentication
@@ -469,10 +484,10 @@ controller.post('/api/logout', isAuthenticated, isRegularUser, logUserActivity, 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 controller.put('/api/editUser', async (req, res) => {
     try{
-        await APIService.editUser(req,res);
+        await APIService.handleEditUser(req,res);
     } catch (e) {
         console.error(e);
-        res.status(SERVERERROR).render('error', {action: 'getSets', error: e});
+        res.status(SERVERERROR).render('error', {action: 'editUser', error: e});
     }
 });
 
@@ -486,7 +501,12 @@ controller.put('/api/editUser', async (req, res) => {
  * @throws {Error} If set deletion fails
  */
 controller.delete('/api/deleteSet', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
-
+    try{
+        await APIService.handleDeleteSet(req,res);
+    } catch (e) {
+        console.error(e);
+        res.status(SERVERERROR).render('error', {action: 'deleteSet', error: e});
+    }
 })
 controller.delete('/api/deleteCard', isAuthenticated, isRegularUser, logUserActivity, async (req, res) => {
 

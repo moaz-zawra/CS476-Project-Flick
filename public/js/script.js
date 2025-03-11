@@ -45,29 +45,3 @@ async function saveCard() {
     closeCardModal();
 }
 
-// New Set functions
-const subcategories = {};
-const categoryNames = {};
-
-document.getElementById('category').addEventListener('change', function() {
-    const subcategoryContainer = document.getElementById('subcategory-container');
-    const subcategorySelect = document.getElementById('subcategory');
-    const selectedCategory = this.value;
-
-    subcategorySelect.innerHTML = '<option value="" disabled selected>Select a subcategory</option>';
-
-    if (selectedCategory && subcategories[selectedCategory]) {
-        const subCategoryEnum = subcategories[selectedCategory];
-        Object.entries(subCategoryEnum).forEach(([key, value]) => {
-            if (isNaN(Number(key))) {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = value;
-                subcategorySelect.appendChild(option);
-            }
-        });
-        subcategoryContainer.classList.remove('hidden');
-    } else {
-        subcategoryContainer.classList.add('hidden');
-    }
-});

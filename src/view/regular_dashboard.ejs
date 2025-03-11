@@ -197,7 +197,19 @@
             document.getElementById('confirmation-modal').classList.remove('hidden');
             document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
             document.getElementById('confirm-delete').onclick = () => {
-                window.location.href = `/deleteSet?setID=${setID}`;
+            const form = document.createElement('form');
+            form.action = '/api/deleteSet?_method=DELETE';
+            form.method = 'post';
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'setID';
+            input.value = setID;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
             };
         };
 
