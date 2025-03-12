@@ -20,7 +20,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx @tailwindcss/cli -i ./public/tailwind-input.css -o ./public/styles.css --watch",
-    "start": "ts-node --files --require tsconfig-paths/register ./src/controller/controller.ts"
+    "start": "nodemon --watch src --ext ts,js,json --exec \"ts-node --files --require tsconfig-paths/register ./src/controller/controller.ts\""
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.0.9",
@@ -43,6 +43,7 @@
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
     "@types/method-override": "^3.0.0",
+    "nodemon": "^3.0.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0"
   }

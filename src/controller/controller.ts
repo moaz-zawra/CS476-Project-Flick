@@ -27,6 +27,13 @@ import {
 import {Administrator, Regular} from "../model/user/user.roles";
 import { APIService } from '../model/api';
 
+const categoryNames = Object.keys(Category)
+    .filter(key => !isNaN(Number(key)))
+    .reduce((acc: { [key: string]: string }, key: string) => {
+        acc[key] = Category[key as any];
+        return acc;
+    }, {});
+console.log(categoryNames);
 export const port = 3000;
 
 const pub = path.join(__dirname, '../../public/');
@@ -339,8 +346,15 @@ controller.get('/view_set',
             params: { setID },
             headers: { cookie }
         });
-        
-        res.render("view_set", { set: set.data.result, cards: cards.data.result, status: req.query.status, currentPage: 'view_set' });
+        console.log(set.data.result);
+        res.render("view_set", { set: set.data.result, cards: cards.data.result, categoryNames, subcategories: {
+            [Category.Language]: SubCategory_Language,
+            [Category.Technology]: SubCategory_Technology,
+            [Category.CourseSubjects]: SubCategory_CourseSubjects,
+            [Category.Law]: SubCategory_Law,
+            [Category.Medical]: SubCategory_Medical,
+            [Category.Military]: SubCategory_Military
+        }, status: req.query.status, currentPage: 'view_set' });
     })
 );
 
@@ -369,7 +383,14 @@ controller.get('/edit_set',
             headers: { cookie }
         });
         
-        res.render("edit_set", { set: set.data.result, cards: cards.data.result, status: req.query.status, currentPage: 'edit_set' });
+        res.render("edit_set", { set: set.data.result, cards: cards.data.result, categoryNames, subcategories: {
+            [Category.Language]: SubCategory_Language,
+            [Category.Technology]: SubCategory_Technology,
+            [Category.CourseSubjects]: SubCategory_CourseSubjects,
+            [Category.Law]: SubCategory_Law,
+            [Category.Medical]: SubCategory_Medical,
+            [Category.Military]: SubCategory_Military
+        }, status: req.query.status, currentPage: 'edit_set' });
     })
 );
 
@@ -383,16 +404,6 @@ controller.get('/new_set',
     isRegularUser,
     logUserActivity,
     routeHandler((req, res) => {
-        // Create a mapping of category names
-        const categoryNames = {
-            [Category.Language]: 'Language',
-            [Category.Technology]: 'Technology',
-            [Category.CourseSubjects]: 'Course Subjects',
-            [Category.Law]: 'Law',
-            [Category.Medical]: 'Medical',
-            [Category.Military]: 'Military'
-        };
-
         res.render("new_set", {
             categories: Category,
             categoryNames,

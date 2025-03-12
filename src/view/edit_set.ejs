@@ -30,12 +30,7 @@
                     <label for="category" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Category</label>
                     <select id="category" name="category" 
                             class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-                        <option value="0" <%= set.category === 0 ? 'selected' : '' %>>Language</option>
-                        <option value="1" <%= set.category === 1 ? 'selected' : '' %>>Technology</option>
-                        <option value="2" <%= set.category === 2 ? 'selected' : '' %>>Course Subjects</option>
-                        <option value="3" <%= set.category === 3 ? 'selected' : '' %>>Law</option>
-                        <option value="4" <%= set.category === 4 ? 'selected' : '' %>>Medical</option>
-                        <option value="5" <%= set.category === 5 ? 'selected' : '' %>>Military</option>
+                        <option value="" disabled>Select a category</option>
                     </select>
                 </div>
 
@@ -137,6 +132,72 @@
 
 </body>
 <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Populate categories dropdown
+  populateCategories();
+  
+  // Set default selected values
+  setDefaultValues();
+});
+
+const category_select = document.getElementById('category');
+const subcategory_select = document.getElementById('subcategory');
+const category = <%- JSON.stringify(set.category) %>;
+const subcategory = <%- JSON.stringify(set.subCategory) %>;
+
+function populateCategories() {
+  // Clear existing options except the first one
+  while (category_select.options.length > 1) {
+    category_select.remove(1);
+  }
+  const categoryNames = <%- JSON.stringify(categoryNames) %>;
+
+  for(let categoryKey in categoryNames) {
+    const option = document.createElement('option');
+    option.value = categoryKey;
+    option.textContent = categoryNames[categoryKey];
+    category_select.appendChild(option);
+  }
+  
+  // Set up event listener to update subcategories when category changes
+  category_select.addEventListener('change', updateSubcategories);
+}
+function setDefaultValues() {
+    // Set default category
+    if (category) {
+        category_select.value = category;
+        console.log(category);
+        updateSubcategories();
+
+        // Set default subcategory
+        if (subcategory) {
+            subcategory_select.value = subcategory;
+        }
+    }
+}
+
+function updateSubcategories() {
+  // Clear existing subcategory options except the first one
+  while (subcategory_select.options.length > 1) {
+    subcategory_select.remove(1);
+  }
+  
+  // Get selected category
+  const selectedCategory = category_select.value;
+  if (!selectedCategory) return;
+  
+  let subcategories = <%- JSON.stringify(subcategories) %>;
+  subcategories = subcategories[selectedCategory];
+  // Add subcategories to the dropdown
+  for (const [key, name] of Object.entries(subcategories)) {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = name;
+    subcategory_select.appendChild(option);
+  }
+}
+
 function editCard(cardId) {
     console.log('Edit card:', cardId);
 }
@@ -166,6 +227,4 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
-
-
 </html>

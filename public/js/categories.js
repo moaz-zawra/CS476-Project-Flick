@@ -80,28 +80,6 @@ function getCategoryName(categoryId) {
 }
 
 // Function to populate subcategory dropdown based on selected category
-function populateSubcategory(categoryId, selectedSubcategory, targetId) {
-    const subcategories = {
-        '0': ['Arabic', 'Chinese', 'English', 'French', 'German', 'Italian', 'Japanese', 'Korean', 'Portuguese', 'Russian', 'Spanish', 'Other'],
-        '1': ['AI/ML', 'Cloud Computing', 'Cybersecurity', 'Data Science', 'DevOps', 'Mobile Development', 'Programming Languages', 'Web Development', 'Other'],
-        '2': ['Art', 'Biology', 'Chemistry', 'Computer Science', 'Economics', 'Engineering', 'History', 'Literature', 'Mathematics', 'Physics', 'Psychology', 'Other'],
-        '3': ['Constitutional Law', 'Contract Law', 'Criminal Law', 'Family Law', 'International Law', 'Property Law', 'Tax Law', 'Other'],
-        '4': ['Anatomy', 'Dentistry', 'Nursing', 'Pathology', 'Pharmacology', 'Physiology', 'Surgery', 'Other'],
-        '5': ['Air Force', 'Army', 'Coast Guard', 'Marines', 'Navy', 'Other']
-    };
-
-    const dropdown = document.getElementById(targetId);
-    dropdown.innerHTML = '<option value="">All Subcategories</option>';
-
-    if (categoryId && subcategories[categoryId]) {
-        subcategories[categoryId].forEach(sub => {
-            const option = document.createElement('option');
-            option.value = sub;
-            option.textContent = sub;
-            if (sub === selectedSubcategory) {
-                option.selected = true;
-            }
-            dropdown.appendChild(option);
-        });
-    }
-} 
+function getCategorySubcategories(categoryId) {
+    return subcategoriesMap[categoryId] ? Object.values(subcategoriesMap[categoryId]) : [];
+}

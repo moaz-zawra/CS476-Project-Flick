@@ -19,6 +19,16 @@
 <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
         <div class="font-mono text-2xl text-text-light dark:text-text-dark mb-4">Set Name: <%= set.setName %></div>
+        
+        <% if (set.category) { %>
+        <div class="font-mono text-lg text-text-light dark:text-text-dark mb-4">
+            Category: <span id="category-display"></span>
+            <% if (set.subCategory) { %>
+            | Subcategory: <span id="subcategory-display"> <%= set.subCategory %> </span>
+            <% } %>
+        </div>
+        <% } %>
+        
         <div class="flex flex-wrap gap-4 justify-center">
             <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
                 <% cards.forEach(function(card) { %>
@@ -53,5 +63,13 @@
         </div>
     </div>
 </main>
+
+<script>
+    const category_display = document.getElementById('category-display');
+    const subcategory_display = document.getElementById('subcategory-display');
+    const category = <%- JSON.stringify(set.category) %>;
+    category_display.innerText = getCategoryName(category);  
+</script>                         
+
 </body>
 </html>
