@@ -73,8 +73,8 @@
         <div class="flex flex-wrap gap-4 justify-center">
             <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
                 <% cards.forEach(function(card) { %>
-                    <div class="p-4 bg-accent-light dark:bg-accent-dark rounded-lg w-[300px] h-[300px] relative">
-                        <div class="grid grid-cols-1 h-full gap-4">
+                    <div class="p-4 rounded-lg w-[300px] h-[300px] relative border-2 border-accent-light dark:border-accent-dark bg-gray-200 dark:bg-accent-dark">
+                        <div class="grid grid-cols-1 h-full gap-4 ">
                             <div class="flex flex-col justify-center">
                                 <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
                                 <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.front_text %></p>
@@ -95,7 +95,7 @@
             <% } %>
 
             <button onclick="addNewCard()"
-                    class="w-[300px] h-[300px] bg-accent-light dark:bg-accent-dark rounded-lg border-2 border-dashed border-surface-light dark:border-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                    class="w-[300px] h-[300px] bg-accent-light dark:bg-accent-dark rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-gray-200 dark:border-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
                 <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add New Card</span>
             </button>
         </div>

@@ -319,7 +319,6 @@ export class APIService{
     static async handleDeleteSet(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = Object.assign(new Regular("", ""), req.session.user);
         const setID = parseInt(req.body.setID as string);
-        console.log('deleting' + setID);
         const result = await user.deleteSet(setID);
 
         if(result === CardSetRemoveStatus.SUCCESS){

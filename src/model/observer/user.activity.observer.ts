@@ -1,4 +1,3 @@
-// src/model/observer/UserActivitySubject.ts
 import { User } from '../user/user.model';
 import { Regular } from '../user/user.roles';
 import { UserAction } from '../user/user.types';
