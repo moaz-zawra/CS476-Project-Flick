@@ -6,34 +6,18 @@
     <title>Flick | Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/visitor-header') %>
+<%- include('partials/status-message') %>
 
 <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
         <form action="/api/login" method="post" class="space-y-4 max-w-sm mx-auto">
-            <% if (status === "wrong-password") { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Incorrect password. Please try again.
-                </p>
-            <% } else if (status === "does-not-exist") { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    User does not exist. Please sign up.
-                </p>
-            <% } else if (status === "error") { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Something went wrong. Please try again later.
-                </p>
-            <% } else if (status === "registration-success") { %>
-                <p class="text-contrast-light dark:text-contrast-dark font-sans text-lg font-bold animate-pulse">
-                    Registration successful. Please login.
-                </p>
-            <% } %>
-
             <div class="mb-4">
                 <label for="identifier" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
                     Username or Email

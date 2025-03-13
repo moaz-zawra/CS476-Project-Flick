@@ -1,85 +1,88 @@
-// Define subcategories for each category
-const subcategoriesMap = {
-    "0": { // Language
-        "Afrikaans": "Afrikaans", "Albanian": "Albanian", "Amharic": "Amharic", "Arabic": "Arabic",
-        "Armenian": "Armenian", "Assamese": "Assamese", "Azerbaijani": "Azerbaijani", "Basque": "Basque",
-        "Belarusian": "Belarusian", "Bengali": "Bengali", "Bosnian": "Bosnian", "Bulgarian": "Bulgarian",
-        "Burmese": "Burmese", "Catalan": "Catalan", "Cebuano": "Cebuano", "Chichewa": "Chichewa",
-        "Chinese_Simplified": "Chinese (Simplified)", "Chinese_Traditional": "Chinese (Traditional)",
-        "Corsican": "Corsican", "Croatian": "Croatian", "Czech": "Czech", "Danish": "Danish",
-        "Dhivehi": "Dhivehi", "Dutch": "Dutch", "English": "English", "Esperanto": "Esperanto",
-        "Estonian": "Estonian", "Ewe": "Ewe", "Filipino": "Filipino (Tagalog)", "Finnish": "Finnish",
-        "French": "French", "Frisian": "Frisian", "Galician": "Galician", "Georgian": "Georgian",
-        "German": "German", "Greek": "Greek", "Gujarati": "Gujarati", "Haitian_Creole": "Haitian Creole",
-        "Hausa": "Hausa", "Hawaiian": "Hawaiian", "Hebrew": "Hebrew", "Hindi": "Hindi",
-        "Hmong": "Hmong", "Hungarian": "Hungarian", "Icelandic": "Icelandic", "Igbo": "Igbo",
-        "Indonesian": "Indonesian", "Irish": "Irish", "Italian": "Italian", "Japanese": "Japanese",
-        "Javanese": "Javanese", "Kannada": "Kannada", "Kazakh": "Kazakh", "Khmer": "Khmer",
-        "Kinyarwanda": "Kinyarwanda", "Korean": "Korean", "Kurdish_Kurmanji": "Kurdish (Kurmanji)",
-        "Kyrgyz": "Kyrgyz", "Lao": "Lao", "Latin": "Latin", "Latvian": "Latvian",
-        "Lithuanian": "Lithuanian", "Luxembourgish": "Luxembourgish", "Macedonian": "Macedonian",
-        "Malagasy": "Malagasy", "Malay": "Malay", "Malayalam": "Malayalam", "Maltese": "Maltese",
-        "Maori": "Maori", "Marathi": "Marathi", "Mongolian": "Mongolian", "Nepali": "Nepali",
-        "Norwegian": "Norwegian", "Odia": "Odia (Oriya)", "Pashto": "Pashto", "Persian": "Persian",
-        "Polish": "Polish", "Portuguese": "Portuguese", "Punjabi": "Punjabi", "Quechua": "Quechua",
-        "Romanian": "Romanian", "Russian": "Russian", "Samoan": "Samoan", "Sanskrit": "Sanskrit",
-        "Scottish_Gaelic": "Scottish Gaelic", "Serbian": "Serbian", "Sesotho": "Sesotho",
-        "Shona": "Shona", "Sindhi": "Sindhi", "Sinhala": "Sinhala", "Slovak": "Slovak",
-        "Slovenian": "Slovenian", "Somali": "Somali", "Spanish": "Spanish", "Sundanese": "Sundanese",
-        "Swahili": "Swahili", "Swedish": "Swedish", "Tajik": "Tajik", "Tamil": "Tamil",
-        "Tatar": "Tatar", "Telugu": "Telugu", "Thai": "Thai", "Tigrinya": "Tigrinya",
-        "Turkish": "Turkish", "Turkmen": "Turkmen", "Ukrainian": "Ukrainian", "Urdu": "Urdu",
-        "Uzbek": "Uzbek", "Vietnamese": "Vietnamese", "Welsh": "Welsh", "Xhosa": "Xhosa",
-        "Yiddish": "Yiddish", "Yoruba": "Yoruba", "Zulu": "Zulu"
-    },
-    "1": { // Technology
-        "Programming": "Programming", "Cybersecurity": "Cybersecurity", 
-        "ArtificialIntelligence": "Artificial Intelligence", "CloudComputing": "Cloud Computing", 
-        "Networking": "Networking", "Databases": "Databases", "OperatingSystems": "Operating Systems", 
-        "SoftwareDevelopment": "Software Development", "Hardware": "Hardware", "Blockchain": "Blockchain"
-    },
-    "2": { // Course Subjects
-        "Mathematics": "Mathematics", "Physics": "Physics", "Chemistry": "Chemistry", 
-        "Biology": "Biology", "History": "History", "Geography": "Geography", 
-        "Economics": "Economics", "PoliticalScience": "Political Science", 
-        "Psychology": "Psychology", "Philosophy": "Philosophy", "Sociology": "Sociology", 
-        "Business": "Business", "Art": "Art", "Music": "Music"
-    },
-    "3": { // Law
-        "CriminalLaw": "Criminal Law", "CivilLaw": "Civil Law", 
-        "ConstitutionalLaw": "Constitutional Law", "CorporateLaw": "Corporate Law", 
-        "InternationalLaw": "International Law", "IntellectualProperty": "Intellectual Property", 
-        "ContractLaw": "Contract Law", "FamilyLaw": "Family Law", 
-        "TaxLaw": "Tax Law", "EnvironmentalLaw": "Environmental Law"
-    },
-    "4": { // Medical
-        "Anatomy": "Anatomy", "Physiology": "Physiology", "Pathology": "Pathology", 
-        "Pharmacology": "Pharmacology", "Surgery": "Surgery", "Psychiatry": "Psychiatry", 
-        "Pediatrics": "Pediatrics", "Radiology": "Radiology", 
-        "Nursing": "Nursing", "EmergencyMedicine": "Emergency Medicine"
-    },
-    "5": { // Military
-        "Strategy": "Strategy", "Tactics": "Tactics", "Weapons": "Weapons", 
-        "Logistics": "Logistics", "Intelligence": "Intelligence", "NavalWarfare": "Naval Warfare", 
-        "AirForce": "Air Force", "SpecialForces": "Special Forces", 
-        "MilitaryHistory": "Military History", "CyberWarfare": "Cyber Warfare"
+// Get category name from category ID using the provided categoryNames
+function getCategoryName(categoryId, categoryNames) {
+    // If categoryNames is provided, use it directly
+    if (categoryNames && categoryNames[categoryId]) {
+        return categoryNames[categoryId];
     }
-};
-
-// Get category name from category ID
-function getCategoryName(categoryId) {
+    
+    // Fallback mapping if categoryNames is not available
     const categories = {
         '0': 'Language',
         '1': 'Technology',
-        '2': 'Course Subjects',
+        '2': 'Course Subjects', // Ensure proper formatting here too
         '3': 'Law',
         '4': 'Medical',
         '5': 'Military'
     };
+    
     return categories[categoryId] || 'Unknown Category';
 }
 
-// Function to populate subcategory dropdown based on selected category
-function getCategorySubcategories(categoryId) {
-    return subcategoriesMap[categoryId] ? Object.values(subcategoriesMap[categoryId]) : [];
+// Get subcategories for a category from provided data
+function getSubcategoriesForCategory(categoryId, subcategories) {
+    return subcategories && subcategories[categoryId] || [];
 }
+
+// Populate category dropdown element with provided category data
+function populateCategoryDropdown(selectElement, categoryNames, includeDefaultOption = true) {
+    if (!categoryNames) return;
+    
+    // Clear existing options
+    while (selectElement.options.length > 0) {
+        selectElement.remove(0);
+    }
+    
+    // Add default option if requested
+    if (includeDefaultOption) {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select Category';
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        selectElement.appendChild(defaultOption);
+    }
+    
+    // Add all categories
+    Object.entries(categoryNames).forEach(([key, name]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = name;
+        selectElement.appendChild(option);
+    });
+}
+
+// Populate subcategory dropdown based on selected category
+function populateSubcategoryDropdown(categoryId, subcategorySelect, subcategories, includeDefaultOption = true) {
+    if (!subcategories) return false;
+    
+    // Clear existing options
+    while (subcategorySelect.options.length > 0) {
+        subcategorySelect.remove(0);
+    }
+    
+    // Add default option if requested
+    if (includeDefaultOption) {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'All Subcategories';
+        subcategorySelect.appendChild(defaultOption);
+    }
+    
+    // Get subcategories for the selected category
+    const subcategoriesObj = subcategories[categoryId];
+    if (!subcategoriesObj) return false;
+    
+    // Add subcategories to dropdown
+    Object.entries(subcategoriesObj).forEach(([key, value]) => {
+        // Skip numeric keys which are enum indices
+        if (!isNaN(Number(key))) return;
+        
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        subcategorySelect.appendChild(option);
+    });
+    
+    return true;
+}
+

@@ -10,6 +10,7 @@ import {
     isNotAuthenticated,
     isRegular,
     isRegularUser,
+    isSetOwner,
     logUserActivity,
     routeHandler,
     setupServer,
@@ -30,10 +31,14 @@ import { APIService } from '../model/api';
 const categoryNames = Object.keys(Category)
     .filter(key => !isNaN(Number(key)))
     .reduce((acc: { [key: string]: string }, key: string) => {
-        acc[key] = Category[key as any];
+        // Format CourseSubjects as "Course Subjects"
+        if (Category[key as any] === "CourseSubjects") {
+            acc[key] = "Course Subjects";
+        } else {
+            acc[key] = Category[key as any];
+        }
         return acc;
     }, {});
-console.log(categoryNames);
 export const port = 3000;
 
 const pub = path.join(__dirname, '../../public/');
@@ -70,7 +75,8 @@ controller.get('/api/getSets',
  * @throws {Error} If fetching cards fails
  */
 controller.get('/api/getSet', 
-    isAuthenticated, 
+    isAuthenticated,
+    isSetOwner,
     isRegularUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
@@ -88,7 +94,8 @@ controller.get('/api/getSharedSets',
 ));
 
 controller.get('/api/getCardsInSet', 
-    isAuthenticated, 
+    isAuthenticated,
+    isSetOwner,
     isRegularUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
@@ -174,9 +181,20 @@ controller.post('/api/newSet',
 controller.post('/api/addCardToSet', 
     isAuthenticated, 
     isRegularUser, 
-    logUserActivity, 
+    logUserActivity,
+    isSetOwner,
     asyncHandler(async (req, res) => {
         await APIService.handleNewCard(req, res);
+    })
+);
+
+controller.post('/api/shareSet', 
+    isAuthenticated, 
+    isRegularUser, 
+    isSetOwner,
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+        await APIService.handleShareSet(req, res);
     })
 );
 
@@ -210,6 +228,32 @@ controller.put('/api/editUser',
     })
 );
 
+controller.put('/api/adminEditUser', 
+    isAuthenticated,
+    isAdminUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        //await APIService.handleAdminEditUser(req, res);
+    })
+);
+
+controller.put('/api/promoteRegular', 
+    isAuthenticated,
+    isAdminUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        //await APIService.handlePromotion(req, res);
+    })
+);
+
+controller.put('/api/demoteModerator', 
+    isAuthenticated,
+    isAdminUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        //await APIService.handleDemotion(req, res);
+    })
+);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //DELETE API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +266,7 @@ controller.put('/api/editUser',
 controller.delete('/api/deleteSet', 
     isAuthenticated, 
     isRegularUser, 
+    isSetOwner,
     logUserActivity, 
     asyncHandler(async (req, res) => {
         await APIService.handleDeleteSet(req, res);
@@ -231,9 +276,16 @@ controller.delete('/api/deleteSet',
 controller.delete('/api/deleteCard', 
     isAuthenticated, 
     isRegularUser, 
+    isSetOwner,
     logUserActivity, 
     asyncHandler(async (req, res) => {
-
+        const cardID = Number(req.query.cardID || req.body.cardID);
+        
+        if (!cardID) {
+            return res.status(400).json({ error: 'Card ID is required' });
+        }
+        
+        const result = await APIService.handleDeleteCard(req, res);
     })
 );
 
@@ -242,7 +294,13 @@ controller.delete('/api/deleteUser',
     isModeratorUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
-
+        const userID = Number(req.query.userID || req.body.userID);
+        
+        if (!userID) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+        
+        await APIService.handleDeleteUser(req, res);
     })
 );
 
@@ -255,7 +313,6 @@ controller.delete('/api/deleteUser',
  */
 controller.get('/', 
     isAuthenticated, 
-    isRegularUser,
     logUserActivity, 
     asyncHandler(async (req, res) => {
         if(isRegular(req.session.user)){
@@ -270,13 +327,33 @@ controller.get('/',
                     cookie
                 }
             });
+
+            // Add owner info to each shared set object
+            sharedSets.data.result = await Promise.all(
+                sharedSets.data.result.map(async (set: any) => {
+                    const owner = await UserService.getUserByIdentifier(set.ownerID);
+                    set.ownerID = {username: owner?.username || '', email: owner?.email || ''};
+                    return set;
+                })
+            );
+
+            console.log(sharedSets.data.result);
             const user: Regular = Object.assign(new Regular("", ""), req.session.user);
             return res.render('regular_dashboard', {
                 user: user,
-                uID: await UserService.getIDOfUser(user),
+                uID: await UserService.getIDOfUser(user.username),
                 status: req.query.status,
                 userSets: userSets.data.result,
                 sharedSets: sharedSets.data.result,
+                categoryNames,
+                subcategories: {
+                    [Category.Language]: SubCategory_Language,
+                    [Category.Technology]: SubCategory_Technology,
+                    [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                    [Category.Law]: SubCategory_Law,
+                    [Category.Medical]: SubCategory_Medical,
+                    [Category.Military]: SubCategory_Military
+                },
                 currentPage: 'dashboard'
             });
         }
@@ -347,17 +424,23 @@ controller.get('/view_set',
             headers: { cookie }
         });
         console.log(set.data.result);
-        res.render("view_set", { set: set.data.result, cards: cards.data.result, categoryNames, subcategories: {
-            [Category.Language]: SubCategory_Language,
-            [Category.Technology]: SubCategory_Technology,
-            [Category.CourseSubjects]: SubCategory_CourseSubjects,
-            [Category.Law]: SubCategory_Law,
-            [Category.Medical]: SubCategory_Medical,
-            [Category.Military]: SubCategory_Military
-        }, status: req.query.status, currentPage: 'view_set' });
+        res.render("view_set", { 
+            set: set.data.result, 
+            cards: cards.data.result, 
+            categoryNames, 
+            subcategories: {
+                [Category.Language]: SubCategory_Language,
+                [Category.Technology]: SubCategory_Technology,
+                [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                [Category.Law]: SubCategory_Law,
+                [Category.Medical]: SubCategory_Medical,
+                [Category.Military]: SubCategory_Military
+            }, 
+            status: req.query.status, 
+            currentPage: 'view_set' 
+        });
     })
 );
-
 
 /**
  * Renders the edit set page with cards

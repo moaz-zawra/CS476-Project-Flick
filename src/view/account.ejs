@@ -7,6 +7,7 @@
     <title>Flick | Account</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
@@ -14,26 +15,10 @@
 
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
+<%- include('partials/status-message') %>
 
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
         <div class="space-y-4 max-w-sm mx-auto">
-            <% if (status === "success") { %>
-                <p class="text-contrast-light dark:text-contrast-dark font-sans text-lg font-bold animate-pulse">
-                    Account information updated successfully.
-                </p>
-            <% } else if (status === "user-does-not-exist") { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    The user does not exist. Please try again or sign up.
-                </p>
-            <% } else if (status === "error") { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Something went wrong. Please try again later.
-                </p>
-            <% } else if (status === "incorrect-password") { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Incorrect password. Please try again.
-                </p>
-            <% } %>
             <div class="text-left">
                 <span class="text-text-light dark:text-text-dark text-xl font-mono">Username: <b><%=account.username%></b></span>
             </div>
@@ -148,8 +133,5 @@
             document.getElementById('edit-account-modal').classList.add('hidden');
         }
     </script>
-
-
 </body>
-
 </html>

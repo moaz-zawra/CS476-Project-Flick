@@ -3,7 +3,7 @@ import { CardService } from "../card/card.service";
 import { CardAddStatus, CardRemoveStatus, CardGetStatus } from "../card/card.types";
 import { CardSet } from "../cardSet/cardset.model";
 import { CardSetService } from "../cardSet/cardset.service";
-import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus } from "../cardSet/cardset.types";
+import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus, CardSetShareStatus } from "../cardSet/cardset.types";
 import { User } from "./user.model";
 import {banResult, Role, unbanResult, UserAction, UserActivity, UserChangeStatus} from "./user.types";
 import {UserService} from "./user.service";
@@ -43,6 +43,10 @@ export class Regular implements User {
 
     async deleteCardFromSet(card: Card): Promise<CardRemoveStatus> {
         return CardService.deleteCardFromSet(card);
+    }
+
+    async shareSet(setID: number, username: string): Promise<CardSetShareStatus> {
+        return CardSetService.shareSet(this, username, setID);
     }
 
     async getCards(setID: number): Promise<Card[] | CardGetStatus> {

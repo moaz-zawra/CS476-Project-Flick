@@ -6,6 +6,7 @@
     <title>Flick | New Set</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
@@ -13,6 +14,7 @@
 
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
+<%- include('partials/status-message') %>
 
 <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
@@ -76,32 +78,49 @@
 </main>
 
 <script>
-    const subcategories = <%- JSON.stringify(subcategories) %>;
+    // Store data as local variables
     const categoryNames = <%- JSON.stringify(categoryNames) %>;
-
-    document.getElementById('category').addEventListener('change', function() {
-        const subcategoryContainer = document.getElementById('subcategory-container');
+    const subcategoriesData = <%- JSON.stringify(subcategories) %>;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('category');
         const subcategorySelect = document.getElementById('subcategory');
-        const selectedCategory = this.value;
-
-        // Clear existing options
-        subcategorySelect.innerHTML = '<option value="" disabled selected>Select a subcategory</option>';
-
-        if (selectedCategory && subcategories[selectedCategory]) {
-            // Add new options from the enum
-            const subCategoryEnum = subcategories[selectedCategory];
-            Object.entries(subCategoryEnum).forEach(([key, value]) => {
-                if (isNaN(Number(key))) {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.textContent = value;
-                    subcategorySelect.appendChild(option);
-                }
-            });
-            subcategoryContainer.classList.remove('hidden');
-        } else {
-            subcategoryContainer.classList.add('hidden');
-        }
+        const subcategoryContainer = document.getElementById('subcategory-container');
+        
+        // Set up category change handler - using existing select since it's already populated via EJS
+        categorySelect.addEventListener('change', function() {
+            // Get subcategories for this category and update the subcategory dropdown
+            const selectedCategory = this.value;
+            const subCategoryEnum = subcategoriesData[selectedCategory];
+            
+            // Clear existing options
+            while (subcategorySelect.options.length > 0) {
+                subcategorySelect.remove(0);
+            }
+            
+            // Add default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select a subcategory';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            subcategorySelect.appendChild(defaultOption);
+            
+            // If we have subcategories, add them and show the container
+            if (subCategoryEnum) {
+                Object.entries(subCategoryEnum).forEach(([key, value]) => {
+                    if (isNaN(Number(key))) {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = value;
+                        subcategorySelect.appendChild(option);
+                    }
+                });
+                subcategoryContainer.classList.remove('hidden');
+            } else {
+                subcategoryContainer.classList.add('hidden');
+            }
+        });
     });
 </script>
 

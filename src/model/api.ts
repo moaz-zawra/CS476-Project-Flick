@@ -1,12 +1,12 @@
 import express from "express";
 import {Administrator, Moderator, Regular} from "./user/user.roles";
-import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus} from "./cardSet/cardset.types";
+import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus} from "./cardSet/cardset.types";
 import {CardAddStatus, CardGetStatus} from "./card/card.types";
 import {UserCreator} from "./user/user.auth";
 import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from "./user/user.types";
 import {UserService} from "./user/user.service";
 import {makeCardSet} from "./cardSet/cardset.model";
-import {logUserAction} from "./utility";
+import {logUserAction, createUserFromSession} from "./utility";
 import {makeCard} from "./card/card.model";
 
 
@@ -27,7 +27,9 @@ function handleResponse(
     jsonData?: any
   ): void {
     if (route) {
-      res.status(response_code).redirect(`${route}?status=${status}`);
+      // Check if the route already has query parameters
+      const separator = route.includes('?') ? '&' : '?';
+      res.status(response_code).redirect(`${route}${separator}status=${status}`);
     } else {
       res.status(response_code).json({ status, result: jsonData });
     }
@@ -66,7 +68,7 @@ export class APIService{
     //GET Handlers
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static async handleGetSets(req: express.Request, res: express.Response): Promise<void> {
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const user: Regular = createUserFromSession(req, Regular);
         const result = await user.getAllSets();
 
         if(result === CardSetGetStatus.DATABASE_FAILURE){
@@ -79,7 +81,7 @@ export class APIService{
     }
     static async handleGetSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const user: Regular = createUserFromSession(req, Regular);
         const result = await user.getSet(setID);
 
         if(result === CardSetGetStatus.DATABASE_FAILURE){
@@ -92,7 +94,7 @@ export class APIService{
     }
     static async handleGetCardsInSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const user: Regular = createUserFromSession(req, Regular);
         const result = await user.getCards(setID);
 
         if(result === CardGetStatus.DATABASE_FAILURE){
@@ -107,7 +109,7 @@ export class APIService{
         else handleResponse(res, GETOK, '', 'success', result);
     }
     static async handleGetSharedSets(req: express.Request, res: express.Response): Promise<void> {
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const user: Regular = createUserFromSession(req, Regular);
         const result = await user.getSharedSets();
 
         if(result === CardSetGetStatus.DATABASE_FAILURE){
@@ -119,7 +121,7 @@ export class APIService{
         else handleResponse(res, GETOK, '', 'success', result);
     }
     static async handleGetUserActivity(req: express.Request, res: express.Response): Promise<void> {
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const user: Regular = createUserFromSession(req, Regular);
         const time_period = req.query.time_period as string;
         if(time_period === "alltime"){
             const result = await user.getAllTimeActivity();
@@ -136,7 +138,7 @@ export class APIService{
     }
 
     static async handleGetUsersActivity(req: express.Request, res: express.Response): Promise<void> {
-        const user: Moderator = Object.assign(new Moderator("", ""), req.session.user);
+        const user: Moderator = createUserFromSession(req, Moderator);
         const time_period = req.query.time_period as string;
         if(time_period === "alltime"){
             const result = await user.getUsersAllTimeActivity()
@@ -155,7 +157,7 @@ export class APIService{
     }
 
     static async handleGetRegulars(req: express.Request, res: express.Response): Promise<void> {
-        const user: Moderator = Object.assign(new Moderator("", ""), req.session.user);
+        const user: Moderator = createUserFromSession(req, Moderator);
         const result = await user.getRegularUsers()
         if(result){
             handleResponse(res, GETOK, '', 'success', result);
@@ -164,7 +166,7 @@ export class APIService{
         handleResponse(res, NOTFOUND, '', 'no_data', [""]);
     }
     static async handleGetModerators(req: express.Request, res: express.Response): Promise<void> {
-        const user: Administrator = Object.assign(new Administrator("", ""), req.session.user);
+        const user: Administrator = createUserFromSession(req, Administrator);
         const result = await user.getModeratorUsers()
         if(result){
             handleResponse(res, GETOK, '', 'success', result);
@@ -177,13 +179,13 @@ export class APIService{
     static async handleLogin(req: express.Request, res: express.Response): Promise<void> {
         const user = await new UserCreator().login(req.body.identifier, req.body.password);
         if(user === LoginStatus.USER_DOES_NOT_EXIST){
-            handleResponse(res, NOTFOUND, '/login', 'does-not-exist');
+            return handleResponse(res, NOTFOUND, '/login', 'does-not-exist');
         }
         else if (user === LoginStatus.WRONG_PASSWORD){
-            handleResponse(res, NOTAUTH, '/login', 'wrong-password');
+            return handleResponse(res, NOTAUTH, '/login', 'wrong-password');
         }
         else if (user === LoginStatus.OTHER || user === LoginStatus.DATABASE_FAILURE){
-            handleResponse(res, SERVERERROR, '/login', 'error');
+            return handleResponse(res, SERVERERROR, '/login', 'error');
         }
         else{
             req.session.user = user;
@@ -215,8 +217,8 @@ export class APIService{
         } else handleResponse(res, BADREQUEST, '/register', 'missing-fields');
     }
     static async handleNewSet(req: express.Request, res: express.Response): Promise<void> {
-        const user = Object.assign(new Regular("", ""), req.session.user);
-        const uID = await UserService.getIDOfUser(user);
+        const user = createUserFromSession(req, Regular);
+        const uID = await UserService.getIDOfUser(user.username);
 
         const {setName, category, subcategory, setDesc} = req.body;
         if(setName && category && subcategory && setDesc){
@@ -228,18 +230,18 @@ export class APIService{
                 handleResponse(res, POSTOK, '/', 'success');
             }
             else if(result === CardSetAddStatus.MISSING_INFORMATION){
-                handleResponse(res, BADREQUEST, '/', 'missing-fields');
+                handleResponse(res, BADREQUEST, '/new_set', 'missing-fields');
             }
             else if(result === CardSetAddStatus.NAME_USED){
-                handleResponse(res, CONFLICT, '/', 'name-used');
+                handleResponse(res, CONFLICT, '/new_set', 'name-used');
             }
             else if(result === CardSetAddStatus.DATABASE_FAILURE){
-                handleResponse(res, SERVERERROR, '/', 'error');
+                handleResponse(res, SERVERERROR, '/new_set', 'error');
             }
-        } else handleResponse(res, BADREQUEST, '/', 'missing-fields');
+        } else handleResponse(res, BADREQUEST, '/new_set', 'missing-fields');
     }
     static async handleNewCard(req: express.Request, res: express.Response): Promise<void> {
-        const user = Object.assign(new Regular("", ""), req.session.user);
+        const user = createUserFromSession(req, Regular);
         const { front_text, back_text, setID } = req.body;
 
         if (front_text && back_text && setID) {
@@ -261,6 +263,31 @@ export class APIService{
         }
     }
 
+    static async handleShareSet(req: express.Request, res: express.Response): Promise<void> {
+        const user = createUserFromSession(req, Regular);
+        const { setID, username } = req.body;
+        if(user.username === username){
+            return handleResponse(res, CONFLICT, '/', 'already-shared');
+        }
+        if (setID && username) {
+            const result = await user.shareSet(parseInt(setID), username);
+
+            if (result === CardSetShareStatus.SUCCESS) {
+                return handleResponse(res, POSTOK, '/', 'success');
+            } else if (result === CardSetShareStatus.USER_DOES_NOT_EXIST) {
+                return handleResponse(res, NOTFOUND, '/', 'user-does-not-exist');
+            } else if (result === CardSetShareStatus.SET_DOES_NOT_EXIST) {
+                return handleResponse(res, NOTFOUND, '/', 'set-does-not-exist');
+            } else if (result === CardSetShareStatus.ALREADY_SHARED) {
+                return handleResponse(res, CONFLICT, '/', 'already-shared');
+            } else if (result === CardSetShareStatus.DATABASE_FAILURE) {
+                return handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleShareSet()', error:'Database Error'});
+            }
+        } else {
+            return handleResponse(res, BADREQUEST, '/', 'missing-fields');
+        }
+    }
+
     static async handleBan(req: express.Request, res: express.Response): Promise<void> {}
     static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {}
 
@@ -275,7 +302,25 @@ export class APIService{
                 if (username === oldUsername && email === oldEmail){
                     handleResponse(res, POSTOK, '/account', '');
                 }else{
-                    const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+                    const user = createUserFromSession(req, Regular);
+                    
+                    // Check if username or email is already in use before changing details
+                    if(username !== oldUsername) {
+                        // Check if username is already taken by someone else
+                        const isUsernameTaken = await UserService.doesUserExist(username);
+                        if(isUsernameTaken) {
+                            return handleResponse(res, CONFLICT, '/account', 'username-used');
+                        }
+                    }
+                    
+                    if(email !== oldEmail) {
+                        // Check if email is already taken by someone else
+                        const isEmailTaken = await UserService.doesUserExist(email);
+                        if(isEmailTaken) {
+                            return handleResponse(res, CONFLICT, '/account', 'email-used');
+                        }
+                    }
+                    
                     const result = await user.changeDetails(username,email);
 
                     if(result === UserChangeStatus.SUCCESS){
@@ -287,6 +332,10 @@ export class APIService{
                         handleResponse(res, SERVERERROR, '/account', 'error');
                     } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
                         handleResponse(res, NOTAUTH, '/account', 'incorrect-password');
+                    } else if(result === UserChangeStatus.USERNAME_USED){
+                        handleResponse(res, CONFLICT, '/account', 'username-used');
+                    } else if(result === UserChangeStatus.EMAIL_USED){
+                        handleResponse(res, CONFLICT, '/account', 'email-used');
                     }
                 }
             }else handleResponse(res, BADREQUEST, '/account', 'missing-fields');
@@ -294,7 +343,7 @@ export class APIService{
         } else if (action === 'change_password') {
             const {current_password, new_password} = req.body;
             if(current_password && new_password){
-                const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+                const user = createUserFromSession(req, Regular);
 
                 const result = await user.changePassword(current_password,new_password);
 
@@ -317,7 +366,7 @@ export class APIService{
 
     //DELETE handlers
     static async handleDeleteSet(req: express.Request, res: express.Response): Promise<void> {
-        const user: Regular = Object.assign(new Regular("", ""), req.session.user);
+        const user: Regular = createUserFromSession(req, Regular);
         const setID = parseInt(req.body.setID as string);
         const result = await user.deleteSet(setID);
 
@@ -331,6 +380,7 @@ export class APIService{
             handleResponse(res, POSTOK, '/', 'does-not-exist');
         }
     }
-    static async handleDeleteCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleDeleteCard(req: express.Request, res: express.Response): Promise<void> {
+    }
     static async handleDeleteUser(req: express.Request, res: express.Response): Promise<void> {}
 }

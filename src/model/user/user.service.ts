@@ -89,40 +89,57 @@ export class UserService {
      * @param identifier - The user's username or email.
      * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
      */
-    public static async getUserByIdentifier(identifier: string): Promise<RowDataPacket | null> {
+    public static async getUserByIdentifier(identifier: string | number): Promise<RowDataPacket | null> {
         const db = await DatabaseService.getConnection();
 
         const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT username, email, hash, role FROM users WHERE username = ? OR email = ?",
-            [identifier, identifier]
+            "SELECT uID, username, email, hash, role FROM users WHERE username = ? OR email = ? OR uID = ?",
+            [identifier, identifier, identifier]
         );
 
         return rows.length ? rows[0] : null;
     }
     /**
-     * Retrieves the user ID (uID) based on the provided username.
+     * Retrieves the user ID (uID) based on the provided identifier (username, email, or uID).
      * @async
-     * @param {User} user - The user object containing the username.
+     * @param {string | number} identifier - The user's username, email, or uID.
      * @returns {Promise<number>} A promise resolving to the user ID or -1 if not found.
      */
-    public static async getIDOfUser(user: User): Promise<number> {
-        if (!user?.username) {
-            console.error("Invalid user object provided.");
-            return -1;
-        }
-
+    public static async getIDOfUser(identifier: string | number): Promise<number> {
         try {
             const db = await DatabaseService.getConnection();
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT uID FROM users WHERE username = ?",
-                [user.username]
+                "SELECT uID FROM users WHERE username = ? OR email = ? OR uID = ?",
+                [identifier, identifier, identifier]
             );
 
             return rows.length > 0 ? rows[0].uID as number : -1;
         } catch (error) {
             console.error(`Error fetching user ID: ${(error as Error).message}`);
             return -1;
+        }
+    }
+
+    /**
+     * Checks if a user exists in the database based on the identifier (username, email, or uID).
+     * @async
+     * @param {string | number} identifier - The user's username, email, or uID.
+     * @returns {Promise<boolean>} A promise resolving to true if the user exists, false otherwise.
+     */
+    public static async doesUserExist(identifier: string | number): Promise<boolean> {
+        try {
+            const db = await DatabaseService.getConnection();
+
+            const query = "SELECT 1 FROM users WHERE username = ? OR email = ? OR uID = ?";
+            const params = [identifier, identifier, identifier];
+
+            const [rows] = await db.connection.execute<RowDataPacket[]>(query, params);
+
+            return rows.length > 0;
+        } catch (e) {
+            console.error(`Error checking if user exists: ${(e as Error).message}`);
+            return false;
         }
     }
 
@@ -136,7 +153,7 @@ export class UserService {
     public static async logUserAction(user: User, action: UserAction): Promise<boolean> {
         try {
             const db = await DatabaseService.getConnection();
-            const uID = await this.getIDOfUser(user);
+            const uID = await this.getIDOfUser(user.username);
 
             if (uID === -1) {
                 console.error("Invalid user ID, cannot log activity.");
@@ -163,7 +180,7 @@ export class UserService {
     public static async getUserActivityAllTime(user: User): Promise<UserActivity[] | null> {
         try {
             const db = await DatabaseService.getConnection();
-            const uID = await this.getIDOfUser(user);
+            const uID = await this.getIDOfUser(user.username);
 
             if (uID === -1) {
                 console.error("Invalid user ID, cannot fetch activity.");
@@ -191,7 +208,7 @@ export class UserService {
     public static async getUserActivityLast7Days(user: User): Promise<UserActivity[] | null> {
         try {
             const db = await DatabaseService.getConnection();
-            const uID = await this.getIDOfUser(user);
+            const uID = await this.getIDOfUser(user.username);
 
             if (uID === -1) {
                 console.error("Invalid user ID, cannot fetch activity.");

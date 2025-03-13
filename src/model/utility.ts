@@ -10,7 +10,9 @@ import {Regular} from "./user/user.roles";
 import { DatabaseActivityLogger } from "./observer/activity.logger";
 import { ConsoleActivityLogger } from "./observer/console.logger";
 import { SERVERERROR } from "./api";
-
+import { CardSetService } from "./cardSet/cardset.service";
+import { UserService } from "./user/user.service";
+import { CardSetGetStatus } from "./cardSet/cardset.types";
 
 
 /**
@@ -112,7 +114,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
  * @param UserClass - User class to cast to
  * @returns Properly typed user object
  */
-function createUserFromSession<T extends Regular>(req: express.Request, UserClass: new (username: string, email: string) => T): T {
+export function createUserFromSession<T extends Regular>(req: express.Request, UserClass: new (username: string, email: string) => T): T {
     return Object.assign(new UserClass("", ""), req.session.user);
 }
 
@@ -242,4 +244,58 @@ export function parseStringToArray(input: string): string {
         .filter(item => item.length > 0); // Remove empty items
 
     return JSON.stringify(parsedArray);
+}
+
+/**
+ * Middleware to check if the user is the owner of the specified set.
+ * Expects setID in req.query or req.body.
+ */
+export async function isSetOwner(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        // Get setID from request query or body
+        const setID = req.query.setID || req.body.setID;
+        
+        if (!setID) {
+            res.status(400).json({ error: 'Set ID is required' });
+            return;
+        }
+        
+        // Get the set details
+        const set = await CardSetService.getSet(Number(setID));
+        
+        if (set === CardSetGetStatus.SET_DOES_NOT_EXIST) {
+            res.status(404).json({ error: 'Set not found' });
+            return;
+        }
+        if (set === CardSetGetStatus.USER_HAS_NO_SETS) {
+            res.status(403).redirect('/?status=no-permission');
+            return;
+        }
+        if (set === CardSetGetStatus.DATABASE_FAILURE) {
+            res.status(500).json({ error: 'Database error when fetching set' });
+            return;
+        }
+        
+        // Get current user's ID
+        const user = req.session.user;
+        if (!user) {
+            res.status(401).json({ error: 'Authentication required' });
+            return;
+        }
+        
+        const userID = await UserService.getIDOfUser(user.username);
+        
+        // Check if user is the owner
+        if (typeof set === 'object' && set.ownerID !== userID) {
+            res.status(403).redirect('/?status=no-permission');
+            return;
+        }
+        
+        // User is the owner, proceed
+        next();
+    } catch (error) {
+        console.error('Error verifying set ownership:', error);
+        res.status(500).json({ error: 'Server error validating set ownership' });
+        return;
+    }
 }

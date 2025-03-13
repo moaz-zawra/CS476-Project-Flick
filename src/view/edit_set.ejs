@@ -7,12 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
+<%- include('partials/status-message') %>
 
 <div class="container mx-auto px-4">
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
@@ -134,69 +136,34 @@
 <script>
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Populate categories dropdown
-  populateCategories();
-  
-  // Set default selected values
-  setDefaultValues();
-});
-
-const category_select = document.getElementById('category');
-const subcategory_select = document.getElementById('subcategory');
-const category = <%- JSON.stringify(set.category) %>;
-const subcategory = <%- JSON.stringify(set.subCategory) %>;
-
-function populateCategories() {
-  // Clear existing options except the first one
-  while (category_select.options.length > 1) {
-    category_select.remove(1);
-  }
+  // Store category data as local variables
   const categoryNames = <%- JSON.stringify(categoryNames) %>;
-
-  for(let categoryKey in categoryNames) {
-    const option = document.createElement('option');
-    option.value = categoryKey;
-    option.textContent = categoryNames[categoryKey];
-    category_select.appendChild(option);
-  }
+  const subcategoriesData = <%- JSON.stringify(subcategories) %>;
   
-  // Set up event listener to update subcategories when category changes
-  category_select.addEventListener('change', updateSubcategories);
-}
-function setDefaultValues() {
-    // Set default category
-    if (category) {
-        category_select.value = category;
-        console.log(category);
-        updateSubcategories();
-
-        // Set default subcategory
-        if (subcategory) {
-            subcategory_select.value = subcategory;
-        }
+  // Populate categories dropdown
+  const category_select = document.getElementById('category');
+  const subcategory_select = document.getElementById('subcategory');
+  const category = <%- JSON.stringify(set.category) %>;
+  const subcategory = <%- JSON.stringify(set.subCategory) %>;
+  
+  populateCategoryDropdown(category_select, categoryNames, false);
+  
+  // Add event listener for category change
+  category_select.addEventListener('change', function() {
+    populateSubcategoryDropdown(this.value, subcategory_select, subcategoriesData, true);
+  });
+  
+  // Set default values
+  if (category) {
+    category_select.value = category;
+    populateSubcategoryDropdown(category, subcategory_select, subcategoriesData, true);
+    
+    // Set default subcategory if available
+    if (subcategory) {
+      subcategory_select.value = subcategory;
     }
-}
-
-function updateSubcategories() {
-  // Clear existing subcategory options except the first one
-  while (subcategory_select.options.length > 1) {
-    subcategory_select.remove(1);
   }
-  
-  // Get selected category
-  const selectedCategory = category_select.value;
-  if (!selectedCategory) return;
-  
-  let subcategories = <%- JSON.stringify(subcategories) %>;
-  subcategories = subcategories[selectedCategory];
-  // Add subcategories to the dropdown
-  for (const [key, name] of Object.entries(subcategories)) {
-    const option = document.createElement('option');
-    option.value = key;
-    option.textContent = name;
-    subcategory_select.appendChild(option);
-  }
-}
+});
 
 function editCard(cardId) {
     console.log('Edit card:', cardId);

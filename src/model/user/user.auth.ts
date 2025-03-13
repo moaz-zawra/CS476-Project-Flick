@@ -57,6 +57,12 @@ export class UserCreator extends UserFactory {
 
             const userData = await UserService.getUserByIdentifier(identifier);
             if (!userData) return LoginStatus.USER_DOES_NOT_EXIST;
+            
+            // Ensure the hash is a string before comparing
+            if (typeof userData.hash !== 'string') {
+                console.error("Invalid hash type:", typeof userData.hash);
+                return LoginStatus.DATABASE_FAILURE;
+            }
 
             const isPasswordCorrect = await bcrypt.compare(password, userData.hash);
             if (!isPasswordCorrect) return LoginStatus.WRONG_PASSWORD;

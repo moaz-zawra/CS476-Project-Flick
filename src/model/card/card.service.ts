@@ -130,4 +130,38 @@ export class CardService {
             return CardGetStatus.DATABASE_FAILURE;
         }
     }
+
+    /**
+ * Deletes a specific card by its card ID.
+ * @param cardID - The ID of the card to delete
+ * @returns Promise resolving to the status of the operation
+ * @throws Will return DATABASE_FAILURE if there's an error with the database operation
+ * @throws Will return MISSING_INFORMATION if cardID is missing
+ * @throws Will return CARD_DOES_NOT_EXIST if the card doesn't exist
+ */
+public static async deleteCardByID(cardID: number): Promise<CardRemoveStatus> {
+    try {
+        // Validate required fields
+        if (!cardID) {
+            return CardRemoveStatus.MISSING_INFORMATION;
+        }
+
+        const db = await DatabaseService.getConnection();
+
+        // Delete the card by ID
+        const [result] = await db.connection.execute(
+            "DELETE FROM card_data WHERE cardID = ?",
+            [cardID]
+        );
+
+        if ((result as any).affectedRows === 0) {
+            return CardRemoveStatus.CARD_DOES_NOT_EXIST;
+        }
+
+        return CardRemoveStatus.SUCCESS;
+    } catch (error) {
+        console.error("Failed to delete card by ID:", error);
+        return CardRemoveStatus.DATABASE_FAILURE;
+    }
+}
 } 

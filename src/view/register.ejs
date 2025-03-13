@@ -6,6 +6,7 @@
     <title>Flick | Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
@@ -13,37 +14,11 @@
 
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/visitor-header') %>
+<%- include('partials/status-message') %>
 
 <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
         <form action="/api/register" method="post" class="space-y-4 max-w-sm mx-auto">
-            <% if (status==="bad-password" ) { %>
-                <div class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    <p>Bad Password. Must meet the following:</p>
-                    <ul class="list-disc list-inside">
-                        <li>Length of 8 or more</li>
-                        <li>Alphanumerical</li>
-                        <li>At least one uppercase letter</li>
-                    </ul>
-                </div>
-            <% } else if (status==="username-used" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Username is in use.
-                </p>
-            <% } else if (status==="email-used" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Email is in use.
-                </p>
-            <% } else if (status==="mismatch-password" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Passwords don't match.
-                </p>
-            <% } else if (status==="Error" ) { %>
-                <p class="text-highlight-light dark:text-highlight-dark font-sans text-lg font-bold animate-pulse">
-                    Something went wrong. Please try again later.
-                </p>
-            <% } %>
-
             <div class="mb-4">
                 <label for="username" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
                     Username

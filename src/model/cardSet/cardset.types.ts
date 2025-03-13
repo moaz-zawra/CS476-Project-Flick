@@ -24,6 +24,14 @@ export enum CardSetGetStatus {
     USER_HAS_NO_SETS,
 }
 
+export enum CardSetShareStatus {
+    DATABASE_FAILURE,    // Error occurred while interacting with the database.
+    SET_DOES_NOT_EXIST,  // The requested card set does not exist.
+    USER_DOES_NOT_EXIST, // The requested user does not exist.
+    ALREADY_SHARED,      // The card set is already shared with the user.
+    SUCCESS              // Card set was successfully shared.
+}
+
 /**
  * Represents possible statuses when removing a card set.
  */

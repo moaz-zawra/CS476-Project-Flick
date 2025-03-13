@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
@@ -14,6 +15,9 @@
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 
 <%- include('partials/header') %>
+
+<!-- Include status message partial -->
+<%- include('partials/status-message') %>
 
 <div class="font-mono mt-7 text-2xl text-accent-light dark:text-accent-dark"> Welcome, <%= user.username %> </div>
 <br />
@@ -28,23 +32,47 @@
                     New Card Set
                 </span>
             </button>
-            <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark" placeholder="Filter by tag">
+            <div class="flex items-center space-x-2">
+                <select id="userCategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
+                    <option value="">Select Category</option>
+                </select>
+                <select id="userSubcategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
+                    <option value="">All Subcategories</option>
+                </select>
+            </div>
         </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mt-2">
-    <div id="user-sets" class="inline p-2"></div>
+    <div id="user-sets" class="p-2">
+        <% if (typeof userSets === 'undefined' || !Array.isArray(userSets) || userSets.length === 0) { %>
+            <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
+                You have no sets. <a href="/new_set" class="underline text-highlight-light dark:text-highlight-dark hover:text-primary-light dark:hover:text-primary-dark">Create one now!</a>
+            </div>
+        <% } %>
+    </div>
 </div>
 <br />
-
 <div id="shared-cardsets" class="p-2 bg-surface-light dark:bg-surface-dark rounded-md border-2 border-accent-light dark:border-accent-dark">
     <div id="set-bar-shared" class="flex items-center justify-between">
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">Sets Shared with me</span><br />
-        <input type="text" id="tagFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark" placeholder="Filter by tag">
+        <div class="flex items-center space-x-2">
+            <select id="sharedCategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
+                <option value="">Select Category</option>
+            </select>
+            <select id="sharedSubcategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
+                <option value="">All Subcategories</option>
+            </select>
+        </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mt-2">
-    <div id="shared-sets"></div>
+    <div id="shared-sets" class="p-2">
+        <% if (typeof sharedSets === 'undefined' || !Array.isArray(sharedSets) || sharedSets.length === 0) { %>
+            <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
+                No sets have been shared with you.
+            </div>
+        <% } %>
+    </div>
 </div>
-
 <!-- Modal for deletion confirmation -->
 <div id="confirmation-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <div class="bg-surface-light dark:bg-surface-dark p-8 rounded-lg shadow-lg w-1/3 text-center">
@@ -59,7 +87,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal for share -->
 <div id="share-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <div class="bg-surface-light dark:bg-surface-dark p-8 rounded-lg shadow-lg w-1/3 text-center">
@@ -79,6 +106,10 @@
 </body>
 </html>
 <script>
+    // Store category data as local variables rather than window globals
+    const categoryNames = <%- JSON.stringify(categoryNames) %>;
+    const subcategoriesData = <%- JSON.stringify(subcategories) %>;
+    
     function handleShareButtonClick(setID) {
         document.getElementById('share-modal').classList.remove('hidden');
 
@@ -86,8 +117,30 @@
         document.getElementById('confirm-share').onclick = () => {
             const username = document.getElementById('username-input').value;
             if (username) {
-                // Perform the share action (could be sending to backend or other logic)
-                alert(`Set shared with ${username}`);
+                // Create a form to submit the share data
+                const form = document.createElement('form');
+                form.action = '/api/shareSet';
+                form.method = 'post';
+                form.style.display = 'none';
+
+                // Add username input
+                const usernameInput = document.createElement('input');
+                usernameInput.type = 'hidden';
+                usernameInput.name = 'username';
+                usernameInput.value = username;
+                form.appendChild(usernameInput);
+
+                // Add setID input
+                const setIDInput = document.createElement('input');
+                setIDInput.type = 'hidden';
+                setIDInput.name = 'setID';
+                setIDInput.value = setID;
+                form.appendChild(setIDInput);
+
+                // Append form to document and submit it
+                document.body.appendChild(form);
+                form.submit();
+                
                 document.getElementById('share-modal').classList.add('hidden');
             } else {
                 alert('Please enter a username');
@@ -97,6 +150,34 @@
         // Cancel share action
         document.getElementById('cancel-share').onclick = () => {
             document.getElementById('share-modal').classList.add('hidden');
+        };
+    }
+
+    // Function to handle removing a shared set
+    function handleRemoveSharedSet(setID, setName) {
+        document.getElementById('confirmation-modal').classList.remove('hidden');
+        document.getElementById('confirmation-message').textContent = `Do you want to remove the shared set "${setName}"?`;
+        
+        document.getElementById('confirm-delete').onclick = () => {
+            const form = document.createElement('form');
+            form.action = '/api/removeSharedSet?_method=DELETE';
+            form.method = 'post';
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'setID';
+            input.value = setID;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+            
+            document.getElementById('confirmation-modal').classList.add('hidden');
+        };
+        
+        document.getElementById('cancel-delete').onclick = () => {
+            document.getElementById('confirmation-modal').classList.add('hidden');
         };
     }
 
@@ -141,7 +222,7 @@
 
         const categorySpan = document.createElement('span');
         categorySpan.className = 'bg-primary-light dark:bg-primary-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
-        categorySpan.textContent = getCategoryName(category);
+        categorySpan.textContent = getCategoryName(category, categoryNames);
         categoryDiv.appendChild(categorySpan);
 
         // Create the subcategory section
@@ -150,136 +231,216 @@
         subcategorySpan.textContent = subcategory;
         categoryDiv.appendChild(subcategorySpan);
 
-        // Create the buttons section (Share, Edit, Delete)
+        // Create the buttons section (Share, Edit, Delete) - only for user's own sets
         const buttonsDiv = document.createElement('div');
         buttonsDiv.className = 'flex items-center gap-2 justify-between mt-2 w-full';
 
         // Button base styling without border
         const buttonBaseClass = 'relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity';
 
-        const shareButton = document.createElement('button');
-        shareButton.className = buttonBaseClass;
-        shareButton.onclick = () => {
-            handleShareButtonClick(setID);
-        };
-
-        const shareImg = document.createElement('img');
-        shareImg.src = 'share.svg';
-        shareImg.alt = 'Share Icon';
-        shareImg.className = 'w-6 h-6 invert dark:invert-0';
-        shareButton.appendChild(shareImg);
-
-        const shareSpan = document.createElement('span');
-        shareSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
-        shareSpan.textContent = 'Share Set';
-        shareButton.appendChild(shareSpan);
-
-        // Edit Button
-        const editButton = document.createElement('button');
-        editButton.className = buttonBaseClass;
-        editButton.onclick = () => { window.location.href = `/edit_set?setID=${setID}`; };
-
-        const editImg = document.createElement('img');
-        editImg.src = 'edit.svg';
-        editImg.alt = 'Edit Icon';
-        editImg.className = 'w-6 h-6 invert dark:invert-0';
-        editButton.appendChild(editImg);
-
-        const editSpan = document.createElement('span');
-        editSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
-        editSpan.textContent = 'Edit Set';
-        editButton.appendChild(editSpan);
-
-        // Delete Button
-        const deleteButton = document.createElement('button');
-        deleteButton.className = buttonBaseClass;
-        deleteButton.onclick = () => {
-            document.getElementById('confirmation-modal').classList.remove('hidden');
-            document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
-            document.getElementById('confirm-delete').onclick = () => {
-            const form = document.createElement('form');
-            form.action = '/api/deleteSet?_method=DELETE';
-            form.method = 'post';
-            form.style.display = 'none';
-
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'setID';
-            input.value = setID;
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
+        // Only add management buttons (share, edit, delete) for sets owned by the user
+        if (!shared) {
+            const shareButton = document.createElement('button');
+            shareButton.className = buttonBaseClass;
+            shareButton.onclick = () => {
+                handleShareButtonClick(setID);
             };
-        };
 
-        const deleteImg = document.createElement('img');
-        deleteImg.src = 'delete.svg';
-        deleteImg.alt = 'Delete Icon';
-        deleteImg.className = 'w-6 h-6 invert dark:invert-0';
-        deleteButton.appendChild(deleteImg);
+            const shareImg = document.createElement('img');
+            shareImg.src = 'share.svg';
+            shareImg.alt = 'Share Icon';
+            shareImg.className = 'w-6 h-6 invert dark:invert-0';
+            shareButton.appendChild(shareImg);
 
-        const deleteSpan = document.createElement('span');
-        deleteSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
-        deleteSpan.textContent = 'Delete Set';
-        deleteButton.appendChild(deleteSpan);
+            const shareSpan = document.createElement('span');
+            shareSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+            shareSpan.textContent = 'Share Set';
+            shareButton.appendChild(shareSpan);
 
-        // Append buttons to button container
-        buttonsDiv.appendChild(shareButton);
-        buttonsDiv.appendChild(editButton);
-        buttonsDiv.appendChild(deleteButton);
+            // Edit Button
+            const editButton = document.createElement('button');
+            editButton.className = buttonBaseClass;
+            editButton.onclick = () => { window.location.href = `/edit_set?setID=${setID}`; };
+
+            const editImg = document.createElement('img');
+            editImg.src = 'edit.svg';
+            editImg.alt = 'Edit Icon';
+            editImg.className = 'w-6 h-6 invert dark:invert-0';
+            editButton.appendChild(editImg);
+
+            const editSpan = document.createElement('span');
+            editSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+            editSpan.textContent = 'Edit Set';
+            editButton.appendChild(editSpan);
+
+            // Delete Button
+            const deleteButton = document.createElement('button');
+            deleteButton.className = buttonBaseClass;
+            deleteButton.onclick = () => {
+                document.getElementById('confirmation-modal').classList.remove('hidden');
+                document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
+                document.getElementById('confirm-delete').onclick = () => {
+                    const form = document.createElement('form');
+                    form.action = '/api/deleteSet?_method=DELETE';
+                    form.method = 'post';
+                    form.style.display = 'none';
+
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'setID';
+                    input.value = setID;
+
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                };
+            };
+
+            const deleteImg = document.createElement('img');
+            deleteImg.src = 'delete.svg';
+            deleteImg.alt = 'Delete Icon';
+            deleteImg.className = 'w-6 h-6 invert dark:invert-0';
+            deleteButton.appendChild(deleteImg);
+
+            const deleteSpan = document.createElement('span');
+            deleteSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+            deleteSpan.textContent = 'Delete Set';
+            deleteButton.appendChild(deleteSpan);
+
+            // Append buttons to button container
+            buttonsDiv.appendChild(shareButton);
+            buttonsDiv.appendChild(editButton);
+            buttonsDiv.appendChild(deleteButton);
+        } else {
+            // Add Remove button for shared sets
+            const removeButton = document.createElement('button');
+            removeButton.className = buttonBaseClass;
+            removeButton.onclick = () => {
+                handleRemoveSharedSet(setID, setName);
+            };
+
+            const removeImg = document.createElement('img');
+            removeImg.src = 'delete.svg';
+            removeImg.alt = 'Remove Icon';
+            removeImg.className = 'w-6 h-6 invert dark:invert-0';
+            removeButton.appendChild(removeImg);
+
+            const removeSpan = document.createElement('span');
+            removeSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+            removeSpan.textContent = 'Remove Set';
+            removeButton.appendChild(removeSpan);
+
+            // Append button to button container
+            buttonsDiv.appendChild(removeButton);
+        }
 
         // Append everything to the main set div
         setDiv.appendChild(setNameDiv);
         setDiv.appendChild(categoryDiv);
         setDiv.appendChild(buttonsDiv);
 
-        // Append to the correct container
+        // Append the set div to the correct container
         const container = shared ? document.getElementById('shared-sets') : document.getElementById('user-sets');
         container.appendChild(setDiv);
     }
 
-    // Cancel delete action
-    document.getElementById('cancel-delete').onclick = () => {
-        document.getElementById('confirmation-modal').classList.add('hidden');
-    };
+    // Helper function to get category name by key
+    function getCategoryName(key, categoryNames) {
+        return categoryNames[key] || '';
+    }
 
-    // Cancel delete action
-    document.getElementById('cancel-delete').onclick = () => {
-        document.getElementById('confirmation-modal').classList.add('hidden');
-    };
-</script>
-
-<% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
-    <% userSets.forEach(function(set, index) { %>
-        <script>
-            const setData<%= index %> = '<%- JSON.stringify(set) %>';
-            const parsedSet<%= index %> = JSON.parse(setData<%= index %>);
-            console.log(parsedSet<%= index %>);
-            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, parsedSet<%= index %>.subCategory, false);
-        </script>
-    <% }); %>
-<% } else { %>
-    <script>
-        console.log("No sets available to display");
-    </script>
-<% } %>
-
-<% if (typeof sharedSets !== 'undefined' && Array.isArray(sharedSets)) { %>
-    <% sharedSets.forEach(function(set, index) { %>
-        <script>
-            const setData<%= index %> = '<%- JSON.stringify(set) %>';
-            const parsedSet<%= index %> = JSON.parse(setData<%= index %>);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set up category filters
+        const userCategoryFilter = document.getElementById('userCategoryFilter');
+        const userSubcategoryFilter = document.getElementById('userSubcategoryFilter');
+        const sharedCategoryFilter = document.getElementById('sharedCategoryFilter');
+        const sharedSubcategoryFilter = document.getElementById('sharedSubcategoryFilter');
+        
+        // Populate category dropdowns with local data
+        populateCategoryDropdown(userCategoryFilter, categoryNames);
+        populateCategoryDropdown(sharedCategoryFilter, categoryNames);
+        
+        // Set up event listeners for category changes
+        userCategoryFilter.addEventListener('change', function() {
+            const hasSubcategories = populateSubcategoryDropdown(this.value, userSubcategoryFilter, subcategoriesData);
+            userSubcategoryFilter.classList.toggle('hidden', !hasSubcategories);
+            filterSets('user-sets', this.value, userSubcategoryFilter.value);
+        });
+        
+        sharedCategoryFilter.addEventListener('change', function() {
+            const hasSubcategories = populateSubcategoryDropdown(this.value, sharedSubcategoryFilter, subcategoriesData);
+            sharedSubcategoryFilter.classList.toggle('hidden', !hasSubcategories);
+            filterSets('shared-sets', this.value, sharedSubcategoryFilter.value);
+        });
+        
+        // Set up event listeners for subcategory changes
+        userSubcategoryFilter.addEventListener('change', function() {
+            filterSets('user-sets', userCategoryFilter.value, this.value);
+        });
+        
+        sharedSubcategoryFilter.addEventListener('change', function() {
+            filterSets('shared-sets', sharedCategoryFilter.value, this.value);
+        });
+        
+        // Function to filter sets based on category and subcategory
+        function filterSets(containerId, categoryValue, subcategoryValue) {
+            const container = document.getElementById(containerId);
+            const sets = container.querySelectorAll('div[class*="inline-flex"]');
             
-            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, parsedSet<%= index %>.subCategory, true);
-        </script>
-    <% }); %>
-<% } else { %>
-    <script>
-        console.log("No sets available to display");
-    </script>
-<% } %>
-<script>
+            sets.forEach(set => {
+                let showSet = true;
+                
+                // Check category if filter is active
+                if (categoryValue !== '') {
+                    const setCategorySpan = set.querySelector('span.bg-primary-light');
+                    const setCategory = setCategorySpan ? setCategorySpan.textContent : '';
+                    const categoryMatch = getCategoryName(categoryValue, categoryNames) === setCategory;
+                    
+                    if (!categoryMatch) {
+                        showSet = false;
+                    }
+                    
+                    // Check subcategory if filter is active
+                    if (showSet && subcategoryValue !== '') {
+                        const setSubcategorySpan = set.querySelector('span.bg-secondary-light');
+                        const setSubcategory = setSubcategorySpan ? setSubcategorySpan.textContent : '';
+                        
+                        if (setSubcategory !== subcategoryValue) {
+                            showSet = false;
+                        }
+                    }
+                }
+                
+                // Show/hide the set
+                set.style.display = showSet ? '' : 'none';
+            });
+        }
+    });
+
+    // Helper function to populate category dropdown - now accepts direct parameters
+    function populateCategoryDropdown(dropdown, categoryNames) {
+        const categoryOptions = Object.keys(categoryNames).map(key => {
+            return `<option value="${key}">${getCategoryName(key, categoryNames)}</option>`;
+        }).join('');
+        dropdown.innerHTML = '<option value="">Select Category</option>' + categoryOptions;
+    }
+
+    // Helper function to populate subcategory dropdown - now accepts direct parameters
+    function populateSubcategoryDropdown(categoryKey, dropdown, subcategories) {
+        const subcategoryList = getSubcategoriesForCategory(categoryKey, subcategories);
+        if (!subcategoryList || subcategoryList.length === 0) {
+            dropdown.innerHTML = '<option value="">All Subcategories</option>';
+            return false;
+        }
+        const subcategoryOptions = Object.entries(subcategoryList).map(([key, value]) => {
+            if (!isNaN(Number(key))) return '';
+            return `<option value="${value}">${value}</option>`;
+        }).join('');
+        dropdown.innerHTML = '<option value="">All Subcategories</option>' + subcategoryOptions;
+        return true;
+    }
+
+    // Function to toggle theme
     function toggleTheme() {
         if (document.documentElement.classList.contains('dark')) {
             document.documentElement.classList.remove('dark');
@@ -298,4 +459,31 @@
         document.getElementById('theme-toggle').checked = false;
     }
 </script>
+<% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
+    <% userSets.forEach(function(set, index) { %>
+        <script>
+            const setData<%= index %> = '<%- JSON.stringify(set) %>';
+            const parsedSet<%= index %> = JSON.parse(setData<%= index %>);
+            console.log(parsedSet<%= index %>);
+            insertSet(parsedSet<%= index %>.setID, parsedSet<%= index %>.setName, parsedSet<%= index %>.category, parsedSet<%= index %>.subCategory, false);
+        </script>
+    <% }); %>
+<% } else { %>
+    <script>
+        console.log("No sets available to display");
+    </script>
+<% } %>
+<% if (typeof sharedSets !== 'undefined' && Array.isArray(sharedSets)) { %>
+    <% sharedSets.forEach(function(set, index) { %>
+        <script>
+            const sharedSetData<%= index %> = '<%- JSON.stringify(set) %>';
+            const parsedSharedSet<%= index %> = JSON.parse(sharedSetData<%= index %>);
+            insertSet(parsedSharedSet<%= index %>.setID, parsedSharedSet<%= index %>.setName, parsedSharedSet<%= index %>.category, parsedSharedSet<%= index %>.subCategory, true);
+        </script>
+    <% }); %>
+<% } else { %>
+    <script>
+        console.log("No shared sets available to display");
+    </script>
+<% } %>
 </html>

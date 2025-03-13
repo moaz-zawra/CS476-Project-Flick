@@ -8,6 +8,7 @@
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/script.js"></script>
+    <script src="/js/status-handler.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
@@ -15,6 +16,7 @@
 
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
+<%- include('partials/status-message') %>
 
 <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
@@ -65,11 +67,17 @@
 </main>
 
 <script>
-    const category_display = document.getElementById('category-display');
-    const subcategory_display = document.getElementById('subcategory-display');
-    const category = <%- JSON.stringify(set.category) %>;
-    category_display.innerText = getCategoryName(category);  
-</script>                         
+    document.addEventListener('DOMContentLoaded', function() {
+        // Store category data locally
+        const categoryNames = <%- JSON.stringify(categoryNames) %>;
+        
+        const category_display = document.getElementById('category-display');
+        const category = <%- JSON.stringify(set.category) %>;
+        
+        // Display category name using the utility function with passed parameter
+        category_display.innerText = getCategoryName(category, categoryNames);
+    });
+</script>
 
 </body>
 </html>

@@ -3,7 +3,7 @@ import {RowDataPacket} from "mysql2/promise";
 import {UserService} from "../user/user.service";
 import {User} from "../user/user.model";
 import {CardSet, Category} from "./cardset.model";
-import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus} from "./cardset.types";
+import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
 
 export class CardSetService {
     /**
@@ -20,7 +20,7 @@ export class CardSetService {
             }
 
             const db = await DatabaseService.getConnection();
-            const ownerID = await UserService.getIDOfUser(user);
+            const ownerID = await UserService.getIDOfUser(user.username);
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT 1 FROM card_sets WHERE set_name = ? AND ownerID = ? LIMIT 1",
@@ -96,7 +96,7 @@ export class CardSetService {
     static async getAllSets(user: User): Promise<CardSet[] | CardSetGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
-            const ownerID = await UserService.getIDOfUser(user);
+            const ownerID = await UserService.getIDOfUser(user.username);
             const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT ownerID, set_name, category, sub_category, description, setID FROM card_sets WHERE ownerID = ?",
                 [ownerID]
@@ -155,9 +155,10 @@ export class CardSetService {
     static async getSharedSets(user: User): Promise<CardSet[] | CardSetGetStatus> {
         try{
             const db = await DatabaseService.getConnection();
+            const userID = await UserService.getIDOfUser(user.username);
             const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT setID FROM shared_sets WHERE uID = ?",
-                [await UserService.getIDOfUser(user)],
+                [userID],
             );
 
             let sets: CardSet[] = [];
@@ -175,6 +176,41 @@ export class CardSetService {
             console.error("Failed to get shared card sets with error: ", error);
             return CardSetGetStatus.DATABASE_FAILURE;
         }
+    }
+    
+    static async shareSet(user: User, shareWith: string, setID: number): Promise<CardSetShareStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            
+            // Check if user exists
+            const userExists = await UserService.doesUserExist(shareWith);
+            if(!userExists) return CardSetShareStatus.USER_DOES_NOT_EXIST;
+            
+            // Check if set exists
+            const set = await this.getSet(setID);
+            if(set === CardSetGetStatus.SET_DOES_NOT_EXIST || set === CardSetGetStatus.DATABASE_FAILURE) 
+                return CardSetShareStatus.SET_DOES_NOT_EXIST;
+            
+            // Get user ID to share with
+            const shareWithID = await UserService.getIDOfUser(shareWith);
+            if(shareWithID === -1) return CardSetShareStatus.USER_DOES_NOT_EXIST;
+            
+            // Check if already shared
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM shared_sets WHERE uID = ? AND setID = ?",
+                [shareWithID, setID]
+            );
+            if(rows.length > 0) return CardSetShareStatus.ALREADY_SHARED;
 
+            // Share the set
+            await db.connection.execute<RowDataPacket[]>(
+                "INSERT INTO shared_sets (uID, setID) VALUES (?, ?)",
+                [shareWithID, setID]
+            );
+            return CardSetShareStatus.SUCCESS;
+        } catch(error){
+            console.error("Failed to share card set with error: ", error);
+            return CardSetShareStatus.DATABASE_FAILURE;
+        }
     }
 }

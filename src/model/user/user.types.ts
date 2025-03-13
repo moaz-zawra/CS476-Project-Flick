@@ -19,7 +19,9 @@ export enum UserChangeStatus{
     SUCCESS,
     USER_DOES_NOT_EXIST,
     INCORRECT_PASSWORD,
-    DATABASE_FAILURE
+    DATABASE_FAILURE,
+    USERNAME_USED,
+    EMAIL_USED
 }
 
 export enum banResult{

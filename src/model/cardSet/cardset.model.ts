@@ -22,7 +22,7 @@ export enum Category{
     CourseSubjects,
     Law,
     Medical,
-    Military
+    Military,
 }
 
 export enum SubCategory_Technology {
