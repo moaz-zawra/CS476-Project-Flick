@@ -8,6 +8,7 @@
     <script src="/js/color-scheme.js"></script>
     <script src="/js/categories.js"></script>
     <script src="/js/status-handler.js"></script>
+    <script src="/js/edit-set.js"></script>
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
@@ -18,7 +19,7 @@
 
 <div class="container mx-auto px-4">
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-        <form id="edit-form" action="/api/v2/editSet" method="POST" class="space-y-6" onsubmit="return confirm('Are you sure you want to save changes?');">
+        <form id="edit-form" action="/api/editSet" method="POST" class="space-y-6" onsubmit="return confirm('Are you sure you want to save changes?');">
             <input type="hidden" name="setID" value="<%= set.setID %>">
 
             <div>
@@ -69,7 +70,7 @@
 
         <div class="flex flex-wrap gap-4 justify-center">
             <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
-                <% cards.forEach(function(card) { %>
+                <%  cards.forEach(function(card) { console.log("card: " + JSON.stringify(card)); %>
                     <div class="p-4 rounded-lg w-[300px] h-[300px] relative border-2 border-accent-light dark:border-accent-dark bg-gray-200 dark:bg-accent-dark">
                         <div class="grid grid-cols-1 h-full gap-4 ">
                             <div class="flex flex-col justify-center">
@@ -132,52 +133,15 @@
     </div>
 </div>
 
-</body>
+<!-- Make data available to external JS file -->
 <script>
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Store category data as local variables
-  const categoryNames = <%- JSON.stringify(categoryNames) %>;
-  const subcategoriesData = <%- JSON.stringify(subcategories) %>;
-  
-  // Populate categories dropdown
-  const category_select = document.getElementById('category');
-  const subcategory_select = document.getElementById('subcategory');
-  const category = <%- JSON.stringify(set.category) %>;
-  const subcategory = <%- JSON.stringify(set.subCategory) %>;
-  
-  populateCategoryDropdown(category_select, categoryNames, false);
-  
-  // Add event listener for category change
-  category_select.addEventListener('change', function() {
-    populateSubcategoryDropdown(this.value, subcategory_select, subcategoriesData, true);
-  });
-  
-  // Set default values
-  if (category) {
-    category_select.value = category;
-    populateSubcategoryDropdown(category, subcategory_select, subcategoriesData, true);
-    
-    // Set default subcategory if available
-    if (subcategory) {
-      subcategory_select.value = subcategory;
-    }
-  }
-});
-
-function editCard(cardId) {
-    console.log('Edit card:', cardId);
-}
-
-function addNewCard() {
-    document.getElementById('cardModal').classList.remove('hidden');
-    document.getElementById('cardForm').reset();
-    document.getElementById('cardSetID').value = <%= set.setID %>;
-}
-
-function closeCardModal() {
-    document.getElementById('cardModal').classList.add('hidden');
-}
-
+    // Pass EJS data to global variables
+    window.categoryNames = <%- JSON.stringify(categoryNames) %>;
+    window.subcategoriesData = <%- JSON.stringify(subcategories) %>;
+    window.category = <%- JSON.stringify(set.category) %>;
+    window.subcategory = <%- JSON.stringify(set.subCategory) %>;
+    window.setID = <%= set.setID %>;
 </script>
+
+</body>
 </html>

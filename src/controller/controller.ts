@@ -413,10 +413,10 @@ controller.get('/',
  * @param req - Express request object
  * @param res - Express response object
  */
-controller.get('/login', 
+controller.get('/login',
+    isNotAuthenticated,
     logUserActivity, 
     routeHandler((req, res) => {
-        if (req.session.user) return res.redirect('/test');
         res.render('login', { status: req.query.status, currentPage: 'login' });
     })
 );
@@ -428,8 +428,8 @@ controller.get('/login',
  */
 controller.get('/register', 
     logUserActivity, 
+    isNotAuthenticated,
     routeHandler((req, res) => {
-        if (req.session.user) return res.redirect('/');
         res.render('register', { status: req.query.status, currentPage: 'register' });
     })
 );

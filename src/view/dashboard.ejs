@@ -49,7 +49,6 @@
     <% userSets.forEach(function(set, index) { %>
         <script>
             const setData<%= index %> = <%- JSON.stringify(set) %>;
-            console.log(setData<%= index %>);
             insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.category, setData<%= index %>.subCategory, false);
         </script>
     <% }); %>
