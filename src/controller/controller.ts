@@ -3,9 +3,12 @@ import axios from 'axios';
 
 import {
     asyncHandler,
+    createUserFromSession,
     getCookie,
+    isAdmin,
     isAdminUser,
     isAuthenticated,
+    isModerator,
     isModeratorUser,
     isNotAuthenticated,
     isRegular,
@@ -25,8 +28,8 @@ import {
     SubCategory_Military,
     SubCategory_Technology
 } from '../model/cardSet/cardset.model';
-import {Administrator, Regular} from "../model/user/user.roles";
-import { APIService } from '../model/api';
+import {Administrator, Moderator, Regular} from "../model/user/user.roles";
+import { APIService, GETOK, handleTemplateResponse } from '../model/api';
 
 const categoryNames = Object.keys(Category)
     .filter(key => !isNaN(Number(key)))
@@ -315,31 +318,31 @@ controller.get('/',
     isAuthenticated, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
-        if(isRegular(req.session.user)){
-            const cookie = getCookie(req); // gets authentication cookie
-            const userSets = await axios.get('http://localhost:' + port + '/api/getSets', {
-                headers: {
-                    cookie
-                }
-            });
-            const sharedSets = await axios.get('http://localhost:' + port + '/api/getSharedSets', {
-                headers: {
-                    cookie
-                }
-            });
+        const cookie = getCookie(req); // gets authentication cookie
+        const userSets = await axios.get('http://localhost:' + port + '/api/getSets', {
+            headers: {
+                cookie
+            }
+        });
+        const sharedSets = await axios.get('http://localhost:' + port + '/api/getSharedSets', {
+            headers: {
+                cookie
+            }
+        });
 
-            // Add owner info to each shared set object
-            sharedSets.data.result = await Promise.all(
-                sharedSets.data.result.map(async (set: any) => {
-                    const owner = await UserService.getUserByIdentifier(set.ownerID);
-                    set.ownerID = {username: owner?.username || '', email: owner?.email || ''};
-                    return set;
-                })
-            );
+        // Add owner info to each shared set object
+        sharedSets.data.result = await Promise.all(
+            sharedSets.data.result.map(async (set: any) => {
+                const owner = await UserService.getUserByIdentifier(set.ownerID);
+                set.ownerID = {username: owner?.username || '', email: owner?.email || ''};
+                return set;
+            })
+        );
 
-            console.log(sharedSets.data.result);
-            const user: Regular = Object.assign(new Regular("", ""), req.session.user);
-            return res.render('regular_dashboard', {
+        if(isAdmin(req.session.user)){
+            const user = createUserFromSession(req, Administrator);
+            handleTemplateResponse(res,GETOK,'dashboard', {
+                role: 'admin',
                 user: user,
                 uID: await UserService.getIDOfUser(user.username),
                 status: req.query.status,
@@ -355,8 +358,53 @@ controller.get('/',
                     [Category.Military]: SubCategory_Military
                 },
                 currentPage: 'dashboard'
-            });
+            })
         }
+        else if(isModerator(req.session.user)){
+            const user = createUserFromSession(req, Moderator);
+            handleTemplateResponse(res,GETOK,'dashboard', {
+                role: 'moderator',
+                user: user,
+                uID: await UserService.getIDOfUser(user.username),
+                status: req.query.status,
+                userSets: userSets.data.result,
+                sharedSets: sharedSets.data.result,
+                categoryNames,
+                subcategories: {
+                    [Category.Language]: SubCategory_Language,
+                    [Category.Technology]: SubCategory_Technology,
+                    [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                    [Category.Law]: SubCategory_Law,
+                    [Category.Medical]: SubCategory_Medical,
+                    [Category.Military]: SubCategory_Military
+                },
+                currentPage: 'dashboard'
+            })
+        }
+        else if(isRegular(req.session.user)){
+            const user = createUserFromSession(req, Regular);
+            handleTemplateResponse(res,GETOK,'dashboard', {
+                role: 'regular',
+                user: user,
+                uID: await UserService.getIDOfUser(user.username),
+                status: req.query.status,
+                userSets: userSets.data.result,
+                sharedSets: sharedSets.data.result,
+                categoryNames,
+                subcategories: {
+                    [Category.Language]: SubCategory_Language,
+                    [Category.Technology]: SubCategory_Technology,
+                    [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                    [Category.Law]: SubCategory_Law,
+                    [Category.Medical]: SubCategory_Medical,
+                    [Category.Military]: SubCategory_Military
+                },
+                currentPage: 'dashboard'
+            })
+        }
+        else{
+            return res.status(403).send("Your account has an invalid user role. Please contact the administrators");
+        } 
     })
 );
 
@@ -573,7 +621,7 @@ controller.get('/test',
  */
 controller.get('*', 
     routeHandler((req, res) => {
-        res.status(404).sendFile(path.join(pub, "notfound.html"));
+        res.render('error', {error:"404: Page not found", action: req.originalUrl});
     })
 );
 

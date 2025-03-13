@@ -172,7 +172,6 @@ function editCard(cardId) {
 function addNewCard() {
     document.getElementById('cardModal').classList.remove('hidden');
     document.getElementById('cardForm').reset();
-    // Ensure the setID is correctly set when opening the modal
     document.getElementById('cardSetID').value = <%= set.setID %>;
 }
 
@@ -180,18 +179,5 @@ function closeCardModal() {
     document.getElementById('cardModal').classList.add('hidden');
 }
 
-// Check for status parameter and show feedback to user
-window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    
-    if (status === 'success') {
-        alert('Card added successfully!');
-    } else if (status === 'error') {
-        alert('Error adding card. Please try again.');
-    } else if (status === 'missing-fields') {
-        alert('Please fill in all fields.');
-    }
-});
 </script>
 </html>

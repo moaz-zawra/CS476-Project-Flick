@@ -19,7 +19,7 @@ import {makeCard} from "./card/card.model";
  * @param status - The status to be included in response
  * @param jsonData - Optional JSON data to include in response
  */
-function handleResponse(
+export function handleResponse(
     res: express.Response, 
     response_code: number, 
     route: string, 
@@ -43,7 +43,7 @@ function handleResponse(
  * @param template - Template to render
  * @param templateData - Data to pass to the template
  */
-function handleTemplateResponse(
+export function handleTemplateResponse(
     res: express.Response,
     response_code: number,
     template: string,
