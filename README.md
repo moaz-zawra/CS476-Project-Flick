@@ -10,9 +10,6 @@ Repository for work relating to the CS476 group project
     Elie Mitri
   </li>
   <li>
-    Logan Redman
-  </li>
-  <li>
     Moaz Zawra
   </li>
   <li>
