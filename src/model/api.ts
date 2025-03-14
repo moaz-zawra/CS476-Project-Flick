@@ -1,6 +1,6 @@
 import express from "express";
 import {Administrator, Moderator, Regular} from "./user/user.roles";
-import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus} from "./cardSet/cardset.types";
+import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus} from "./cardSet/cardset.types";
 import {CardAddStatus, CardGetStatus, CardRemoveStatus} from "./card/card.types";
 import {UserCreator} from "./user/user.auth";
 import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from "./user/user.types";
@@ -8,6 +8,7 @@ import {UserService} from "./user/user.service";
 import {makeCardSet} from "./cardSet/cardset.model";
 import {logUserAction, createUserFromSession} from "./utility";
 import {makeCard} from "./card/card.model";
+import { ConsoleLogger } from "typedoc/dist/lib/utils";
 
 
 /**
@@ -366,11 +367,24 @@ export class APIService{
         const uID = await UserService.getIDOfUser(user.username);
         const setID = parseInt(req.body.setID as string);
         const {setName, category, subcategory, setDesc} = req.body;
+        //convert category to enum value
+        
         if(setName && category && subcategory && setDesc && setID){
-            const set = makeCardSet(uID, setName, category, subcategory, setDesc);
+            const set = makeCardSet(uID, setName, category, subcategory, setDesc, setID);
             const result = await user.editSet(set);
+            if (result === CardSetEditStatus.SUCCESS) {
+                handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+            } else if (result === CardSetEditStatus.MISSING_INFORMATION) {
+                handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+            } else if (result === CardSetEditStatus.NAME_USED) {
+                handleResponse(res, CONFLICT, `/edit_set?setID=${setID}`, 'name-used');
+            } else if (result === CardSetEditStatus.SET_DOES_NOT_EXIST) {
+                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+            } else if (result === CardSetEditStatus.DATABASE_FAILURE) {
+                handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+            }
 
-        }
+        } else handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
     }
     static async handleEditCard(req: express.Request, res: express.Response): Promise<void> {
 

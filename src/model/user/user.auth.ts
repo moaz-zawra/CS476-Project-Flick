@@ -54,10 +54,8 @@ export class UserCreator extends UserFactory {
     public async login(identifier: string, password: string): Promise<User | LoginStatus> {
         try {
             const db = await DatabaseService.getConnection();
-
             const userData = await UserService.getUserByIdentifier(identifier);
             if (!userData) return LoginStatus.USER_DOES_NOT_EXIST;
-            
             // Ensure the hash is a string before comparing
             if (typeof userData.hash !== 'string') {
                 console.error("Invalid hash type:", typeof userData.hash);

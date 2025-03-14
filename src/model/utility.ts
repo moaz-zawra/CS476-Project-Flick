@@ -100,7 +100,13 @@ export function getCookie(req: express.Request): string {
         let cookies = cookieString ? cookieString.split(";"): [];
         let idx = cookies.findIndex(cookie => cookie.trim().startsWith("connect.sid="))
         if (idx == -1) return "";
-        return cookies[idx];
+        
+        // Extract just the value part of the cookie by splitting on '=' and taking the second part
+        const cookieParts = cookies[idx].trim().split('=');
+        if (cookieParts.length < 2) return "";
+        
+        // Return everything after the first '=' since cookie values could contain '=' characters
+        return `connect.sid=${cookieParts.slice(1).join('=')}`;
     }catch(error){
         console.error("Error getting session cookie ", error)
         return "";

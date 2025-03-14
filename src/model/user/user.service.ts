@@ -90,14 +90,27 @@ export class UserService {
      * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
      */
     public static async getUserByIdentifier(identifier: string | number): Promise<RowDataPacket | null> {
-        const db = await DatabaseService.getConnection();
-
-        const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT uID, username, email, hash, role FROM users WHERE username = ? OR email = ? OR uID = ?",
-            [identifier, identifier, identifier]
-        );
-
-        return rows.length ? rows[0] : null;
+        try {
+            const db = await DatabaseService.getConnection();
+            
+            if (typeof identifier === 'number') {
+                const [rows] = await db.connection.execute<RowDataPacket[]>(
+                    "SELECT uID, username, email, hash, role FROM users WHERE uID = ?",
+                    [identifier]
+                );
+                return rows.length ? rows[0] : null;
+            }
+            
+                        const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT uID, username, email, hash, role FROM users WHERE username = ? OR email = ?",
+                [identifier, identifier]
+            );
+            
+            return rows.length ? rows[0] : null;
+        } catch (error) {
+            console.error(`Error getting user by identifier: ${(error as Error).message}`);
+            return null;
+        }
     }
     /**
      * Retrieves the user ID (uID) based on the provided identifier (username, email, or uID).
@@ -109,9 +122,19 @@ export class UserService {
         try {
             const db = await DatabaseService.getConnection();
 
+            // If identifier is a number, treat it as a uID for exact match
+            if (typeof identifier === 'number') {
+                const [rows] = await db.connection.execute<RowDataPacket[]>(
+                    "SELECT uID FROM users WHERE uID = ?",
+                    [identifier]
+                );
+                return rows.length > 0 ? rows[0].uID as number : -1;
+            }
+            
+            // For string identifiers, try to find an exact match on username or email
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT uID FROM users WHERE username = ? OR email = ? OR uID = ?",
-                [identifier, identifier, identifier]
+                "SELECT uID FROM users WHERE username = ? OR email = ?",
+                [identifier, identifier]
             );
 
             return rows.length > 0 ? rows[0].uID as number : -1;

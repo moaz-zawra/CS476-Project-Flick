@@ -213,7 +213,11 @@ controller.post('/api/logout',
     logUserActivity, 
     asyncHandler(async (req, res) => {
         req.session.destroy(err => {
-            if(err) console.error(err);
+            if(err) {
+                console.error(err);
+                return res.status(500).send('Logout failed');
+            }
+            res.clearCookie('connect.sid'); // Clear the session cookie
             res.redirect('/login');
         });
     })
@@ -326,7 +330,7 @@ controller.delete('/api/deleteUser',
  * @param res - Express response object
  * @throws {Error} If fetching user data or card sets fails
  */
-controller.get('/', 
+controller.get('/',
     isAuthenticated, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
