@@ -97,7 +97,7 @@
             <% } %>
 
             <button onclick="addNewCard()"
-                    class="w-[300px] h-[300px] bg-accent-light dark:bg-accent-dark rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-gray-200 dark:border-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                    class="w-[300px] h-[300px] rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
                 <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add New Card</span>
             </button>
         </div>
@@ -129,7 +129,7 @@
                     Cancel
                 </button>
                 <button type="submit"
-                        class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                        class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                     Save Card
                 </button>
             </div>
@@ -146,10 +146,10 @@
             <input type="hidden" id="deleteCardID" name="cardID">
             <input type="hidden" name="setID" value="<%= set.setID %>">
             <div class="flex justify-end space-x-4">
-                <button type="button" id="cancel-delete" class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                <button type="button" id="cancel-delete" class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                     Cancel
                 </button>
-                <button type="submit" id="confirm-delete" class="border-2 rounded-xl px-8 py-3 main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-contrast-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                <button type="submit" id="confirm-delete" class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
                     Delete
                 </button>
             </div>
