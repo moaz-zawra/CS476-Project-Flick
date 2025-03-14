@@ -29,15 +29,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function editCard(cardId) {
+  document.getElementById('cardFormTitle').innerHTML = 'Edit Card';
+
   document.getElementById('cardModal').classList.remove('hidden');
-  document.getElementById('cardForm').action = '/api/editCard';
+
+  document.getElementById('cardForm').action = '/api/editCard?_method=PUT';
   document.getElementById('cardForm').reset();
+
+  document.getElementById('cardID').value = cardId;
   document.getElementById('cardFront').value = document.getElementById('front' + cardId).innerText;
   document.getElementById('cardBack').value = document.getElementById('back' + cardId).innerText;
   document.getElementById('cardSetID').value = window.setID;
 }
 
 function addNewCard() {
+  document.getElementById('cardFormTitle').innerHTML = 'Add new Card';
     document.getElementById('cardModal').classList.remove('hidden');
     document.getElementById('cardForm').action = '/api/addCardToSet';
     document.getElementById('cardForm').reset();

@@ -1,8 +1,59 @@
 import { DatabaseService } from "../database/databaseService";
 import { Card, makeCard } from "./card.model";
-import { CardAddStatus, CardRemoveStatus, CardGetStatus } from "./card.types";
+import { CardAddStatus, CardRemoveStatus, CardGetStatus, CardEditStatus } from "./card.types";
 
 export class CardService {
+    /*export enum CardEditStatus {
+    DATABASE_FAILURE,    // Error occurred while interacting with the database.
+    SET_DOES_NOT_EXIST, // The requested card set does not exist.
+    CARD_DOES_NOT_EXIST, // The requested card does not exist.
+    MISSING_INFORMATION, // Required card details are missing.
+    SUCCESS              // Card was successfully added.
+    }*/
+
+    public static async editCardInSet(card: Card): Promise<CardEditStatus>{
+        try{
+            // Validate required fields
+            if (!card.setID || !card.front_text || !card.back_text || !card.cardID) {
+                return CardEditStatus.MISSING_INFORMATION;
+            }
+
+            const db = await DatabaseService.getConnection();
+
+            // Check if the set exists
+            const [setRows] = await db.connection.execute(
+                "SELECT setID FROM card_sets WHERE setID = ?",
+                [card.setID]
+            );
+
+            if(!setRows || (setRows as any[]).length === 0){
+                return CardEditStatus.SET_DOES_NOT_EXIST;
+            }
+
+            // Check if the card exists
+            const [cardRows] = await db.connection.execute(
+                "SELECT cardID FROM card_data WHERE cardID = ?",
+                [card.cardID]
+            );
+
+            if(!cardRows || (cardRows as any[]).length === 0){
+                return CardEditStatus.CARD_DOES_NOT_EXIST;
+            }
+
+            // Update the card
+            await db.connection.execute(
+                "UPDATE card_data SET front_text = ?, back_text = ? WHERE cardID = ? AND setID = ?",
+                [card.front_text, card.back_text, card.cardID, card.setID]
+            );
+
+            return CardEditStatus.SUCCESS
+        } catch(error){
+            console.error("Failed to edit card in set:", error);
+            return CardEditStatus.DATABASE_FAILURE;
+        }
+    }
+
+
     /**
      * Adds a new card to a card set.
      * @param card - The card to add, containing setID, front_text, and back_text

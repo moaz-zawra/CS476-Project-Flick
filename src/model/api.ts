@@ -1,14 +1,13 @@
 import express from "express";
 import {Administrator, Moderator, Regular} from "./user/user.roles";
 import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus} from "./cardSet/cardset.types";
-import {CardAddStatus, CardGetStatus, CardRemoveStatus} from "./card/card.types";
+import {CardAddStatus, CardEditStatus, CardGetStatus, CardRemoveStatus} from "./card/card.types";
 import {UserCreator} from "./user/user.auth";
 import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from "./user/user.types";
 import {UserService} from "./user/user.service";
 import {makeCardSet} from "./cardSet/cardset.model";
 import {logUserAction, createUserFromSession} from "./utility";
 import {makeCard} from "./card/card.model";
-import { ConsoleLogger } from "typedoc/dist/lib/utils";
 
 
 /**
@@ -246,7 +245,7 @@ export class APIService{
         const { front_text, back_text, setID } = req.body;
 
         if (front_text && back_text && setID) {
-            UserService.logUserAction(user, UserAction.NEWCARD);
+            logUserAction(req, res, UserAction.NEWCARD);
             const card = makeCard(setID, front_text, back_text);
             const result = await user.addCardToSet(card);
 
@@ -387,7 +386,24 @@ export class APIService{
         } else handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
     }
     static async handleEditCard(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = createUserFromSession(req, Regular);
+        const { front_text, back_text, cardID, setID } = req.body;
+        if(front_text && back_text && cardID && setID){
+            const card = makeCard(setID, front_text, back_text, cardID);
+            const result = await user.editCardInSet(card);
 
+            if (result === CardEditStatus.SUCCESS) {
+                handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+            } else if (result === CardEditStatus.MISSING_INFORMATION) {
+                handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+            } else if (result === CardEditStatus.SET_DOES_NOT_EXIST) {
+                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+            } else if (result === CardEditStatus.CARD_DOES_NOT_EXIST) {
+                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'card-does-not-exist');
+            } else if (result === CardEditStatus.DATABASE_FAILURE) {
+                handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+            }
+        } else handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
     }
 
     //DELETE handlers

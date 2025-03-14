@@ -23,3 +23,11 @@ export enum CardRemoveStatus {
     MISSING_INFORMATION, // Required card details are missing.
     SUCCESS              // Card was successfully added.
 }
+
+export enum CardEditStatus {
+    DATABASE_FAILURE,    // Error occurred while interacting with the database.
+    SET_DOES_NOT_EXIST, // The requested card set does not exist.
+    CARD_DOES_NOT_EXIST, // The requested card does not exist.
+    MISSING_INFORMATION, // Required card details are missing.
+    SUCCESS              // Card was successfully added.
+}

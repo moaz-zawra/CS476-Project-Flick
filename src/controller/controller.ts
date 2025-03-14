@@ -47,7 +47,14 @@ export const port = 3000;
 const pub = path.join(__dirname, '../../public/');
 const view = path.join(__dirname, '../../src/view');
 
-const bundle = setupServer(pub, view);
+let bundle;
+try {
+    bundle = setupServer(pub, view);
+} catch (error) {
+    console.error('Failed to set up server:', error);
+    process.exit(1);
+}
+
 const activitySubject = bundle[0];
 const controller = bundle[1];
 
@@ -487,7 +494,6 @@ controller.get('/view_set',
             params: { setID },
             headers: { cookie }
         });
-        console.log(set.data.result);
         res.render("view_set", { 
             set: set.data.result, 
             cards: cards.data.result, 
@@ -581,7 +587,6 @@ controller.get('/test',
                 cookie: req.headers.cookie || ''
             }
         });
-        console.log(userSets.data.result);
         let setID = userSets.data.result.length > 0 ? userSets.data.result[0].setID : null;
         // List of endpoints to test
         const endpoints = [
