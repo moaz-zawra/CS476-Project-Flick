@@ -1,12 +1,14 @@
 export interface Card {
+    cardID?: number;
     setID: number;
     front_text?: string;
     back_text?: string;
 }
-export function makeCard(setID: number, front_text?: string, back_text?: string): Card {
+export function makeCard(setID: number, front_text?: string, back_text?: string, cardID?: number): Card {
     return {
         setID,
-        front_text: front_text || "",
-        back_text: back_text || ""
+        cardID,
+        front_text,
+        back_text
     };
 }

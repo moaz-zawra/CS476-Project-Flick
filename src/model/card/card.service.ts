@@ -1,5 +1,5 @@
 import { DatabaseService } from "../database/databaseService";
-import { Card } from "./card.model";
+import { Card, makeCard } from "./card.model";
 import { CardAddStatus, CardRemoveStatus, CardGetStatus } from "./card.types";
 
 export class CardService {
@@ -44,18 +44,19 @@ export class CardService {
     }
 
     /**
-     * Deletes a card from a card set.
-     * @param card - The card to delete, containing setID, front_text, and back_text
+     * Deletes a card from a card set by cardID and setID.
+     * @param cardID - The ID of the card to delete
+     * @param setID - The ID of the set to which the card belongs
      * @returns Promise resolving to the status of the operation
      * @throws Will return DATABASE_FAILURE if there's an error with the database operation
-     * @throws Will return MISSING_INFORMATION if setID is missing
-     * @throws Will return SET_DOES_NOT_EXIST if the target set doesn't exist
-     * @throws Will return CARD_DOES_NOT_EXIST if the card doesn't exist in the set
+     * @throws Will return MISSING_INFORMATION if cardID or setID is missing
+     * @throws Will return CARD_DOES_NOT_EXIST if the card doesn't exist
+     * @throws Will return SET_DOES_NOT_EXIST if the set doesn't exist
      */
-    public static async deleteCardFromSet(card: Card): Promise<CardRemoveStatus> {
+    public static async deleteCardFromSet(cardID: number, setID: number): Promise<CardRemoveStatus> {
         try {
             // Validate required fields
-            if (!card.setID) {
+            if (!cardID || !setID) {
                 return CardRemoveStatus.MISSING_INFORMATION;
             }
 
@@ -64,17 +65,17 @@ export class CardService {
             // Check if the set exists
             const [setRows] = await db.connection.execute(
                 "SELECT setID FROM card_sets WHERE setID = ?",
-                [card.setID]
+                [setID]
             );
 
             if (!setRows || (setRows as any[]).length === 0) {
                 return CardRemoveStatus.SET_DOES_NOT_EXIST;
             }
 
-            // Delete the card
+            // Delete the card by ID and setID
             const [result] = await db.connection.execute(
-                "DELETE FROM card_data WHERE setID = ? AND front_text = ? AND back_text = ?",
-                [card.setID, card.front_text, card.back_text]
+                "DELETE FROM card_data WHERE cardID = ? AND setID = ?",
+                [cardID, setID]
             );
 
             if ((result as any).affectedRows === 0) {
@@ -120,11 +121,7 @@ export class CardService {
             }
 
             // Convert database rows to Card objects
-            return (cardRows as any[]).map(row => ({
-                setID: row.setID,
-                front_text: row.front_text,
-                back_text: row.back_text
-            }));
+            return (cardRows as any[]).map(row => makeCard(row.setID, row.front_text, row.back_text, row.cardID));
         } catch (error) {
             console.error("Failed to get cards for set:", error);
             return CardGetStatus.DATABASE_FAILURE;
@@ -164,4 +161,5 @@ public static async deleteCardByID(cardID: number): Promise<CardRemoveStatus> {
         return CardRemoveStatus.DATABASE_FAILURE;
     }
 }
-} 
+}
+

@@ -18,6 +18,7 @@ window.tailwindConfig = {
                 'surface-light': '#ffffff',    // Pure white
                 'text-light': '#212121',       // Black
                 'accent-light': '#212121',     // Black accent
+                'button-accent-light': '#d3d3d3',     // Light gray accent
                 'highlight-light': '#e63946',  // Soft red highlight
                 'contrast-light': '#4d908e',   // Teal green
                 'main-button-light': '#4CAF50',  // Light green

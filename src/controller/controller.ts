@@ -231,6 +231,24 @@ controller.put('/api/editUser',
     })
 );
 
+controller.put('/api/editSet', 
+    isAuthenticated,
+    isRegularUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleEditSet(req, res);
+    })
+);
+
+controller.put('/api/editCard', 
+    isAuthenticated,
+    isRegularUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleEditCard(req, res);
+    })
+);
+
 controller.put('/api/adminEditUser', 
     isAuthenticated,
     isAdminUser,
@@ -282,19 +300,13 @@ controller.delete('/api/deleteCard',
     isSetOwner,
     logUserActivity, 
     asyncHandler(async (req, res) => {
-        const cardID = Number(req.query.cardID || req.body.cardID);
-        
-        if (!cardID) {
-            return res.status(400).json({ error: 'Card ID is required' });
-        }
-        
-        const result = await APIService.handleDeleteCard(req, res);
+        await APIService.handleDeleteCard(req, res);
     })
 );
 
 controller.delete('/api/deleteUser', 
     isAuthenticated, 
-    isModeratorUser, 
+    isModeratorUser,
     logUserActivity, 
     asyncHandler(async (req, res) => {
         const userID = Number(req.query.userID || req.body.userID);

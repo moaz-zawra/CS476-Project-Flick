@@ -3,7 +3,7 @@ import {RowDataPacket} from "mysql2/promise";
 import {UserService} from "../user/user.service";
 import {User} from "../user/user.model";
 import {CardSet, Category} from "./cardset.model";
-import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
+import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
 
 export class CardSetService {
     /**
@@ -213,4 +213,38 @@ export class CardSetService {
             return CardSetShareStatus.DATABASE_FAILURE;
         }
     }
+
+    static async editSet(user:User, set: CardSet): Promise<CardSetEditStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            if(!set.setName || !set.category || !set.subCategory || !set.description || !set.setID){
+                return CardSetEditStatus.MISSING_INFORMATION;
+            }
+            // Check if set exists
+            const setExists = await this.getSet(set.setID);
+            if(setExists === CardSetGetStatus.SET_DOES_NOT_EXIST || setExists === CardSetGetStatus.DATABASE_FAILURE){
+                return CardSetEditStatus.SET_DOES_NOT_EXIST;
+            }
+
+            // Check if name is already used by another one of the users sets
+            const ownerID = await UserService.getIDOfUser(user.username);
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM card_sets WHERE set_name = ? AND ownerID = ? AND setID != ?",
+                [set.setName, ownerID, set.setID]
+            );
+            if(rows.length > 0) return CardSetEditStatus.NAME_USED;
+            
+            // Edit the set
+            await db.connection.execute<RowDataPacket[]>(
+                "UPDATE card_sets SET set_name = ?, category = ?, sub_category = ?, description = ? WHERE setID = ?",
+                [set.setName, set.category, set.subCategory, set.description, set.setID]
+            );
+
+            return CardSetEditStatus.SUCCESS;
+        } catch (error){
+            console.error("Failed to edit set with error: ", error);
+            return CardSetEditStatus.DATABASE_FAILURE;
+        }
+    }
+
 }

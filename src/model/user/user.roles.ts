@@ -3,7 +3,7 @@ import { CardService } from "../card/card.service";
 import { CardAddStatus, CardRemoveStatus, CardGetStatus } from "../card/card.types";
 import { CardSet } from "../cardSet/cardset.model";
 import { CardSetService } from "../cardSet/cardset.service";
-import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus, CardSetShareStatus } from "../cardSet/cardset.types";
+import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus, CardSetShareStatus, CardSetEditStatus } from "../cardSet/cardset.types";
 import { User } from "./user.model";
 import {banResult, Role, unbanResult, UserAction, UserActivity, UserChangeStatus} from "./user.types";
 import {UserService} from "./user.service";
@@ -29,6 +29,10 @@ export class Regular implements User {
         return CardSetService.deleteSet(setID);
     }
 
+    async editSet(set:CardSet): Promise<CardSetEditStatus> {
+        return CardSetService.editSet(this, set);
+    }
+
     async getAllSets(): Promise<CardSet[] | CardSetGetStatus> {
         return CardSetService.getAllSets(this);
     }
@@ -41,8 +45,8 @@ export class Regular implements User {
         return CardService.addCardToSet(card);
     }
 
-    async deleteCardFromSet(card: Card): Promise<CardRemoveStatus> {
-        return CardService.deleteCardFromSet(card);
+    async deleteCardFromSet(cardID: number, setID: number): Promise<CardRemoveStatus> {
+        return CardService.deleteCardFromSet(cardID,setID);
     }
 
     async shareSet(setID: number, username: string): Promise<CardSetShareStatus> {

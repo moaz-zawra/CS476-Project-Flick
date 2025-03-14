@@ -1,7 +1,7 @@
 import express from "express";
 import {Administrator, Moderator, Regular} from "./user/user.roles";
 import {CardSetAddStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus} from "./cardSet/cardset.types";
-import {CardAddStatus, CardGetStatus} from "./card/card.types";
+import {CardAddStatus, CardGetStatus, CardRemoveStatus} from "./card/card.types";
 import {UserCreator} from "./user/user.auth";
 import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from "./user/user.types";
 import {UserService} from "./user/user.service";
@@ -361,8 +361,20 @@ export class APIService{
             handleResponse(res, BADREQUEST, '/', 'invalid-action');
         }
     }
-    static async handleEditSet(req: express.Request, res: express.Response): Promise<void> {}
-    static async handleEditCard(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleEditSet(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = createUserFromSession(req, Regular);
+        const uID = await UserService.getIDOfUser(user.username);
+        const setID = parseInt(req.body.setID as string);
+        const {setName, category, subcategory, setDesc} = req.body;
+        if(setName && category && subcategory && setDesc && setID){
+            const set = makeCardSet(uID, setName, category, subcategory, setDesc);
+            const result = await user.editSet(set);
+
+        }
+    }
+    static async handleEditCard(req: express.Request, res: express.Response): Promise<void> {
+
+    }
 
     //DELETE handlers
     static async handleDeleteSet(req: express.Request, res: express.Response): Promise<void> {
@@ -381,6 +393,25 @@ export class APIService{
         }
     }
     static async handleDeleteCard(req: express.Request, res: express.Response): Promise<void> {
+        const cardID = Number(req.query.cardID || req.body.cardID);
+        const setID = Number(req.query.setID || req.body.setID);
+        if(!cardID || !setID) return handleResponse(res, BADREQUEST, '/', 'missing-fields');
+
+        const user: Regular = createUserFromSession(req, Regular);
+        const result = await user.deleteCardFromSet(cardID, setID);
+
+        if (result === CardRemoveStatus.SUCCESS) {
+            handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+        } else if (result === CardRemoveStatus.DATABASE_FAILURE) {
+            handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+        } else if (result === CardRemoveStatus.SET_DOES_NOT_EXIST) {
+            handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+        } else if (result === CardRemoveStatus.CARD_DOES_NOT_EXIST) {
+            handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'card-does-not-exist');
+        } else if (result === CardRemoveStatus.MISSING_INFORMATION) {
+            handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+        }
+
     }
     static async handleDeleteUser(req: express.Request, res: express.Response): Promise<void> {}
 }

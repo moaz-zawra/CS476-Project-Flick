@@ -7,6 +7,14 @@ export enum CardSetAddStatus {
     MISSING_INFORMATION, // Required information is missing (e.g., name, details).
     SUCCESS              // Card set was successfully added.
 }
+
+export enum CardSetEditStatus {
+    DATABASE_FAILURE,    // Error occurred while interacting with the database.
+    NAME_USED,           // The provided card set name is already in use.
+    SET_DOES_NOT_EXIST,  // The specified card set does not exist.
+    MISSING_INFORMATION, // Required information is missing (e.g., name, details).
+    SUCCESS              // Card set was successfully added.
+}
 /**
  * Represents possible statuses when reporting a card set.
  */
