@@ -7,8 +7,152 @@
         <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
             Moderator functionality will be implemented here.
         </div>
+        <!-- New buttons added -->
+        <div class="flex flex-col space-y-2">
+            <button class="btn btn-primary" onclick="showModal('allUsersModal')">Get all Users</button>
+            <button class="btn btn-primary" onclick="showModal('weeklyActivityModal')">User Activity Report (7 days)</button>
+            <button class="btn btn-primary" onclick="showModal('alltimeActivityModal')">User Activity Report (Alltime)</button>
+            <button class="btn btn-primary" onclick="showModal('reportedSetsModal')">Get Reported Sets</button>
+            <button class="btn btn-primary" onclick="showModal('unapprovedSetsModal')">Get unapproved public sets</button>
+        </div>
     </div>
 </div>
 <br />
 <!-- Include the regular user dashboard content as well -->
 <%- include('regular_dashboard') %>
+
+<!-- Modals -->
+<div id="allUsersModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('allUsersModal')">&times;</span>
+        <h2 class="text-xl font-bold mb-4">All Users</h2>
+        <table class="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Username</th>
+                    <th class="py-2 px-4 border-b">Email</th>
+                    <th class="py-2 px-4 border-b">Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                    <tr>
+                        <td class="py-2 px-4 border-b"><%= user.username %></td>
+                        <td class="py-2 px-4 border-b"><%= user.email %></td>
+                        <td class="py-2 px-4 border-b"><%= user.role %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="weeklyActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('weeklyActivityModal')">&times;</span>
+        <h2 class="text-xl font-bold mb-4">User Activity Report (7 days)</h2>
+        <table class="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Username</th>
+                    <th class="py-2 px-4 border-b">Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% usersWeeklyActivity.forEach(activity => { %>
+                    <tr>
+                        <td class="py-2 px-4 border-b"><%= activity.username %></td>
+                        <td class="py-2 px-4 border-b"><%= activity.activity %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="alltimeActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('alltimeActivityModal')">&times;</span>
+        <h2 class="text-xl font-bold mb-4">User Activity Report (Alltime)</h2>
+        <table class="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Username</th>
+                    <th class="py-2 px-4 border-b">Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% usersAlltimeActivity.forEach(activity => { %>
+                    <tr>
+                        <td class="py-2 px-4 border-b"><%= activity.username %></td>
+                        <td class="py-2 px-4 border-b"><%= activity.activity %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="reportedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('reportedSetsModal')">&times;</span>
+        <h2 class="text-xl font-bold mb-4">Reported Sets</h2>
+        <table class="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Set Name</th>
+                    <th class="py-2 px-4 border-b">Reported By</th>
+                    <th class="py-2 px-4 border-b">Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% reportedSets.forEach(set => { %>
+                    <tr>
+                        <td class="py-2 px-4 border-b"><%= set.name %></td>
+                        <td class="py-2 px-4 border-b"><%= set.reportedBy %></td>
+                        <td class="py-2 px-4 border-b"><%= set.reason %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="unapprovedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('unapprovedSetsModal')">&times;</span>
+        <h2 class="text-xl font-bold mb-4">Unapproved Public Sets</h2>
+        <table class="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">Set Name</th>
+                    <th class="py-2 px-4 border-b">Created By</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% unapprovedSets.forEach(set => { %>
+                    <tr>
+                        <td class="py-2 px-4 border-b"><%= set.name %></td>
+                        <td class="py-2 px-4 border-b"><%= set.createdBy %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function showModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.classList.add('hidden');
+        }
+    }
+</script>

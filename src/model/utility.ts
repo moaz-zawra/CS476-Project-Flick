@@ -172,7 +172,6 @@ export function isNotAuthenticated(req: express.Request, res: express.Response, 
  */
 export function isAuthenticated(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.session.user) {
-        console.log("not authenticated")
         res.status(401).redirect('/login');
         return;
 
@@ -260,6 +259,7 @@ export async function isSetOwner(req: express.Request, res: express.Response, ne
     try {
         // Get setID from request query or body
         const setID = req.query.setID || req.body.setID;
+        const setType = req.query.setType || req.body.setType;
         
         if (!setID) {
             res.status(400).json({ error: 'Set ID is required' });
@@ -267,7 +267,7 @@ export async function isSetOwner(req: express.Request, res: express.Response, ne
         }
         
         // Get the set details
-        const set = await CardSetService.getSet(Number(setID));
+        const set = await CardSetService.getSet(createUserFromSession(req, Regular),Number(setID), setType);
         
         if (set === CardSetGetStatus.SET_DOES_NOT_EXIST) {
             res.status(404).json({ error: 'Set not found' });
@@ -282,23 +282,25 @@ export async function isSetOwner(req: express.Request, res: express.Response, ne
             return;
         }
         
-        // Get current user's ID
-        const user = req.session.user;
-        if (!user) {
-            res.status(401).json({ error: 'Authentication required' });
-            return;
-        }
-        
-        const userID = await UserService.getIDOfUser(user.username);
-        
-        // Check if user is the owner
-        if (typeof set === 'object' && set.ownerID !== userID) {
-            res.status(403).redirect('/?status=no-permission');
-            return;
-        }
-        
-        // User is the owner, proceed
-        next();
+        if(setType === 'user'){
+            // Get current user's ID
+            const user = req.session.user;
+            if (!user) {
+                res.status(401).json({ error: 'Authentication required' });
+                return;
+            }
+            
+            const userID = await UserService.getIDOfUser(user.username);
+            
+            // Check if user is the owner
+            if (typeof set === 'object' && set.ownerID !== userID) {
+                res.status(403).redirect('/?status=no-permission');
+                return;
+            }
+            
+            // User is the owner, proceed
+            next();
+        } else next();
     } catch (error) {
         console.error('Error verifying set ownership:', error);
         res.status(500).json({ error: 'Server error validating set ownership' });

@@ -16,14 +16,6 @@ export enum CardSetEditStatus {
     SUCCESS              // Card set was successfully added.
 }
 /**
- * Represents possible statuses when reporting a card set.
- */
-export enum CardSetReportStatus {
-    DATABASE_FAILURE,    // Error occurred while interacting with the database.
-    SET_DOES_NOT_EXIST,  // The requested card set does not exist.
-    SUCCESS              // Report was successfully generated.
-}
-/**
  * Represents possible statuses when retrieving a card set.
  */
 export enum CardSetGetStatus {
@@ -47,5 +39,12 @@ export enum CardSetRemoveStatus {
     DATABASE_FAILURE,    // Error occurred while interacting with the database.
     SET_DOES_NOT_EXIST,  // The specified card set does not exist.
     SUCCESS              // Card set was successfully removed.
+}
+
+export enum CardSetReportStatus {
+    DATABASE_FAILURE,
+    SET_DOES_NOT_EXIST,
+    ALREADY_REPORTED,
+    SUCCESS
 }
 

@@ -75,9 +75,10 @@ controller.get('/api/getSets',
     isRegularUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
-      await APIService.handleGetSets(req, res);
-    }
-));
+        const setType = req.query.set_type as string || '';
+        await APIService.handleGetSets(req, res, setType);
+    })
+);
 /**
  * Retrieves all cards within a specific set
  * @param req - Express request object containing set ID
@@ -90,18 +91,10 @@ controller.get('/api/getSet',
     isRegularUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
-      await APIService.handleGetSet(req, res);
-    }
-));
-
-controller.get('/api/getSharedSets', 
-  isAuthenticated, 
-  isRegularUser, 
-  logUserActivity, 
-  asyncHandler(async (req, res) => {
-    await APIService.handleGetSharedSets(req, res);
-  }
-));
+        const setType = req.query.set_type as string || '';
+        await APIService.handleGetSet(req, res, setType);
+    })
+);
 
 controller.get('/api/getCardsInSet', 
     isAuthenticated,
@@ -148,23 +141,6 @@ controller.get('/api/getModerators',
     })
 );
 
-controller.get('/api/getSharedSet', 
-    isAuthenticated, 
-    isRegularUser, 
-    logUserActivity, 
-    asyncHandler(async (req, res) => {
-      await APIService.handleGetSharedSet(req, res);
-    })
-);
-
-controller.get('/api/getCardsInSharedSet', 
-    isAuthenticated,
-    isRegularUser, 
-    logUserActivity, 
-    asyncHandler(async (req, res) => {
-      await APIService.handleGetCardsInSharedSet(req, res);
-    })
-);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //POST API routes
@@ -202,6 +178,7 @@ controller.post('/api/newSet',
     isRegularUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
+        console.log(req.body);
         await APIService.handleNewSet(req, res);
     })
 );
@@ -247,6 +224,16 @@ controller.post('/api/logout',
         });
     })
 );
+
+controller.post('/api/reportSet', 
+    isAuthenticated, 
+    isRegularUser, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+        await APIService.handleReportSet(req, res);
+    })
+);
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PUT API routes
@@ -369,92 +356,88 @@ controller.get('/',
     logUserActivity, 
     asyncHandler(async (req, res) => {
         const cookie = getCookie(req); // gets authentication cookie
-        const userSets = await axios.get('http://localhost:' + port + '/api/getSets', {
-            headers: {
-                cookie
-            }
-        });
-        const sharedSets = await axios.get('http://localhost:' + port + '/api/getSharedSets', {
-            headers: {
-                cookie
-            }
-        });
+        if(isRegular(req.session.user)){
+            // Get data required for regular user dashboard
+            const userSets = await axios.get('http://localhost:' + port + '/api/getSets', {
+                headers: {
+                    cookie
+                },
+                params: {set_type: 'user'}
+            });
+            const sharedSets = await axios.get('http://localhost:' + port + '/api/getSets', {
+                headers: {
+                    cookie
+                },
+                params: {set_type: 'shared'}
+            });
+        
+            // Add owner info to each shared set object
+            sharedSets.data.result = await Promise.all(
+                sharedSets.data.result.map(async (set: any) => {
+                    const owner = await UserService.getUserByIdentifier(set.ownerID);
+                    set.ownerID = {username: owner?.username || '', email: owner?.email || ''};
+                    return set;
+                })
+            );
 
-        // Add owner info to each shared set object
-        sharedSets.data.result = await Promise.all(
-            sharedSets.data.result.map(async (set: any) => {
-                const owner = await UserService.getUserByIdentifier(set.ownerID);
-                set.ownerID = {username: owner?.username || '', email: owner?.email || ''};
-                return set;
-            })
-        );
-
-        if(isAdmin(req.session.user)){
-            const user = createUserFromSession(req, Administrator);
-            handleTemplateResponse(res,GETOK,'dashboard', {
-                role: 'admin',
-                user: user,
-                uID: await UserService.getIDOfUser(user.username),
-                status: req.query.status,
-                userSets: userSets.data.result,
-                sharedSets: sharedSets.data.result,
-                categoryNames,
-                subcategories: {
-                    [Category.Language]: SubCategory_Language,
-                    [Category.Technology]: SubCategory_Technology,
-                    [Category.CourseSubjects]: SubCategory_CourseSubjects,
-                    [Category.Law]: SubCategory_Law,
-                    [Category.Medical]: SubCategory_Medical,
-                    [Category.Military]: SubCategory_Military
-                },
-                currentPage: 'dashboard'
-            })
+            if(isModerator(req.session.user)){
+                //Get data required for moderator dashboard
+                const regulars = await axios.get('http://localhost:' + port + '/api/getRegulars', {
+                    headers: {
+                        cookie
+                    }
+                });
+                const userActivities = await axios.get('http://localhost:' + port + '/api/getAllUsersActivity', {
+                    headers: {
+                        cookie
+                    }
+                });
+                if(isAdmin(req.session.user)){
+                    //Get data required for admin dashboard
+                    // ...existing code...
+                } else {
+                    handleTemplateResponse(res,GETOK,'dashboard', {
+                        role: 'moderator',
+                        user: createUserFromSession(req, Moderator),
+                        uID: await UserService.getIDOfUser(req.session.user.username),
+                        status: req.query.status,
+                        userSets: userSets.data.result,
+                        sharedSets: sharedSets.data.result,
+                        regulars: regulars.data.result,
+                        userActivities: userActivities.data.result,
+                        categoryNames,
+                        subcategories: {
+                            [Category.Language]: SubCategory_Language,
+                            [Category.Technology]: SubCategory_Technology,
+                            [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                            [Category.Law]: SubCategory_Law,
+                            [Category.Medical]: SubCategory_Medical,
+                            [Category.Military]: SubCategory_Military
+                        },
+                        currentPage: 'dashboard'
+                    });
+                }
+            } else {
+                handleTemplateResponse(res,GETOK,'dashboard', {
+                    role: 'regular',
+                    user: createUserFromSession(req, Regular),
+                    uID: await UserService.getIDOfUser(req.session.user.username),
+                    status: req.query.status,
+                    userSets: userSets.data.result,
+                    sharedSets: sharedSets.data.result,
+                    categoryNames,
+                    subcategories: {
+                        [Category.Language]: SubCategory_Language,
+                        [Category.Technology]: SubCategory_Technology,
+                        [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                        [Category.Law]: SubCategory_Law,
+                        [Category.Medical]: SubCategory_Medical,
+                        [Category.Military]: SubCategory_Military
+                    },
+                    currentPage: 'dashboard'
+                });
+            }
         }
-        else if(isModerator(req.session.user)){
-            const user = createUserFromSession(req, Moderator);
-            handleTemplateResponse(res,GETOK,'dashboard', {
-                role: 'moderator',
-                user: user,
-                uID: await UserService.getIDOfUser(user.username),
-                status: req.query.status,
-                userSets: userSets.data.result,
-                sharedSets: sharedSets.data.result,
-                categoryNames,
-                subcategories: {
-                    [Category.Language]: SubCategory_Language,
-                    [Category.Technology]: SubCategory_Technology,
-                    [Category.CourseSubjects]: SubCategory_CourseSubjects,
-                    [Category.Law]: SubCategory_Law,
-                    [Category.Medical]: SubCategory_Medical,
-                    [Category.Military]: SubCategory_Military
-                },
-                currentPage: 'dashboard'
-            })
-        }
-        else if(isRegular(req.session.user)){
-            const user = createUserFromSession(req, Regular);
-            handleTemplateResponse(res,GETOK,'dashboard', {
-                role: 'regular',
-                user: user,
-                uID: await UserService.getIDOfUser(user.username),
-                status: req.query.status,
-                userSets: userSets.data.result,
-                sharedSets: sharedSets.data.result,
-                categoryNames,
-                subcategories: {
-                    [Category.Language]: SubCategory_Language,
-                    [Category.Technology]: SubCategory_Technology,
-                    [Category.CourseSubjects]: SubCategory_CourseSubjects,
-                    [Category.Law]: SubCategory_Law,
-                    [Category.Medical]: SubCategory_Medical,
-                    [Category.Military]: SubCategory_Military
-                },
-                currentPage: 'dashboard'
-            })
-        }
-        else{
-            return res.status(403).send("Your account has an invalid user role. Please contact the administrators");
-        } 
     })
 );
 
@@ -511,27 +494,17 @@ controller.get('/view_set',
     asyncHandler(async (req, res) => {
         const cookie = getCookie(req);
         let setID = req.query.setID;
-        let shared = req.query.shared === 'true';
-        
-        let cardsEndpoint, setEndpoint;
-        console.log(shared)
-        if (shared) {
-            cardsEndpoint = `/api/getCardsInSharedSet`;
-            setEndpoint = `/api/getSharedSet`;
-        } else {
-            cardsEndpoint = `/api/getCardsInSet`;
-            setEndpoint = `/api/getSet`;
-        }
-        
-        const cards = await axios.get(`http://localhost:${port}${cardsEndpoint}`, {
-            params: { setID },
+        let setType = req.query.set_type || 'user';
+        const cards = await axios.get(`http://localhost:${port}/api/getCardsInSet`, {
+            params: { setID, setType },
             headers: { cookie }
         });
 
-        const set = await axios.get(`http://localhost:${port}${setEndpoint}`, {
-            params: { setID },
+        const set = await axios.get(`http://localhost:${port}/api/getSet`, {
+            params: { setID, set_type: setType },
             headers: { cookie }
         });
+
         
         res.render("view_set", { 
             set: set.data.result, 
@@ -547,7 +520,7 @@ controller.get('/view_set',
             }, 
             status: req.query.status, 
             currentPage: 'view_set',
-            shared: shared
+            shared: setType === 'shared' ? true : false
         });
     })
 );
@@ -630,9 +603,9 @@ controller.get('/test',
         let setID = userSets.data.result.length > 0 ? userSets.data.result[0].setID : null;
         // List of endpoints to test
         const endpoints = [
-            { path: '/getSets', role: 'regular' },
-            { path: '/getSet', role: 'regular', params: { setID } },
-            { path: '/getSharedSets', role: 'regular' },
+            { path: '/getSets', role: 'regular', params: {setType: 'user'} },
+            { path: '/getSet', role: 'regular', params: { setID, setType: 'user' } },
+            { path: '/getSets', role: 'regular', params: {setType: 'shared'} },
             { path: '/getCardsInSet', role: 'regular', params: { setID } },
             { path: '/getUserActivity', role: 'moderator', params: { time_period: 'alltime' }},
             { path: '/getAllUsersActivity', role: 'moderator', params: { time_period: 'alltime' }},

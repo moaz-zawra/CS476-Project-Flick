@@ -6,15 +6,22 @@ export interface CardSet {
     description: string;
     setID?: number;
     publicSet?: boolean;
+    approved?: boolean;
 }
 
-export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:string): CardSet {
-    return {ownerID, setName, category, subCategory, description, setID, publicSet: (publicSet === 'on')};
+export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:boolean, approved?: boolean): CardSet {
+    return {ownerID, setName, category, subCategory, description, setID, publicSet, approved};
 }
 
-export interface Report{
+export interface Report {
+    reportID?: number;
+    reporterID: number;
     setID: number;
-    reason: string | undefined;
+    reason?: string;
+}
+
+export function makeSetReport(reporterID: number, setID: number, reason?: string, reportID?: number): Report {
+    return {reportID, reporterID, setID, reason};
 }
 
 export enum Category{

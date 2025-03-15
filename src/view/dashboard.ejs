@@ -31,6 +31,19 @@
 <% } %>
 
 <br />
+
+<!-- Report Modal -->
+<div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3"> <!-- Increased width to 2/3 -->
+        <h2 class="text-lg font-bold mb-2">Report Set</h2>
+        <textarea id="reason-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter reason for reporting"></textarea>
+        <div class="flex justify-end mt-4">
+            <button id="cancel-report" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
+            <button id="confirm-report" class="bg-red-500 text-white px-4 py-2 rounded-md">Report</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
 
@@ -49,7 +62,7 @@
     <% userSets.forEach(function(set, index) { %>
         <script>
             const setData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.category, setData<%= index %>.subCategory, false);
+            insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.category, setData<%= index %>.subCategory, false, setData<%= index %>.publicSet);
         </script>
     <% }); %>
 <% } else { %>
@@ -61,7 +74,7 @@
     <% sharedSets.forEach(function(set, index) { %>
         <script>
             const sharedSetData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true);
+            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, setData<%= index %>.publicSet);
         </script>
     <% }); %>
 <% } else { %>

@@ -1,13 +1,15 @@
 import express from "express";
 import {Administrator, Moderator, Regular} from "./user/user.roles";
-import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus} from "./cardSet/cardset.types";
+import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus, CardSetReportStatus} from "./cardSet/cardset.types";
 import {CardAddStatus, CardEditStatus, CardGetStatus, CardRemoveStatus} from "./card/card.types";
 import {UserCreator} from "./user/user.auth";
 import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from "./user/user.types";
 import {UserService} from "./user/user.service";
-import {makeCardSet} from "./cardSet/cardset.model";
+import {makeCardSet, makeSetReport} from "./cardSet/cardset.model";
 import {logUserAction, createUserFromSession} from "./utility";
 import {makeCard} from "./card/card.model";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 
 /**
@@ -67,211 +69,186 @@ export class APIService{
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //GET Handlers
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static async handleGetSets(req: express.Request, res: express.Response): Promise<void> {
+    static async handleGetSets(req: express.Request, res: express.Response, setType: string): Promise<void> {
         const user: Regular = createUserFromSession(req, Regular);
-        const result = await user.getAllSets();
+        const result = await user.getAllSets(setType);
 
-        if(result === CardSetGetStatus.DATABASE_FAILURE){
-            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetSets()', error:'Database Error'});
+        switch (result) {
+            case CardSetGetStatus.DATABASE_FAILURE:
+                return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleGetSets()', error: 'Database Error' });
+            case CardSetGetStatus.USER_HAS_NO_SETS:
+                return handleResponse(res, GETOK, '', 'no_sets', []);
+            default:
+                return handleResponse(res, GETOK, '', 'success', result);
         }
-        if(result === CardSetGetStatus.USER_HAS_NO_SETS){
-            handleResponse(res, GETOK, '', 'no_sets', []);
-        }
-        else handleResponse(res, GETOK, '', 'success', result);
     }
-    static async handleGetSet(req: express.Request, res: express.Response): Promise<void> {
+
+    static async handleGetSet(req: express.Request, res: express.Response, setType: string): Promise<void> {
+        const user: Regular = createUserFromSession(req, Regular);
         const setID = parseInt(req.query.setID as string);
-        const user: Regular = createUserFromSession(req, Regular);
-        const result = await user.getSet(setID);
 
-        if(result === CardSetGetStatus.DATABASE_FAILURE){
-            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetSet()', error:'Database Error'});
+        console.log('in handleGetSet getting a ' + setType + ' set');
+
+        const result = await user.getSet(setID, setType);
+
+        switch (result) {
+            case CardSetGetStatus.DATABASE_FAILURE:
+                return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleGetSet()', error: 'Database Error' });
+            case CardSetGetStatus.SET_DOES_NOT_EXIST:
+                return handleTemplateResponse(res, NOTFOUND, 'error', { action: 'APIService.handleGetSet()', error: 'Requested set does not exist in DB' });
+            default:
+                return handleResponse(res, GETOK, '', 'success', result);
         }
-        if(result === CardSetGetStatus.SET_DOES_NOT_EXIST){
-            handleTemplateResponse(res, NOTFOUND, 'error', {action: 'APIService.handleGetSet()', error:'Requested set does not exist in DB'});
-        }
-        else handleResponse(res, GETOK, '', 'success', result);
     }
+
     static async handleGetCardsInSet(req: express.Request, res: express.Response): Promise<void> {
         const setID = parseInt(req.query.setID as string);
         const user: Regular = createUserFromSession(req, Regular);
         const result = await user.getCards(setID);
 
-        if(result === CardGetStatus.DATABASE_FAILURE){
-            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetCardsInSet()', error:'Database Error'});
+        switch (result) {
+            case CardGetStatus.DATABASE_FAILURE:
+                return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleGetCardsInSet()', error: 'Database Error' });
+            case CardGetStatus.SET_DOES_NOT_EXIST:
+                return handleTemplateResponse(res, NOTFOUND, 'error', { action: 'APIService.handleGetCardsInSet()', error: 'Requested set does not exist in DB' });
+            case CardGetStatus.SET_HAS_NO_CARDS:
+                return handleResponse(res, GETOK, '', 'no_cards', []);
+            default:
+                return handleResponse(res, GETOK, '', 'success', result);
         }
-        else if(result === CardGetStatus.SET_DOES_NOT_EXIST){
-            handleTemplateResponse(res, NOTFOUND, 'error', {action: 'APIService.handleGetCardsInSet()', error:'Requested set does not exist in DB'});
-        }
-        else if(result === CardGetStatus.SET_HAS_NO_CARDS){
-            handleResponse(res, GETOK, '', 'no_cards', []);
-        }
-        else handleResponse(res, GETOK, '', 'success', result);
     }
-    static async handleGetSharedSets(req: express.Request, res: express.Response): Promise<void> {
-        const user: Regular = createUserFromSession(req, Regular);
-        const result = await user.getSharedSets();
 
-        if(result === CardSetGetStatus.DATABASE_FAILURE){
-            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetSharedSets()', error:'Database Error'});
-        }
-        if(result === CardSetGetStatus.USER_HAS_NO_SETS){
-            handleResponse(res, GETOK, '', 'no_shared_sets', []);
-        }
-        else handleResponse(res, GETOK, '', 'success', result);
-    }
     static async handleGetUserActivity(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = createUserFromSession(req, Regular);
         const time_period = req.query.time_period as string;
-        if(time_period === "alltime"){
-            const result = await user.getAllTimeActivity();
-            if(result){
-                handleResponse(res, GETOK, '', 'success', result);
-            } else handleResponse(res, NOTFOUND, '', 'no_data', []);
+
+        let result;
+        if (time_period === "alltime") {
+            result = await user.getAllTimeActivity();
+        } else {
+            result = await user.getWeeklyActivity();
         }
-        else{
-            const result = await user.getWeeklyActivity();
-            if(result){
-                handleResponse(res, GETOK, '', 'success', result);
-            } else handleResponse(res, NOTFOUND, '', 'no_data', []);
+
+        if (result) {
+            return handleResponse(res, GETOK, '', 'success', result);
+        } else {
+            return handleResponse(res, NOTFOUND, '', 'no_data', []);
         }
     }
 
     static async handleGetUsersActivity(req: express.Request, res: express.Response): Promise<void> {
         const user: Moderator = createUserFromSession(req, Moderator);
         const time_period = req.query.time_period as string;
-        if(time_period === "alltime"){
-            const result = await user.getUsersAllTimeActivity()
-            if(result){
-                handleResponse(res, GETOK, '', 'success', result);
-                return;
-            } else handleResponse(res, NOTFOUND, '', 'no_data', []);
+
+        let result;
+        if (time_period === "alltime") {
+            result = await user.getUsersAllTimeActivity();
+        } else {
+            result = await user.getUsersWeeklyActivity();
         }
-        else{
-            const result = await user.getUsersWeeklyActivity()
-            if(result){
-                handleResponse(res, GETOK, '', 'success', result);
-                return;
-            } else handleResponse(res, NOTFOUND, '', 'no_data', [""]);
+
+        if (result) {
+            return handleResponse(res, GETOK, '', 'success', result);
+        } else {
+            return handleResponse(res, NOTFOUND, '', 'no_data', []);
         }
     }
 
     static async handleGetRegulars(req: express.Request, res: express.Response): Promise<void> {
         const user: Moderator = createUserFromSession(req, Moderator);
-        const result = await user.getRegularUsers()
-        if(result){
-            handleResponse(res, GETOK, '', 'success', result);
-            return;
+        const result = await user.getRegularUsers();
+
+        if (result) {
+            return handleResponse(res, GETOK, '', 'success', result);
+        } else {
+            return handleResponse(res, NOTFOUND, '', 'no_data', [""]);
         }
-        handleResponse(res, NOTFOUND, '', 'no_data', [""]);
     }
+
     static async handleGetModerators(req: express.Request, res: express.Response): Promise<void> {
         const user: Administrator = createUserFromSession(req, Administrator);
-        const result = await user.getModeratorUsers()
-        if(result){
-            handleResponse(res, GETOK, '', 'success', result);
-            return;
+        const result = await user.getModeratorUsers();
+
+        if (result) {
+            return handleResponse(res, GETOK, '', 'success', result);
+        } else {
+            return handleResponse(res, NOTFOUND, '', 'no_data', [""]);
         }
-        handleResponse(res, NOTFOUND, '', 'no_data', [""]);
     }
-
-    static async handleGetSharedSet(req: express.Request, res: express.Response): Promise<void> {
-        const setID = parseInt(req.query.setID as string);
-        const user: Regular = createUserFromSession(req, Regular);
-        const result = await user.getSharedSet(setID);
-
-        if(result === CardSetGetStatus.DATABASE_FAILURE){
-            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetSharedSet()', error:'Database Error'});
-        }
-        if(result === CardSetGetStatus.SET_DOES_NOT_EXIST){
-            handleTemplateResponse(res, NOTFOUND, 'error', {action: 'APIService.handleGetSharedSet()', error:'Requested shared set does not exist or is not shared with you'});
-        }
-        else handleResponse(res, GETOK, '', 'success', result);
-    }
-
-    static async handleGetCardsInSharedSet(req: express.Request, res: express.Response): Promise<void> {
-        const setID = parseInt(req.query.setID as string);
-        const user: Regular = createUserFromSession(req, Regular);
-        const result = await user.getCardsInSharedSet(setID);
-
-        if(result === CardGetStatus.DATABASE_FAILURE){
-            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetCardsInSharedSet()', error:'Database Error'});
-        }
-        else if(result === CardGetStatus.SET_DOES_NOT_EXIST){
-            handleTemplateResponse(res, NOTFOUND, 'error', {action: 'APIService.handleGetCardsInSharedSet()', error:'Requested shared set does not exist or is not shared with you'});
-        }
-        else if(result === CardGetStatus.SET_HAS_NO_CARDS){
-            handleResponse(res, GETOK, '', 'no_cards', []);
-        }
-        else handleResponse(res, GETOK, '', 'success', result);
-    }
-
+    
     //POST handlers
     static async handleLogin(req: express.Request, res: express.Response): Promise<void> {
         const user = await new UserCreator().login(req.body.identifier, req.body.password);
-        if(user === LoginStatus.USER_DOES_NOT_EXIST){
-            return handleResponse(res, NOTFOUND, '/login', 'does-not-exist');
-        }
-        else if (user === LoginStatus.WRONG_PASSWORD){
-            return handleResponse(res, NOTAUTH, '/login', 'wrong-password');
-        }
-        else if (user === LoginStatus.OTHER || user === LoginStatus.DATABASE_FAILURE){
-            return handleResponse(res, SERVERERROR, '/login', 'error');
-        }
-        else{
-            req.session.user = user;
-            res.redirect('/')
+
+        switch (user) {
+            case LoginStatus.USER_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/login', 'does-not-exist');
+            case LoginStatus.WRONG_PASSWORD:
+                return handleResponse(res, NOTAUTH, '/login', 'wrong-password');
+            case LoginStatus.OTHER:
+            case LoginStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/login', 'error');
+            default:
+                req.session.user = user;
+                return res.redirect('/');
         }
     }
+
     static async handleRegister(req: express.Request, res: express.Response): Promise<void> {
         const { username, email, password, cpassword } = req.body;
-        if(username && email && password && cpassword){
-            const result = await new UserCreator().registerUser(username,email,password,cpassword);
-            if(result === RegisterStatus.SUCCESS){
-                handleResponse(res, POSTOK, '/login', 'registration-success');
+
+        if (username && email && password && cpassword) {
+            const result = await new UserCreator().registerUser(username, email, password, cpassword);
+
+            switch (result) {
+                case RegisterStatus.SUCCESS:
+                    return handleResponse(res, POSTOK, '/login', 'registration-success');
+                case RegisterStatus.USERNAME_USED:
+                    return handleResponse(res, CONFLICT, '/register', 'username-used');
+                case RegisterStatus.EMAIL_USED:
+                    return handleResponse(res, CONFLICT, '/register', 'email-used');
+                case RegisterStatus.BAD_PASSWORD:
+                    return handleResponse(res, BADREQUEST, '/register', 'bad-password');
+                case RegisterStatus.PASSWORD_MISMATCH:
+                    return handleResponse(res, BADREQUEST, '/register', 'mismatch-password');
+                case RegisterStatus.DATABASE_FAILURE:
+                    return handleResponse(res, SERVERERROR, '/register', 'error');
+                default:
+                    return handleResponse(res, BADREQUEST, '/register', 'unknown-error');
             }
-            else if(result === RegisterStatus.USERNAME_USED){
-                handleResponse(res, CONFLICT, '/register', 'username-used');
-            }
-            else if(result === RegisterStatus.EMAIL_USED){
-                handleResponse(res, CONFLICT, '/register', 'email-used');
-            }
-            else if(result === RegisterStatus.BAD_PASSWORD){
-                handleResponse(res, BADREQUEST, '/register', 'bad-password');
-            }
-            else if(result === RegisterStatus.PASSWORD_MISMATCH){
-                handleResponse(res, BADREQUEST, '/register', 'mismatch-password');
-            }
-            else if(result === RegisterStatus.DATABASE_FAILURE){
-                handleResponse(res, SERVERERROR, '/register', 'error');
-            }
-        } else handleResponse(res, BADREQUEST, '/register', 'missing-fields');
+        } else {
+            return handleResponse(res, BADREQUEST, '/register', 'missing-fields');
+        }
     }
+
     static async handleNewSet(req: express.Request, res: express.Response): Promise<void> {
         const user = createUserFromSession(req, Regular);
         const uID = await UserService.getIDOfUser(user.username);
 
-        const {setName, category, subcategory, setDesc, publicSet} = req.body;
-        if(setName && category && subcategory && setDesc && publicSet){
-            const set = makeCardSet(uID, setName, category, subcategory, setDesc, undefined, publicSet);
-            console.log(set);
+        const { setName, category, subcategory, setDesc, publicSet } = req.body;
+
+        if (setName && category && subcategory && setDesc) {
+            const set = makeCardSet(uID, setName, category, subcategory, setDesc, undefined, (publicSet === 'on'), false);
             const result = await user.addSet(set);
 
-            if(result === CardSetAddStatus.SUCCESS){
-                logUserAction(req,res,UserAction.NEWSET)
-                handleResponse(res, POSTOK, '/', 'success');
+            switch (result) {
+                case CardSetAddStatus.SUCCESS:
+                    logUserAction(req, res, UserAction.NEWSET);
+                    return handleResponse(res, POSTOK, '/', 'success');
+                case CardSetAddStatus.MISSING_INFORMATION:
+                    return handleResponse(res, BADREQUEST, '/new_set', 'missing-fields');
+                case CardSetAddStatus.NAME_USED:
+                    return handleResponse(res, CONFLICT, '/new_set', 'name-used');
+                case CardSetAddStatus.DATABASE_FAILURE:
+                    return handleResponse(res, SERVERERROR, '/new_set', 'error');
+                default:
+                    return handleResponse(res, BADREQUEST, '/new_set', 'unknown-error');
             }
-            else if(result === CardSetAddStatus.MISSING_INFORMATION){
-                handleResponse(res, BADREQUEST, '/new_set', 'missing-fields');
-            }
-            else if(result === CardSetAddStatus.NAME_USED){
-                handleResponse(res, CONFLICT, '/new_set', 'name-used');
-            }
-            else if(result === CardSetAddStatus.DATABASE_FAILURE){
-                handleResponse(res, SERVERERROR, '/new_set', 'error');
-            }
-        } else handleResponse(res, BADREQUEST, '/new_set', 'missing-fields');
+        } else {
+            return handleResponse(res, BADREQUEST, '/new_set', 'missing-fields');
+        }
     }
+
     static async handleNewCard(req: express.Request, res: express.Response): Promise<void> {
         const user = createUserFromSession(req, Regular);
         const { front_text, back_text, setID } = req.body;
@@ -281,39 +258,47 @@ export class APIService{
             const card = makeCard(setID, front_text, back_text);
             const result = await user.addCardToSet(card);
 
-            if (result === CardAddStatus.SUCCESS) {
-                handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
-            } else if (result === CardAddStatus.MISSING_INFORMATION) {
-                handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
-            } else if (result === CardAddStatus.SET_DOES_NOT_EXIST) {
-                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
-            } else if (result === CardAddStatus.DATABASE_FAILURE) {
-                handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+            switch (result) {
+                case CardAddStatus.SUCCESS:
+                    return handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+                case CardAddStatus.MISSING_INFORMATION:
+                    return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+                case CardAddStatus.SET_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+                case CardAddStatus.DATABASE_FAILURE:
+                    return handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+                default:
+                    return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'unknown-error');
             }
         } else {
-            handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+            return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
         }
     }
 
     static async handleShareSet(req: express.Request, res: express.Response): Promise<void> {
         const user = createUserFromSession(req, Regular);
         const { setID, username } = req.body;
-        if(user.username === username){
+
+        if (user.username === username) {
             return handleResponse(res, CONFLICT, '/', 'already-shared');
         }
+
         if (setID && username) {
             const result = await user.shareSet(parseInt(setID), username);
 
-            if (result === CardSetShareStatus.SUCCESS) {
-                return handleResponse(res, POSTOK, '/', 'success');
-            } else if (result === CardSetShareStatus.USER_DOES_NOT_EXIST) {
-                return handleResponse(res, NOTFOUND, '/', 'user-does-not-exist');
-            } else if (result === CardSetShareStatus.SET_DOES_NOT_EXIST) {
-                return handleResponse(res, NOTFOUND, '/', 'set-does-not-exist');
-            } else if (result === CardSetShareStatus.ALREADY_SHARED) {
-                return handleResponse(res, CONFLICT, '/', 'already-shared');
-            } else if (result === CardSetShareStatus.DATABASE_FAILURE) {
-                return handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleShareSet()', error:'Database Error'});
+            switch (result) {
+                case CardSetShareStatus.SUCCESS:
+                    return handleResponse(res, POSTOK, '/', 'success');
+                case CardSetShareStatus.USER_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, '/', 'user-does-not-exist');
+                case CardSetShareStatus.SET_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, '/', 'set-does-not-exist');
+                case CardSetShareStatus.ALREADY_SHARED:
+                    return handleResponse(res, CONFLICT, '/', 'already-shared');
+                case CardSetShareStatus.DATABASE_FAILURE:
+                    return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleShareSet()', error: 'Database Error' });
+                default:
+                    return handleResponse(res, BADREQUEST, '/', 'unknown-error');
             }
         } else {
             return handleResponse(res, BADREQUEST, '/', 'missing-fields');
@@ -328,114 +313,132 @@ export class APIService{
         const action = req.body.action;
 
         if (action === 'change_details') {
+            const { username, email, oldUsername, oldEmail } = req.body;
 
-            const {username, email, oldUsername, oldEmail} = req.body;
-            if(username && email && oldUsername && oldEmail){
-                if (username === oldUsername && email === oldEmail){
-                    handleResponse(res, POSTOK, '/account', '');
-                }else{
+            if (username && email && oldUsername && oldEmail) {
+                if (username === oldUsername && email === oldEmail) {
+                    return handleResponse(res, POSTOK, '/account', '');
+                } else {
                     const user = createUserFromSession(req, Regular);
-                    
-                    // Check if username or email is already in use before changing details
-                    if(username !== oldUsername) {
-                        // Check if username is already taken by someone else
+
+                    if (username !== oldUsername) {
                         const isUsernameTaken = await UserService.doesUserExist(username);
-                        if(isUsernameTaken) {
+                        if (isUsernameTaken) {
                             return handleResponse(res, CONFLICT, '/account', 'username-used');
                         }
                     }
-                    
-                    if(email !== oldEmail) {
-                        // Check if email is already taken by someone else
+
+                    if (email !== oldEmail) {
                         const isEmailTaken = await UserService.doesUserExist(email);
-                        if(isEmailTaken) {
+                        if (isEmailTaken) {
                             return handleResponse(res, CONFLICT, '/account', 'email-used');
                         }
                     }
-                    
-                    const result = await user.changeDetails(username,email);
 
-                    if(result === UserChangeStatus.SUCCESS){
-                        req.session.user = Object.assign(req.session.user, { username, email });
-                        handleResponse(res, POSTOK, '/account', 'success');
-                    } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
-                        handleResponse(res, BADREQUEST, '/account', 'user-does-not-exist');
-                    } else if(result === UserChangeStatus.DATABASE_FAILURE){
-                        handleResponse(res, SERVERERROR, '/account', 'error');
-                    } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
-                        handleResponse(res, NOTAUTH, '/account', 'incorrect-password');
-                    } else if(result === UserChangeStatus.USERNAME_USED){
-                        handleResponse(res, CONFLICT, '/account', 'username-used');
-                    } else if(result === UserChangeStatus.EMAIL_USED){
-                        handleResponse(res, CONFLICT, '/account', 'email-used');
+                    const result = await user.changeDetails(username, email);
+
+                    switch (result) {
+                        case UserChangeStatus.SUCCESS:
+                            req.session.user = Object.assign(req.session.user, { username, email });
+                            return handleResponse(res, POSTOK, '/account', 'success');
+                        case UserChangeStatus.USER_DOES_NOT_EXIST:
+                            return handleResponse(res, BADREQUEST, '/account', 'user-does-not-exist');
+                        case UserChangeStatus.DATABASE_FAILURE:
+                            return handleResponse(res, SERVERERROR, '/account', 'error');
+                        case UserChangeStatus.INCORRECT_PASSWORD:
+                            return handleResponse(res, NOTAUTH, '/account', 'incorrect-password');
+                        case UserChangeStatus.USERNAME_USED:
+                            return handleResponse(res, CONFLICT, '/account', 'username-used');
+                        case UserChangeStatus.EMAIL_USED:
+                            return handleResponse(res, CONFLICT, '/account', 'email-used');
+                        default:
+                            return handleResponse(res, BADREQUEST, '/account', 'unknown-error');
                     }
                 }
-            }else handleResponse(res, BADREQUEST, '/account', 'missing-fields');
-
+            } else {
+                return handleResponse(res, BADREQUEST, '/account', 'missing-fields');
+            }
         } else if (action === 'change_password') {
-            const {current_password, new_password} = req.body;
-            if(current_password && new_password){
+            const { current_password, new_password } = req.body;
+
+            if (current_password && new_password) {
                 const user = createUserFromSession(req, Regular);
+                const result = await user.changePassword(current_password, new_password);
 
-                const result = await user.changePassword(current_password,new_password);
-
-                if(result === UserChangeStatus.SUCCESS){
-                    handleResponse(res, POSTOK, '/account', 'success');
-                } else if(result === UserChangeStatus.USER_DOES_NOT_EXIST){
-                    handleResponse(res, BADREQUEST, '/account', 'user-does-not-exist');
-                } else if(result === UserChangeStatus.DATABASE_FAILURE){
-                    handleResponse(res, SERVERERROR, '/account', 'error');
-                } else if(result === UserChangeStatus.INCORRECT_PASSWORD){
-                    handleResponse(res, NOTAUTH, '/account', 'incorrect-password');
+                switch (result) {
+                    case UserChangeStatus.SUCCESS:
+                        return handleResponse(res, POSTOK, '/account', 'success');
+                    case UserChangeStatus.USER_DOES_NOT_EXIST:
+                        return handleResponse(res, BADREQUEST, '/account', 'user-does-not-exist');
+                    case UserChangeStatus.DATABASE_FAILURE:
+                        return handleResponse(res, SERVERERROR, '/account', 'error');
+                    case UserChangeStatus.INCORRECT_PASSWORD:
+                        return handleResponse(res, NOTAUTH, '/account', 'incorrect-password');
+                    default:
+                        return handleResponse(res, BADREQUEST, '/account', 'unknown-error');
                 }
-            } else handleResponse(res, BADREQUEST, '/account', 'missing-fields');
+            } else {
+                return handleResponse(res, BADREQUEST, '/account', 'missing-fields');
+            }
         } else {
-            handleResponse(res, BADREQUEST, '/', 'invalid-action');
+            return handleResponse(res, BADREQUEST, '/', 'invalid-action');
         }
     }
+
     static async handleEditSet(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = createUserFromSession(req, Regular);
         const uID = await UserService.getIDOfUser(user.username);
         const setID = parseInt(req.body.setID as string);
-        const {setName, category, subcategory, setDesc} = req.body;
-        //convert category to enum value
-        
-        if(setName && category && subcategory && setDesc && setID){
+        const { setName, category, subcategory, setDesc } = req.body;
+
+        if (setName && category && subcategory && setDesc && setID) {
             const set = makeCardSet(uID, setName, category, subcategory, setDesc, setID);
             const result = await user.editSet(set);
-            if (result === CardSetEditStatus.SUCCESS) {
-                handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
-            } else if (result === CardSetEditStatus.MISSING_INFORMATION) {
-                handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
-            } else if (result === CardSetEditStatus.NAME_USED) {
-                handleResponse(res, CONFLICT, `/edit_set?setID=${setID}`, 'name-used');
-            } else if (result === CardSetEditStatus.SET_DOES_NOT_EXIST) {
-                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
-            } else if (result === CardSetEditStatus.DATABASE_FAILURE) {
-                handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
-            }
 
-        } else handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+            switch (result) {
+                case CardSetEditStatus.SUCCESS:
+                    return handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+                case CardSetEditStatus.MISSING_INFORMATION:
+                    return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+                case CardSetEditStatus.NAME_USED:
+                    return handleResponse(res, CONFLICT, `/edit_set?setID=${setID}`, 'name-used');
+                case CardSetEditStatus.SET_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+                case CardSetEditStatus.DATABASE_FAILURE:
+                    return handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+                default:
+                    return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'unknown-error');
+            }
+        } else {
+            return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+        }
     }
+
     static async handleEditCard(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = createUserFromSession(req, Regular);
         const { front_text, back_text, cardID, setID } = req.body;
-        if(front_text && back_text && cardID && setID){
+
+        if (front_text && back_text && cardID && setID) {
             const card = makeCard(setID, front_text, back_text, cardID);
             const result = await user.editCardInSet(card);
 
-            if (result === CardEditStatus.SUCCESS) {
-                handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
-            } else if (result === CardEditStatus.MISSING_INFORMATION) {
-                handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
-            } else if (result === CardEditStatus.SET_DOES_NOT_EXIST) {
-                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
-            } else if (result === CardEditStatus.CARD_DOES_NOT_EXIST) {
-                handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'card-does-not-exist');
-            } else if (result === CardEditStatus.DATABASE_FAILURE) {
-                handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+            switch (result) {
+                case CardEditStatus.SUCCESS:
+                    return handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+                case CardEditStatus.MISSING_INFORMATION:
+                    return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+                case CardEditStatus.SET_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+                case CardEditStatus.CARD_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'card-does-not-exist');
+                case CardEditStatus.DATABASE_FAILURE:
+                    return handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+                default:
+                    return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'unknown-error');
             }
-        } else handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+        } else {
+            return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+        }
     }
 
     //DELETE handlers
@@ -444,56 +447,91 @@ export class APIService{
         const setID = parseInt(req.body.setID as string);
         const result = await user.deleteSet(setID);
 
-        if(result === CardSetRemoveStatus.SUCCESS){
-            handleResponse(res, POSTOK, '/', 'success');
-        }
-        else if(result === CardSetRemoveStatus.DATABASE_FAILURE){
-            handleResponse(res, POSTOK, '/', 'error');
-        }
-        else if(result === CardSetRemoveStatus.SET_DOES_NOT_EXIST){
-            handleResponse(res, POSTOK, '/', 'does-not-exist');
+        switch (result) {
+            case CardSetRemoveStatus.SUCCESS:
+                return handleResponse(res, POSTOK, '/', 'success');
+            case CardSetRemoveStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            case CardSetRemoveStatus.SET_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/', 'does-not-exist');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
         }
     }
     static async handleDeleteCard(req: express.Request, res: express.Response): Promise<void> {
         const cardID = Number(req.query.cardID || req.body.cardID);
         const setID = Number(req.query.setID || req.body.setID);
-        if(!cardID || !setID) return handleResponse(res, BADREQUEST, '/', 'missing-fields');
+
+        if (!cardID || !setID) {
+            return handleResponse(res, BADREQUEST, '/', 'missing-fields');
+        }
 
         const user: Regular = createUserFromSession(req, Regular);
         const result = await user.deleteCardFromSet(cardID, setID);
 
-        if (result === CardRemoveStatus.SUCCESS) {
-            handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
-        } else if (result === CardRemoveStatus.DATABASE_FAILURE) {
-            handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
-        } else if (result === CardRemoveStatus.SET_DOES_NOT_EXIST) {
-            handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
-        } else if (result === CardRemoveStatus.CARD_DOES_NOT_EXIST) {
-            handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'card-does-not-exist');
-        } else if (result === CardRemoveStatus.MISSING_INFORMATION) {
-            handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+        switch (result) {
+            case CardRemoveStatus.SUCCESS:
+                return handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
+            case CardRemoveStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, `/edit_set?setID=${setID}`, 'error');
+            case CardRemoveStatus.SET_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'set-does-not-exist');
+            case CardRemoveStatus.CARD_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, `/edit_set?setID=${setID}`, 'card-does-not-exist');
+            case CardRemoveStatus.MISSING_INFORMATION:
+                return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
+            default:
+                return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'unknown-error');
         }
 
     }
     static async handleDeleteUser(req: express.Request, res: express.Response): Promise<void> {}
 
     static async handleRemoveSharedSet(req: express.Request, res: express.Response): Promise<void> {
+            const user: Regular = createUserFromSession(req, Regular);
+            const setID = parseInt(req.query.setID as string || req.body.setID as string);
+            
+            if (!setID || isNaN(setID)) {
+                return handleResponse(res, BADREQUEST, '/', 'missing-fields');
+            }
+            
+            const result = await user.removeSharedSet(setID);
+
+            switch (result) {
+                case CardSetRemoveStatus.SUCCESS:
+                    return handleResponse(res, GETOK, '/', 'success');
+                case CardSetRemoveStatus.DATABASE_FAILURE:
+                    return handleResponse(res, SERVERERROR, '/', 'error');
+                case CardSetRemoveStatus.SET_DOES_NOT_EXIST:
+                    return handleResponse(res, NOTFOUND, '/', 'not-shared');
+                default:
+                    return handleResponse(res, BADREQUEST, '/', 'unknown-error');
+            }
+    }
+
+    static async handleReportSet(req: express.Request, res: express.Response): Promise<void> {
         const user: Regular = createUserFromSession(req, Regular);
-        // Standardized parameter extraction method
-        const setID = parseInt(req.query.setID as string || req.body.setID as string);
-        
-        if (!setID || isNaN(setID)) {
+        const { setID, reason } = req.body;
+
+        if (!setID || isNaN(Number(setID))) {
             return handleResponse(res, BADREQUEST, '/', 'missing-fields');
         }
-        
-        const result = await user.removeSharedSet(setID);
 
-        if (result === CardSetRemoveStatus.SUCCESS) {
-            return handleResponse(res, GETOK, '/', 'success');  // Using GETOK instead of POSTOK for consistency
-        } else if (result === CardSetRemoveStatus.DATABASE_FAILURE) {
-            return handleResponse(res, SERVERERROR, '/', 'error');
-        } else if (result === CardSetRemoveStatus.SET_DOES_NOT_EXIST) {
-            return handleResponse(res, NOTFOUND, '/', 'not-shared');
+        const report = makeSetReport(await UserService.getIDOfUser(user.username), Number(setID), reason);
+
+        const result = await user.reportSet(report);
+
+        switch (result) {
+            case CardSetReportStatus.SUCCESS:
+                return handleResponse(res, POSTOK, '/', 'success');
+            case CardSetReportStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            case CardSetReportStatus.SET_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/', 'set-does-not-exist');
+            case CardSetReportStatus.ALREADY_REPORTED:
+                return handleResponse(res, CONFLICT, '/', 'already-reported');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
         }
     }
 }

@@ -42,6 +42,50 @@ function handleShareButtonClick(setID) {
     };
 }
 
+// Function to handle the report button click
+function handleReportButtonClick(setID) {
+    document.getElementById('report-modal').classList.remove('hidden');
+
+    // Set up the report button action
+    document.getElementById('confirm-report').onclick = () => {
+        const reason = document.getElementById('reason-input').value;
+        if (reason) {
+            // Create a form to submit the report data
+            const form = document.createElement('form');
+            form.action = '/api/reportSet';
+            form.method = 'post';
+            form.style.display = 'none';
+
+            // Add reason input
+            const reasonInput = document.createElement('input');
+            reasonInput.type = 'hidden';
+            reasonInput.name = 'reason';
+            reasonInput.value = reason;
+            form.appendChild(reasonInput);
+
+            // Add setID input
+            const setIDInput = document.createElement('input');
+            setIDInput.type = 'hidden';
+            setIDInput.name = 'setID';
+            setIDInput.value = setID;
+            form.appendChild(setIDInput);
+
+            // Append form to document and submit it
+            document.body.appendChild(form);
+            form.submit();
+            
+            document.getElementById('report-modal').classList.add('hidden');
+        } else {
+            alert('Please enter a reason');
+        }
+    };
+
+    // Cancel report action
+    document.getElementById('cancel-report').onclick = () => {
+        document.getElementById('report-modal').classList.add('hidden');
+    };
+}
+
 // Function to handle removing a shared set
 function handleRemoveSharedSet(setID, setName) {
     document.getElementById('confirmation-modal').classList.remove('hidden');
@@ -71,7 +115,7 @@ function handleRemoveSharedSet(setID, setName) {
 }
 
 // Function to insert a set into the DOM
-function insertSet(setID, setName, category, subcategory, shared) {
+function insertSet(setID, setName, category, subcategory, shared, publicSet, approved) {
     // Create the main div container for the set
     const setDiv = document.createElement('div');
     setDiv.className = 'inline-flex flex-col items-start bg-surface-light dark:bg-surface-dark p-4 border-2 border-accent-light dark:border-accent-dark rounded-md m-2';
@@ -89,7 +133,7 @@ function insertSet(setID, setName, category, subcategory, shared) {
     // Play Button
     const playButton = document.createElement('button');
     playButton.className = 'relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity';
-    playButton.onclick = () => { window.location.href = `/view_set?setID=${setID}&shared=${shared}`; };
+    playButton.onclick = () => { window.location.href = `/view_set?setID=${setID}&set_type=${shared ? 'shared' : 'regular'}`; };
 
     const playImg = document.createElement('img');
     playImg.src = 'play.svg';
@@ -119,6 +163,19 @@ function insertSet(setID, setName, category, subcategory, shared) {
     subcategorySpan.className = 'bg-secondary-light dark:bg-secondary-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
     subcategorySpan.textContent = subcategory;
     categoryDiv.appendChild(subcategorySpan);
+
+    // Check if the set is public
+    if (publicSet) {
+        const publicSetSpan = document.createElement('span');
+        publicSetSpan.className = 'bg-info-light dark:bg-info-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
+        publicSetSpan.textContent = 'Public Set';
+        categoryDiv.appendChild(publicSetSpan);
+
+        const approvedSpan = document.createElement('span');
+        approvedSpan.className = 'bg-warning-light dark:bg-warning-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
+        approvedSpan.textContent = approved ? 'Approved' : 'Not Approved';
+        categoryDiv.appendChild(approvedSpan);
+    }
 
     // Create the buttons section (Share, Edit, Delete) - only for user's own sets
     const buttonsDiv = document.createElement('div');
@@ -221,6 +278,27 @@ function insertSet(setID, setName, category, subcategory, shared) {
 
         // Append button to button container
         buttonsDiv.appendChild(removeButton);
+
+        // Add Report button for shared sets
+        const reportButton = document.createElement('button');
+        reportButton.className = buttonBaseClass;
+        reportButton.onclick = () => {
+            handleReportButtonClick(setID);
+        };
+
+        const reportImg = document.createElement('img');
+        reportImg.src = 'report.svg';
+        reportImg.alt = 'Report Icon';
+        reportImg.className = 'w-6 h-6 invert dark:invert-0';
+        reportButton.appendChild(reportImg);
+
+        const reportSpan = document.createElement('span');
+        reportSpan.className = 'absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10';
+        reportSpan.textContent = 'Report Set';
+        reportButton.appendChild(reportSpan);
+
+        // Append button to button container
+        buttonsDiv.appendChild(reportButton);
     }
 
     // Append everything to the main set div
@@ -338,54 +416,6 @@ function populateSubcategoryDropdown(categoryKey, dropdown, subcategories) {
     dropdown.innerHTML = '<option value="">All Subcategories</option>' + subcategoryOptions;
     return true;
 }
-
-// Card editing functions
-function editCard(cardId) {
-    console.log('Edit card:', cardId);
-}
-
-function addNewCard() {
-    document.getElementById('cardModal').classList.remove('hidden');
-    document.getElementById('cardForm').reset();
-}
-
-function closeCardModal() {
-    document.getElementById('cardModal').classList.add('hidden');
-}
-
-async function saveCard() {
-    const front_text = document.getElementById('cardFront').value;
-    const back_text = document.getElementById('cardBack').value;
-    const setID = document.querySelector('input[name="setID"]').value;
-
-    try {
-        const response = await fetch('/api/addCardToSet', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                front_text,
-                back_text,
-                setID
-            })
-        });
-
-        if (response.ok) {
-            alert('Card added successfully!');
-            window.location.reload();
-        } else {
-            const errorData = await response.json();
-            alert(`Failed to add card: ${errorData.error || 'Unknown error'}`);
-        }
-    } catch (error) {
-        console.error('Error saving card:', error);
-        alert('Failed to save card. Please try again.');
-    }
-
-    closeCardModal();
-}
-
 // Theme toggle function
 function toggleTheme() {
     if (document.documentElement.classList.contains('dark')) {

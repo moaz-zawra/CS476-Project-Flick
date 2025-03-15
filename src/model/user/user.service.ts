@@ -6,6 +6,13 @@ import {LoginStatus, UserAction, UserActivity, UserChangeStatus} from "./user.ty
 import {Moderator, Regular} from "./user.roles";
 
 export class UserService {
+    /**
+     * Changes user details like username and email.
+     * @param user - The user whose details are being changed
+     * @param username - The new username
+     * @param email - The new email
+     * @returns Promise resolving to the status of the operation
+     */
     public static async changeUserDetails(user:User, username:string, email:string): Promise<UserChangeStatus>{
         try {
             const db = await DatabaseService.getConnection();
@@ -22,6 +29,13 @@ export class UserService {
         }
     }
 
+    /**
+     * Changes a user's password after verifying the current password.
+     * @param user - The user whose password is being changed
+     * @param currentPassword - The user's current password
+     * @param newPassword - The new password to set
+     * @returns Promise resolving to the status of the operation
+     */
     public static async changeUserPassword(user:User, currentPassword: string, newPassword:string): Promise<UserChangeStatus>{
         try {
             const db = await DatabaseService.getConnection();
@@ -41,7 +55,7 @@ export class UserService {
             } else return UserChangeStatus.USER_DOES_NOT_EXIST;
 
         } catch(e){
-            console.error(`Error changing user passwowrd: ${(e as Error).message}`);
+            console.error(`Error changing user password: ${(e as Error).message}`);
             return UserChangeStatus.DATABASE_FAILURE;
         }
     }
@@ -67,6 +81,7 @@ export class UserService {
             return null;
         }
     }
+    
     /**
      * Retrieves a user by their username.
      * @async
@@ -83,10 +98,11 @@ export class UserService {
 
         return rows.length ? rows[0] : null;
     }
+    
     /**
      * Retrieves a user by their email or username (identifier).
      * @async
-     * @param identifier - The user's username or email.
+     * @param identifier - The user's username, email, or uID.
      * @returns {Promise<RowDataPacket | null>} A promise resolving to the user data or null if no user is found.
      */
     public static async getUserByIdentifier(identifier: string | number): Promise<RowDataPacket | null> {
@@ -101,19 +117,20 @@ export class UserService {
                 return rows.length ? rows[0] : null;
             }
             
-                        const [rows] = await db.connection.execute<RowDataPacket[]>(
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT uID, username, email, hash, role FROM users WHERE username = ? OR email = ?",
                 [identifier, identifier]
             );
             
             return rows.length ? rows[0] : null;
         } catch (error) {
-            console.error(`Error getting user by identifier: ${(error as Error).message}`);
+            console.error(`Error getting user by identifier: ${error instanceof Error ? error.message : error}`);
             return null;
         }
     }
+    
     /**
-     * Retrieves the user ID (uID) based on the provided identifier (username, email, or uID).
+     * Retrieves the user ID (uID) based on the provided identifier.
      * @async
      * @param {string | number} identifier - The user's username, email, or uID.
      * @returns {Promise<number>} A promise resolving to the user ID or -1 if not found.
@@ -122,7 +139,6 @@ export class UserService {
         try {
             const db = await DatabaseService.getConnection();
 
-            // If identifier is a number, treat it as a uID for exact match
             if (typeof identifier === 'number') {
                 const [rows] = await db.connection.execute<RowDataPacket[]>(
                     "SELECT uID FROM users WHERE uID = ?",
@@ -131,7 +147,6 @@ export class UserService {
                 return rows.length > 0 ? rows[0].uID as number : -1;
             }
             
-            // For string identifiers, try to find an exact match on username or email
             const [rows] = await db.connection.execute<RowDataPacket[]>(
                 "SELECT uID FROM users WHERE username = ? OR email = ?",
                 [identifier, identifier]
@@ -145,7 +160,7 @@ export class UserService {
     }
 
     /**
-     * Checks if a user exists in the database based on the identifier (username, email, or uID).
+     * Checks if a user exists in the database.
      * @async
      * @param {string | number} identifier - The user's username, email, or uID.
      * @returns {Promise<boolean>} A promise resolving to true if the user exists, false otherwise.
@@ -252,6 +267,7 @@ export class UserService {
             return null;
         }
     }
+    
     /**
      * Retrieves all users with the role REGULAR.
      * @async
@@ -264,15 +280,13 @@ export class UserService {
             "SELECT username, email FROM users WHERE role = 'REGULAR'"
         );
 
-        // Map RowDataPacket to Regular instances
         return rows.map(row => new Regular(row.username, row.email));
     }
-
 
     /**
      * Retrieves all users with the role MODERATOR.
      * @async
-     * @returns {Promise<RowDataPacket[]>} A promise resolving to an array of moderator users.
+     * @returns {Promise<Moderator[]>} A promise resolving to an array of moderator users.
      */
     public static async getModeratorUsers(): Promise<Moderator[]> {
         const db = await DatabaseService.getConnection();
@@ -284,6 +298,7 @@ export class UserService {
         return rows.map(row => new Moderator(row.username, row.email));
     }
 }
+
 export class AuthService{
     /**
      * Validates whether the provided password meets criteria.
@@ -300,7 +315,6 @@ export class AuthService{
      * @async
      * @param {string} password - The plaintext password to hash.
      * @returns {Promise<string>} The hashed password.
-     * @see {@link https://en.wikipedia.org/wiki/Bcrypt}
      */
     public static async hashPassword(password: string): Promise<string> {
         return await bcrypt.hash(password, 12);

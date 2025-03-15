@@ -1,7 +1,7 @@
 import { Card } from "../card/card.model";
 import { CardService } from "../card/card.service";
 import { CardAddStatus, CardRemoveStatus, CardGetStatus, CardEditStatus } from "../card/card.types";
-import { CardSet } from "../cardSet/cardset.model";
+import { CardSet, Report } from "../cardSet/cardset.model";
 import { CardSetService } from "../cardSet/cardset.service";
 import { CardSetAddStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetGetStatus, CardSetShareStatus, CardSetEditStatus } from "../cardSet/cardset.types";
 import { User } from "./user.model";
@@ -9,6 +9,7 @@ import {banResult, Role, unbanResult, UserAction, UserActivity, UserChangeStatus
 import {UserService} from "./user.service";
 
 export class Regular implements User {
+
     readonly username: string;
     readonly email: string;
     readonly role: Role = Role.REGULAR;
@@ -19,6 +20,10 @@ export class Regular implements User {
     constructor(username: string, email: string) {
         this.username = username;
         this.email = email;
+    }
+
+    async reportSet(report: Report) {
+        return CardSetService.reportSet(report);
     }
 
     async addSet(card_set: CardSet): Promise<CardSetAddStatus> {
@@ -33,12 +38,12 @@ export class Regular implements User {
         return CardSetService.editSet(this, set);
     }
 
-    async getAllSets(): Promise<CardSet[] | CardSetGetStatus> {
-        return CardSetService.getAllSets(this);
+    async getAllSets(setType: string): Promise<CardSet[] | CardSetGetStatus> {
+        return CardSetService.getAllSets(this, setType);
     }
 
-    async getSet(setID: number): Promise<CardSet | CardSetGetStatus> {
-        return CardSetService.getSet(setID);
+    async getSet(setID: number, setType: string): Promise<CardSet | CardSetGetStatus> {
+        return CardSetService.getSet(this, setID, setType);
     }
 
     async addCardToSet(card: Card): Promise<CardAddStatus> {
@@ -73,23 +78,12 @@ export class Regular implements User {
         return activity ?? [];
     }
 
-    async getSharedSets(): Promise<CardSet[] | CardSetGetStatus> {
-        return CardSetService.getSharedSets(this);
-    }
 
     async changeDetails(username:string, email:string): Promise<UserChangeStatus>{
         return UserService.changeUserDetails(this,username,email);
     }
     async changePassword(currentPassword:string, newPassword:string): Promise<UserChangeStatus>{
         return UserService.changeUserPassword(this,currentPassword,newPassword);
-    }
-
-    async getSharedSet(setID: number): Promise<CardSet | CardSetGetStatus> {
-        return CardSetService.getSharedSet(this, setID);
-    }
-
-    async getCardsInSharedSet(setID: number): Promise<Card[] | CardGetStatus> {
-        return CardService.getCardsInSharedSet(this, setID);
     }
 
     async removeSharedSet(setID: number): Promise<CardSetRemoveStatus> {
