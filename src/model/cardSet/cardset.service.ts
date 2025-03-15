@@ -19,6 +19,9 @@ export class CardSetService {
                 return CardSetAddStatus.MISSING_INFORMATION;
             }
 
+            // Format subCategory to have spaces between words for proper display on front end.
+            card_set.subCategory = card_set.subCategory.replace(/([a-z])([A-Z])/g, '$1 $2');
+
             const db = await DatabaseService.getConnection();
             const ownerID = await UserService.getIDOfUser(user.username);
 
@@ -244,6 +247,60 @@ export class CardSetService {
         } catch (error){
             console.error("Failed to edit set with error: ", error);
             return CardSetEditStatus.DATABASE_FAILURE;
+        }
+    }
+
+    static async getSharedSet(user: User, setID: number): Promise<CardSet | CardSetGetStatus> {
+        try {
+            const db = await DatabaseService.getConnection();
+            const userID = await UserService.getIDOfUser(user.username);
+            
+            // Check if the set is shared with the user
+            const [sharedRows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM shared_sets WHERE uID = ? AND setID = ? LIMIT 1",
+                [userID, setID]
+            );
+            
+            if (sharedRows.length === 0) return CardSetGetStatus.SET_DOES_NOT_EXIST;
+            
+            // Get the set details
+            const set = await this.getSet(setID);
+            if (set === CardSetGetStatus.SET_DOES_NOT_EXIST || set === CardSetGetStatus.DATABASE_FAILURE) {
+                return CardSetGetStatus.SET_DOES_NOT_EXIST;
+            }
+            
+            return set;
+        } catch (error) {
+            console.error("Failed to get shared set with error: ", error);
+            return CardSetGetStatus.DATABASE_FAILURE;
+        }
+    }
+
+    static async removeSharedSet(user: User, setID: number): Promise<CardSetRemoveStatus> {
+        try {
+            if (setID <= 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
+
+            const db = await DatabaseService.getConnection();
+            const userID = await UserService.getIDOfUser(user.username);
+            
+            // Check if the set is shared with the user
+            const [shareRows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM shared_sets WHERE uID = ? AND setID = ? LIMIT 1",
+                [userID, setID]
+            );
+            
+            if (shareRows.length === 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
+
+            // Remove the shared set entry
+            await db.connection.execute<RowDataPacket[]>(
+                "DELETE FROM shared_sets WHERE uID = ? AND setID = ?",
+                [userID, setID]
+            );
+            
+            return CardSetRemoveStatus.SUCCESS;
+        } catch (error) {
+            console.error("Failed to remove shared set:", error);
+            return CardSetRemoveStatus.DATABASE_FAILURE;
         }
     }
 

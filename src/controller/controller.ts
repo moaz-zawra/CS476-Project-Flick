@@ -148,6 +148,24 @@ controller.get('/api/getModerators',
     })
 );
 
+controller.get('/api/getSharedSet', 
+    isAuthenticated, 
+    isRegularUser, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+      await APIService.handleGetSharedSet(req, res);
+    })
+);
+
+controller.get('/api/getCardsInSharedSet', 
+    isAuthenticated,
+    isRegularUser, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+      await APIService.handleGetCardsInSharedSet(req, res);
+    })
+);
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //POST API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -330,6 +348,15 @@ controller.delete('/api/deleteUser',
     })
 );
 
+controller.delete('/api/removeSharedSet', 
+    isAuthenticated, 
+    isRegularUser, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+        await APIService.handleRemoveSharedSet(req, res);
+    })
+);
+
 
 /**
  * Renders the dashboard for logged-in users
@@ -484,16 +511,28 @@ controller.get('/view_set',
     asyncHandler(async (req, res) => {
         const cookie = getCookie(req);
         let setID = req.query.setID;
+        let shared = req.query.shared === 'true';
         
-        const cards = await axios.get(`http://localhost:${port}/api/getCardsInSet`, {
+        let cardsEndpoint, setEndpoint;
+        console.log(shared)
+        if (shared) {
+            cardsEndpoint = `/api/getCardsInSharedSet`;
+            setEndpoint = `/api/getSharedSet`;
+        } else {
+            cardsEndpoint = `/api/getCardsInSet`;
+            setEndpoint = `/api/getSet`;
+        }
+        
+        const cards = await axios.get(`http://localhost:${port}${cardsEndpoint}`, {
             params: { setID },
             headers: { cookie }
         });
 
-        const set = await axios.get(`http://localhost:${port}/api/getSet`, {
+        const set = await axios.get(`http://localhost:${port}${setEndpoint}`, {
             params: { setID },
             headers: { cookie }
         });
+        
         res.render("view_set", { 
             set: set.data.result, 
             cards: cards.data.result, 
@@ -507,7 +546,8 @@ controller.get('/view_set',
                 [Category.Military]: SubCategory_Military
             }, 
             status: req.query.status, 
-            currentPage: 'view_set' 
+            currentPage: 'view_set',
+            shared: shared
         });
     })
 );

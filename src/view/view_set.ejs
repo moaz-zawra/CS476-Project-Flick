@@ -50,13 +50,18 @@
             <% } %>
 
             <div class="flex items-center gap-2 mt-4">
-                <button onclick="window.location.href='/edit_set?setID=<%= set.setID %>'"
-                        class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
-                    <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
-                    <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                        Edit Set
-                    </span>
-                </button>
+
+                <% if (!shared) { %>
+                    <button onclick="window.location.href='/edit_set?setID=<%= set.setID %>'"
+                            class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
+                        <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
+                        <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                            Edit Set
+                        </span>
+                    </button>
+                <% } %>
+
+
                 <button onclick="window.location.href='/'"
                         class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                     Back to Dashboard

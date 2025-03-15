@@ -175,6 +175,37 @@ export class APIService{
         handleResponse(res, NOTFOUND, '', 'no_data', [""]);
     }
 
+    static async handleGetSharedSet(req: express.Request, res: express.Response): Promise<void> {
+        const setID = parseInt(req.query.setID as string);
+        const user: Regular = createUserFromSession(req, Regular);
+        const result = await user.getSharedSet(setID);
+
+        if(result === CardSetGetStatus.DATABASE_FAILURE){
+            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetSharedSet()', error:'Database Error'});
+        }
+        if(result === CardSetGetStatus.SET_DOES_NOT_EXIST){
+            handleTemplateResponse(res, NOTFOUND, 'error', {action: 'APIService.handleGetSharedSet()', error:'Requested shared set does not exist or is not shared with you'});
+        }
+        else handleResponse(res, GETOK, '', 'success', result);
+    }
+
+    static async handleGetCardsInSharedSet(req: express.Request, res: express.Response): Promise<void> {
+        const setID = parseInt(req.query.setID as string);
+        const user: Regular = createUserFromSession(req, Regular);
+        const result = await user.getCardsInSharedSet(setID);
+
+        if(result === CardGetStatus.DATABASE_FAILURE){
+            handleTemplateResponse(res, SERVERERROR, 'error', {action: 'APIService.handleGetCardsInSharedSet()', error:'Database Error'});
+        }
+        else if(result === CardGetStatus.SET_DOES_NOT_EXIST){
+            handleTemplateResponse(res, NOTFOUND, 'error', {action: 'APIService.handleGetCardsInSharedSet()', error:'Requested shared set does not exist or is not shared with you'});
+        }
+        else if(result === CardGetStatus.SET_HAS_NO_CARDS){
+            handleResponse(res, GETOK, '', 'no_cards', []);
+        }
+        else handleResponse(res, GETOK, '', 'success', result);
+    }
+
     //POST handlers
     static async handleLogin(req: express.Request, res: express.Response): Promise<void> {
         const user = await new UserCreator().login(req.body.identifier, req.body.password);
@@ -223,6 +254,7 @@ export class APIService{
         const {setName, category, subcategory, setDesc} = req.body;
         if(setName && category && subcategory && setDesc){
             const set = makeCardSet(uID, setName, category, subcategory, setDesc);
+            console.log(set);
             const result = await user.addSet(set);
 
             if(result === CardSetAddStatus.SUCCESS){
@@ -444,4 +476,24 @@ export class APIService{
 
     }
     static async handleDeleteUser(req: express.Request, res: express.Response): Promise<void> {}
+
+    static async handleRemoveSharedSet(req: express.Request, res: express.Response): Promise<void> {
+        const user: Regular = createUserFromSession(req, Regular);
+        // Standardized parameter extraction method
+        const setID = parseInt(req.query.setID as string || req.body.setID as string);
+        
+        if (!setID || isNaN(setID)) {
+            return handleResponse(res, BADREQUEST, '/', 'missing-fields');
+        }
+        
+        const result = await user.removeSharedSet(setID);
+
+        if (result === CardSetRemoveStatus.SUCCESS) {
+            return handleResponse(res, GETOK, '/', 'success');  // Using GETOK instead of POSTOK for consistency
+        } else if (result === CardSetRemoveStatus.DATABASE_FAILURE) {
+            return handleResponse(res, SERVERERROR, '/', 'error');
+        } else if (result === CardSetRemoveStatus.SET_DOES_NOT_EXIST) {
+            return handleResponse(res, NOTFOUND, '/', 'not-shared');
+        }
+    }
 }

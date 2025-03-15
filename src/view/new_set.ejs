@@ -78,7 +78,6 @@
 </main>
 
 <script>
-    // Store data as local variables
     const categoryNames = <%- JSON.stringify(categoryNames) %>;
     const subcategoriesData = <%- JSON.stringify(subcategories) %>;
     
@@ -87,12 +86,11 @@
         const subcategorySelect = document.getElementById('subcategory');
         const subcategoryContainer = document.getElementById('subcategory-container');
         
-        // Set up category change handler - using existing select since it's already populated via EJS
         categorySelect.addEventListener('change', function() {
             // Get subcategories for this category and update the subcategory dropdown
             const selectedCategory = this.value;
             const subCategoryEnum = subcategoriesData[selectedCategory];
-            
+            console.log(subCategoryEnum);
             // Clear existing options
             while (subcategorySelect.options.length > 0) {
                 subcategorySelect.remove(0);

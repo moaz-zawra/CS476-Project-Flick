@@ -83,6 +83,18 @@ export class Regular implements User {
     async changePassword(currentPassword:string, newPassword:string): Promise<UserChangeStatus>{
         return UserService.changeUserPassword(this,currentPassword,newPassword);
     }
+
+    async getSharedSet(setID: number): Promise<CardSet | CardSetGetStatus> {
+        return CardSetService.getSharedSet(this, setID);
+    }
+
+    async getCardsInSharedSet(setID: number): Promise<Card[] | CardGetStatus> {
+        return CardService.getCardsInSharedSet(this, setID);
+    }
+
+    async removeSharedSet(setID: number): Promise<CardSetRemoveStatus> {
+        return CardSetService.removeSharedSet(this, setID);
+    }
 }
 
 

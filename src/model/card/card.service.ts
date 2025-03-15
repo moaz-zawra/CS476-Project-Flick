@@ -1,4 +1,6 @@
 import { DatabaseService } from "../database/databaseService";
+import { User } from "../user/user.model";
+import { UserService } from "../user/user.service";
 import { Card, makeCard } from "./card.model";
 import { CardAddStatus, CardRemoveStatus, CardGetStatus, CardEditStatus } from "./card.types";
 
@@ -210,6 +212,38 @@ public static async deleteCardByID(cardID: number): Promise<CardRemoveStatus> {
     } catch (error) {
         console.error("Failed to delete card by ID:", error);
         return CardRemoveStatus.DATABASE_FAILURE;
+    }
+}
+
+/**
+ * Retrieves all cards within a shared set, verifying that the set is shared with the user.
+ * @param user - The user requesting the cards
+ * @param setID - The ID of the shared card set
+ * @returns Promise resolving to an array of cards or a status code
+ * @throws Will return DATABASE_FAILURE if there's an error with the database operation
+ * @throws Will return SET_DOES_NOT_EXIST if the set doesn't exist or isn't shared with the user
+ * @throws Will return SET_HAS_NO_CARDS if the set exists but has no cards
+ */
+public static async getCardsInSharedSet(user: User, setID: number): Promise<Card[] | CardGetStatus> {
+    try {
+        const db = await DatabaseService.getConnection();
+        const userID = await UserService.getIDOfUser(user.username);
+        
+        // Check if the set is shared with the user
+        const [sharedRows] = await db.connection.execute(
+            "SELECT 1 FROM shared_sets WHERE uID = ? AND setID = ? LIMIT 1",
+            [userID, setID]
+        );
+        
+        if (!sharedRows || (sharedRows as any[]).length === 0) {
+            return CardGetStatus.SET_DOES_NOT_EXIST;
+        }
+        
+        // Use the existing getCards function to retrieve the cards
+        return this.getCards(setID.toString());
+    } catch (error) {
+        console.error("Failed to get cards for shared set:", error);
+        return CardGetStatus.DATABASE_FAILURE;
     }
 }
 }

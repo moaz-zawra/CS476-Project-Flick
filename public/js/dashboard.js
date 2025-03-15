@@ -89,7 +89,7 @@ function insertSet(setID, setName, category, subcategory, shared) {
     // Play Button
     const playButton = document.createElement('button');
     playButton.className = 'relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity';
-    playButton.onclick = () => { window.location.href = `/view_set?setID=${setID}`; };
+    playButton.onclick = () => { window.location.href = `/view_set?setID=${setID}&shared=${shared}`; };
 
     const playImg = document.createElement('img');
     playImg.src = 'play.svg';
