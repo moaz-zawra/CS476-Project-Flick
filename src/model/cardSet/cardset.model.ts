@@ -5,10 +5,11 @@ export interface CardSet {
     subCategory: string;
     description: string;
     setID?: number;
+    publicSet?: boolean;
 }
 
-export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number): CardSet {
-    return {ownerID, setName, category, subCategory, description, setID};
+export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:string): CardSet {
+    return {ownerID, setName, category, subCategory, description, setID, publicSet: (publicSet === 'on')};
 }
 
 export interface Report{

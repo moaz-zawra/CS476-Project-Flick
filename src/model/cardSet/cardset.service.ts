@@ -15,9 +15,10 @@ export class CardSetService {
      */
     static async addSet(user: User, card_set: CardSet): Promise<CardSetAddStatus> {
         try {
-            if (!card_set.setName || !card_set.category || !card_set.subCategory || !card_set.description) {
+            if (!card_set.setName || !card_set.category || !card_set.subCategory || !card_set.description || !card_set.publicSet) {
                 return CardSetAddStatus.MISSING_INFORMATION;
             }
+            console.log(card_set);
 
             // Format subCategory to have spaces between words for proper display on front end.
             card_set.subCategory = card_set.subCategory.replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -32,8 +33,8 @@ export class CardSetService {
             if (rows.length > 0) return CardSetAddStatus.NAME_USED;
 
             await db.connection.execute<RowDataPacket[]>(
-                "INSERT INTO card_sets (ownerID, set_name, category, sub_category, description) VALUES (?, ?, ?, ?, ?)",
-                [ownerID, card_set.setName, card_set.category, card_set.subCategory, card_set.description]
+                "INSERT INTO card_sets (ownerID, set_name, category, sub_category, description, publicSet) VALUES (?, ?, ?, ?, ?, ?)",
+                [ownerID, card_set.setName, card_set.category, card_set.subCategory, card_set.description, card_set.publicSet]
             );
             return CardSetAddStatus.SUCCESS;
         } catch (error) {

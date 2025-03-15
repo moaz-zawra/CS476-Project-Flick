@@ -20,58 +20,65 @@
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
         <form action="/api/newSet" method="post" class="space-y-4 max-w-sm mx-auto">
             <div class="mb-4">
-                <label for="setName" id="setName_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Set Name
-                </label>
-                <input type="text" id="setName" name="setName"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
+            <label for="setName" id="setName_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                Set Name
+            </label>
+            <input type="text" id="setName" name="setName"
+                   class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                   required />
             </div>
 
             <div class="mb-4">
-                <label for="setDesc" id="setDesc_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Set Description
-                </label>
-                <input type="text" id="setDesc" name="setDesc"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
+            <label for="setDesc" id="setDesc_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                Set Description
+            </label>
+            <input type="text" id="setDesc" name="setDesc"
+                   class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                   required />
             </div>
 
             <div class="mb-4">
-                <label for="category" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Category
-                </label>
-                <select id="category" name="category"
-                        class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                        required>
-                    <option value="" disabled selected>Select a category</option>
-                    <% Object.entries(categories).forEach(([key, value]) => { %>
-                        <% if (!isNaN(Number(key))) { %>
-                            <option value="<%= key %>"><%= categoryNames[key] %></option>
-                        <% } %>
-                    <% }); %>
-                </select>
+            <label for="category" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                Category
+            </label>
+            <select id="category" name="category"
+                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+                required>
+                <option value="" disabled selected>Select a category</option>
+                <% Object.entries(categories).forEach(([key, value]) => { %>
+                <% if (!isNaN(Number(key))) { %>
+                    <option value="<%= key %>"><%= categoryNames[key] %></option>
+                <% } %>
+                <% }); %>
+            </select>
             </div>
 
             <div id="subcategory-container" class="hidden mb-4">
-                <label for="subcategory" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Subcategory
-                </label>
-                <select id="subcategory" name="subcategory"
-                        class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-                    <option value="" disabled selected>Select a subcategory</option>
-                </select>
+            <label for="subcategory" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+                Subcategory
+            </label>
+            <select id="subcategory" name="subcategory"
+                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+                <option value="" disabled selected>Select a subcategory</option>
+            </select>
             </div>
 
+            <div class="mb-4 flex items-center">
+            <label for="public" class="text-text-light dark:text-text-dark font-bold block text-left mb-2 mr-2">
+                Public Set 
+            </label>
+            <input type="checkbox" id="public" name="publicSet"
+                   class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark transition-colors duration-200" />
+            </div>
             <button type="submit"
-                    class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105 w-full mb-4">
-                Create Set
+                class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105 w-full mb-4">
+            Create Set
             </button>
 
             <button type="button"
-                    class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
-                    onclick="window.location.href='/'">
-                Go back to dashboard
+                class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
+                onclick="window.location.href='/'">
+            Go back to dashboard
             </button>
         </form>
     </div>

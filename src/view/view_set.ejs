@@ -12,6 +12,27 @@
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
+    <style>
+        /* Custom CSS for the flashcard flip animation */
+        .card{
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .card:hover{
+            transform: rotateY(180deg);
+        }
+        .card .front, .card .back{
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .card .back{
+            transform: rotateY(180deg);
+        }
+    </style>
 </head>
 
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
@@ -30,24 +51,27 @@
             <% } %>
         </div>
         <% } %>
-        
-        <div class="flex flex-wrap gap-4 justify-center">
+
+
+        <div class="flex flex-wrap gap-16 items-center justify-center">
             <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
                 <% cards.forEach(function(card) { %>
-                    <div class="inline-flex flex-col items-start bg-surface-light dark:bg-surface-dark p-4 border-2 border-accent-light dark:border-accent-dark rounded-md m-2 w-[300px] h-[300px] relative">
-                        <div class="grid grid-cols-1 h-full gap-4">
-                            <div class="flex flex-col justify-center">
-                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
-                                <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.front_text %></p>
-                            </div>
-                            <div class="flex flex-col justify-center border-t-2 border-surface-light dark:border-surface-dark pt-4">
-                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Back</h3>
-                                <p class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.back_text %></p>
-                            </div>
-                        </div>
+            <div class="w-48 h-72 perspective-1000">
+                <div class="relative w-full h-full card">
+                    <!--Front Text Display of the Flashcard-->
+                    <div class="front bg-yellow-200 dark:bg-purple-900 text-black dark:text-white flex items-center justify-center rounded-lg">
+                        <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2"><%= card.front_text %></h3>
                     </div>
-                <% }); %>
+                    <!--Back Text Display of the Flashcard-->
+                    <div class="back bg-green-200 dark:bg-teal-900 text-black dark:text-white flex items-center justify-center rounded-lg backface-hidden rotate-y-180 transition-transform duration-500 group-hover:rotate-y-0">
+                        <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Answer: </h3>
+                        <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2"><%= card.back_text %></h3>
+                    </div>
+                </div>
+            </div>
+                    <% }); %>
             <% } %>
+        </div>
 
             <div class="flex items-center gap-2 mt-4">
 

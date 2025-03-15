@@ -251,9 +251,9 @@ export class APIService{
         const user = createUserFromSession(req, Regular);
         const uID = await UserService.getIDOfUser(user.username);
 
-        const {setName, category, subcategory, setDesc} = req.body;
-        if(setName && category && subcategory && setDesc){
-            const set = makeCardSet(uID, setName, category, subcategory, setDesc);
+        const {setName, category, subcategory, setDesc, publicSet} = req.body;
+        if(setName && category && subcategory && setDesc && publicSet){
+            const set = makeCardSet(uID, setName, category, subcategory, setDesc, undefined, publicSet);
             console.log(set);
             const result = await user.addSet(set);
 
