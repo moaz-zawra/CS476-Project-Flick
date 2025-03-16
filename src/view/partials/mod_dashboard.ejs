@@ -9,11 +9,11 @@
         </div>
         <!-- New buttons added -->
         <div class="flex flex-col space-y-2">
-            <button class="btn btn-primary" onclick="showModal('allUsersModal')">Get all Users</button>
-            <button class="btn btn-primary" onclick="showModal('weeklyActivityModal')">User Activity Report (7 days)</button>
-            <button class="btn btn-primary" onclick="showModal('alltimeActivityModal')">User Activity Report (Alltime)</button>
-            <button class="btn btn-primary" onclick="showModal('reportedSetsModal')">Get Reported Sets</button>
-            <button class="btn btn-primary" onclick="showModal('unapprovedSetsModal')">Get unapproved public sets</button>
+            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('allUsersModal')">Get all Users</button>
+            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('weeklyActivityModal')">User Activity Report (7 days)</button>
+            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('alltimeActivityModal')">User Activity Report (Alltime)</button>
+            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('reportedSetsModal')">Get Reported Sets</button>
+            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('unapprovedSetsModal')">Get unapproved public sets</button>
         </div>
     </div>
 </div>
@@ -23,23 +23,23 @@
 
 <!-- Modals -->
 <div id="allUsersModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('allUsersModal')">&times;</span>
-        <h2 class="text-xl font-bold mb-4">All Users</h2>
-        <table class="min-w-full bg-white dark:bg-gray-800">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('allUsersModal')">&times;</span>
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">All Users</h2>
+        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
             <thead>
                 <tr>
-                    <th class="py-2 px-4 border-b">Username</th>
-                    <th class="py-2 px-4 border-b">Email</th>
-                    <th class="py-2 px-4 border-b">Role</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Email</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Role</th>
                 </tr>
             </thead>
             <tbody>
-                <% users.forEach(user => { %>
+                <% Object.keys(users).forEach(key => { %>
                     <tr>
-                        <td class="py-2 px-4 border-b"><%= user.username %></td>
-                        <td class="py-2 px-4 border-b"><%= user.email %></td>
-                        <td class="py-2 px-4 border-b"><%= user.role %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= users[key].username %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= users[key].email %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= users[key].role %></td>
                     </tr>
                 <% }) %>
             </tbody>
@@ -48,94 +48,264 @@
 </div>
 
 <div id="weeklyActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('weeklyActivityModal')">&times;</span>
-        <h2 class="text-xl font-bold mb-4">User Activity Report (7 days)</h2>
-        <table class="min-w-full bg-white dark:bg-gray-800">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4">
+        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('weeklyActivityModal')">&times;</span>
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">User Activity Report (7 days)</h2>
+        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
             <thead>
                 <tr>
-                    <th class="py-2 px-4 border-b">Username</th>
-                    <th class="py-2 px-4 border-b">Activity</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Sets</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Cards</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Shared Sets</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Viewed Sets</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Other Actions</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Page Views</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Total</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Last Active</th>
                 </tr>
             </thead>
             <tbody>
-                <% usersWeeklyActivity.forEach(activity => { %>
+                <% if (usersWeeklyActivity && Object.keys(usersWeeklyActivity).length > 0) { %>
+                    <% Object.keys(usersWeeklyActivity).forEach(username => { %>
+                        <% 
+                            const activities = usersWeeklyActivity[username];
+                            const newSetCount = activities.filter(act => act.action === '0').length;
+                            const newCardCount = activities.filter(act => act.action === '1').length;
+                            const shareSetCount = activities.filter(act => act.action === '2').length;
+                            const viewSetCount = activities.filter(act => act.action === '3').length;
+                            const otherCount = activities.filter(act => act.action === '4').length;
+                            const pageViewCount = activities.filter(act => act.action === '5').length;
+                            const totalCount = activities.length;
+                            let lastActiveDate = "Never";
+                            
+                            if (activities.length > 0) {
+                                // Sort by time (newest first) and get the first one
+                                const sortedActivities = [...activities].sort((a, b) => 
+                                    new Date(b.time).getTime() - new Date(a.time).getTime()
+                                );
+                                const lastActive = new Date(sortedActivities[0].time);
+                                lastActiveDate = lastActive.toLocaleString();
+                            }
+                        %>
+                        <tr>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= username %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newSetCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newCardCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= shareSetCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= viewSetCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= otherCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= pageViewCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= totalCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= lastActiveDate %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
                     <tr>
-                        <td class="py-2 px-4 border-b"><%= activity.username %></td>
-                        <td class="py-2 px-4 border-b"><%= activity.activity %></td>
+                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="9">No activity data available</td>
                     </tr>
-                <% }) %>
+                <% } %>
             </tbody>
         </table>
     </div>
 </div>
 
 <div id="alltimeActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('alltimeActivityModal')">&times;</span>
-        <h2 class="text-xl font-bold mb-4">User Activity Report (Alltime)</h2>
-        <table class="min-w-full bg-white dark:bg-gray-800">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4 overflow-y-auto max-h-screen">
+        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('alltimeActivityModal')">&times;</span>
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">User Activity Report (Alltime)</h2>
+        <div class="text-sm mb-4 text-text-light dark:text-text-dark font-mono">
+            <p><strong>Activity Types:</strong> NEWSET (0), NEWCARD (1), SHARESET (2), VIEWSET (3), OTHER (4), PAGE_VIEW (5)</p>
+        </div>
+        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
             <thead>
                 <tr>
-                    <th class="py-2 px-4 border-b">Username</th>
-                    <th class="py-2 px-4 border-b">Activity</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Sets</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Cards</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Shared Sets</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Viewed Sets</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Other Actions</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Page Views</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Total</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">First Active</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Last Active</th>
                 </tr>
             </thead>
             <tbody>
-                <% usersAlltimeActivity.forEach(activity => { %>
+                <% if (usersAlltimeActivity && Object.keys(usersAlltimeActivity).length > 0) { %>
+                    <% Object.keys(usersAlltimeActivity).forEach(username => { %>
+                        <% 
+                            const activities = usersAlltimeActivity[username];
+                            const newSetCount = activities.filter(act => act.action === '0').length;
+                            const newCardCount = activities.filter(act => act.action === '1').length;
+                            const shareSetCount = activities.filter(act => act.action === '2').length;
+                            const viewSetCount = activities.filter(act => act.action === '3').length;
+                            const otherCount = activities.filter(act => act.action === '4').length;
+                            const pageViewCount = activities.filter(act => act.action === '5').length;
+                            const totalCount = activities.length;
+                            let lastActiveDate = "Never";
+                            let firstActiveDate = "Never";
+                            
+                            if (activities.length > 0) {
+                                // Sort by time (newest first)
+                                const sortedActivities = [...activities].sort((a, b) => 
+                                    new Date(b.time).getTime() - new Date(a.time).getTime()
+                                );
+                                const lastActive = new Date(sortedActivities[0].time);
+                                lastActiveDate = lastActive.toLocaleString();
+                                
+                                // Get oldest activity
+                                const firstActive = new Date(sortedActivities[sortedActivities.length - 1].time);
+                                firstActiveDate = firstActive.toLocaleString();
+                            }
+                        %>
+                        <tr>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= username %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newSetCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newCardCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= shareSetCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= viewSetCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= otherCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= pageViewCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= totalCount %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= firstActiveDate %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= lastActiveDate %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
                     <tr>
-                        <td class="py-2 px-4 border-b"><%= activity.username %></td>
-                        <td class="py-2 px-4 border-b"><%= activity.activity %></td>
+                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="10">No activity data available</td>
                     </tr>
-                <% }) %>
+                <% } %>
             </tbody>
         </table>
     </div>
 </div>
 
 <div id="reportedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('reportedSetsModal')">&times;</span>
-        <h2 class="text-xl font-bold mb-4">Reported Sets</h2>
-        <table class="min-w-full bg-white dark:bg-gray-800">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-4/5 overflow-y-auto max-h-screen">
+        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('reportedSetsModal')">&times;</span>
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Reported Sets</h2>
+        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
             <thead>
                 <tr>
-                    <th class="py-2 px-4 border-b">Set Name</th>
-                    <th class="py-2 px-4 border-b">Reported By</th>
-                    <th class="py-2 px-4 border-b">Reason</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set ID</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set Name</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Category</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Subcategory</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Description</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Reporter</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Reason</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <% reportedSets.forEach(set => { %>
+                <% if (reportedSets && Object.keys(reportedSets).length > 0) { %>
+                    <% Object.keys(reportedSets).forEach(key => { %>
+                        <tr data-set-id="<%= reportedSets[key].cardSet.setID %>">
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.setID %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.setName %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.category %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.subCategory %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                <% if (reportedSets[key].cardSet.description) { %>
+                                    <%= reportedSets[key].cardSet.description.length > 50 ? reportedSets[key].cardSet.description.substring(0, 50) + '...' : reportedSets[key].cardSet.description %>
+                                <% } else { %>
+                                    <em>No description</em>
+                                <% } %>
+                            </td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].reporterUsername %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].reason %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
+                                <div class="flex justify-center space-x-2">
+                                    <button 
+                                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="removeReportedSet(<%= reportedSets[key].cardSet.setID %>)">
+                                        Remove Set
+                                    </button>
+                                    <button 
+                                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="dismissReport(<%= reportedSets[key].cardSet.setID %>)">
+                                        Dismiss Report
+                                    </button>
+                                    <button 
+                                        class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="viewSet(<%= reportedSets[key].cardSet.setID %>)">
+                                        View
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
                     <tr>
-                        <td class="py-2 px-4 border-b"><%= set.name %></td>
-                        <td class="py-2 px-4 border-b"><%= set.reportedBy %></td>
-                        <td class="py-2 px-4 border-b"><%= set.reason %></td>
+                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="8">No reported sets available</td>
                     </tr>
-                <% }) %>
+                <% } %>
             </tbody>
         </table>
     </div>
 </div>
 
 <div id="unapprovedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-gray-500 dark:text-gray-300 float-right text-2xl cursor-pointer" onclick="closeModal('unapprovedSetsModal')">&times;</span>
-        <h2 class="text-xl font-bold mb-4">Unapproved Public Sets</h2>
-        <table class="min-w-full bg-white dark:bg-gray-800">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-4/5 overflow-y-auto max-h-screen">
+        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('unapprovedSetsModal')">&times;</span>
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Unapproved Public Sets</h2>
+        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
             <thead>
                 <tr>
-                    <th class="py-2 px-4 border-b">Set Name</th>
-                    <th class="py-2 px-4 border-b">Created By</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set ID</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set Name</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Created By</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Category</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Subcategory</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Description</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <% unapprovedSets.forEach(set => { %>
+                <% if (unapprovedSets && Object.keys(unapprovedSets).length > 0) { %>
+                    <% Object.keys(unapprovedSets).forEach(key => { %>
+                        <tr data-set-id="<%= unapprovedSets[key].setID %>">
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].setID %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].setName %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].ownerID %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].category %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].subCategory %></td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                <% if (unapprovedSets[key].description) { %>
+                                    <%= unapprovedSets[key].description.length > 50 ? unapprovedSets[key].description.substring(0, 50) + '...' : unapprovedSets[key].description %>
+                                <% } else { %>
+                                    <em>No description</em>
+                                <% } %>
+                            </td>
+                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
+                                <div class="flex justify-center space-x-2">
+                                    <button 
+                                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="approveSet(<%= unapprovedSets[key].setID %>)">
+                                        Approve
+                                    </button>
+                                    <button 
+                                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="disapproveSet(<%= unapprovedSets[key].setID %>)">
+                                        Disapprove
+                                    </button>
+                                    <button 
+                                        class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="viewSet(<%= unapprovedSets[key].setID %>)">
+                                        View
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
                     <tr>
-                        <td class="py-2 px-4 border-b"><%= set.name %></td>
-                        <td class="py-2 px-4 border-b"><%= set.createdBy %></td>
+                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="7">No unapproved sets available</td>
                     </tr>
-                <% }) %>
+                <% } %>
             </tbody>
         </table>
     </div>
@@ -154,5 +324,105 @@
         if (event.target.classList.contains('modal')) {
             event.target.classList.add('hidden');
         }
+    }
+    
+    // Functions for handling reported sets
+    function removeReportedSet(setId) {
+        console.log('removeReportedSet', setId);
+        if (confirm('Are you sure you want to remove this set? This action cannot be undone.')) {
+            // Make an API call to delete the set
+            fetch(`/api/deleteSet?setID=${setId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the row from the table
+                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
+                    alert('Set successfully removed.');
+                } else {
+                    throw new Error('Failed to remove set' + response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to remove set. Please try again.');
+            });
+        }
+    }
+    
+    function dismissReport(setId) {
+        if (confirm('Are you sure you want to dismiss this report?')) {
+            // Make an API call to dismiss the report
+            fetch(`/api/dismissReport?setID=${setId}`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the row from the table
+                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
+                    alert('Report dismissed successfully.');
+                } else {
+                    throw new Error('Failed to dismiss report');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to dismiss report. Please try again.');
+            });
+        }
+    }
+
+    // Functions for handling unapproved sets
+    function approveSet(setId) {
+        if (confirm('Are you sure you want to approve this set?')) {
+            // Make an API call to approve the set
+            fetch(`/api/approveSet?setID=${setId}`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the row from the table
+                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
+                    alert('Set approved successfully.');
+                } else {
+                    throw new Error('Failed to approve set');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to approve set. Please try again.');
+            });
+        }
+    }
+    
+    function disapproveSet(setId) {
+        if (confirm('Are you sure you want to disapprove this set? This will make it private.')) {
+            // Make an API call to disapprove the set
+            fetch(`/api/disapproveSet?setID=${setId}`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the row from the table
+                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
+                    alert('Set disapproved successfully. The set is now private.');
+                } else {
+                    throw new Error('Failed to disapprove set');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to disapprove set. Please try again.');
+            });
+        }
+    }
+    
+    function viewSet(setId) {
+        // Redirect to view the set
+        window.open(`/view_set?setID=${setId}`, '_blank');
     }
 </script>

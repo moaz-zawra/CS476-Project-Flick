@@ -441,9 +441,6 @@ controller.get('/',
                     })
                 );
                 
-
-                console.log(unapprovedSets.data.result);
-                console.log(reportedSets.data.result);
                 if(isAdmin(req.session.user)){
 
                 } else {
