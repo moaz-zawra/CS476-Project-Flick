@@ -1,18 +1,22 @@
-<div id="user-cardsets" class="p-2 bg-surface-light dark:bg-surface-dark rounded-md border-2 border-accent-light dark:border-accent-dark">
+<div id="user-cardsets"
+    class="p-2 bg-surface-light dark:bg-surface-dark rounded-md border-2 border-accent-light dark:border-accent-dark">
     <div id="set-bar-user" class="flex items-center justify-between">
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">My Card Sets</span>
         <div class="flex items-center space-x-2">
             <button onclick="window.location.href='/new_set'" class="relative group p-1">
                 <img src="add.svg" alt="Plus Icon" class="w-9 h-9 invert dark:invert-0">
-                <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                <span
+                    class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
                     New Card Set
                 </span>
             </button>
             <div class="flex items-center space-x-2">
-                <select id="userCategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
+                <select id="userCategoryFilter"
+                    class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
                     <option value="">Select Category</option>
                 </select>
-                <select id="userSubcategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
+                <select id="userSubcategoryFilter"
+                    class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
                     <option value="">All Subcategories</option>
                 </select>
             </div>
@@ -20,33 +24,38 @@
     </div>
     <hr class="border-accent-light dark:border-accent-dark mt-2">
     <div id="user-sets" class="p-2">
-        <% if (typeof userSets === 'undefined' || !Array.isArray(userSets) || userSets.length === 0) { %>
+        <% if (typeof userSets==='undefined' || !Array.isArray(userSets) || userSets.length===0) { %>
             <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
-                You have no sets. <a href="/new_set" class="underline text-highlight-light dark:text-highlight-dark hover:text-primary-light dark:hover:text-primary-dark">Create one now!</a>
+                You have no sets. <a href="/new_set"
+                    class="underline text-highlight-light dark:text-highlight-dark hover:text-primary-light dark:hover:text-primary-dark">Create
+                    one now!</a>
             </div>
-        <% } %>
+            <% } %>
     </div>
 </div>
 <br />
-<div id="shared-cardsets" class="p-2 bg-surface-light dark:bg-surface-dark rounded-md border-2 border-accent-light dark:border-accent-dark">
+<div id="shared-cardsets"
+    class="p-2 bg-surface-light dark:bg-surface-dark rounded-md border-2 border-accent-light dark:border-accent-dark">
     <div id="set-bar-shared" class="flex items-center justify-between">
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">Sets Shared with me</span><br />
         <div class="flex items-center space-x-2">
-            <select id="sharedCategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
+            <select id="sharedCategoryFilter"
+                class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
                 <option value="">Select Category</option>
             </select>
-            <select id="sharedSubcategoryFilter" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
+            <select id="sharedSubcategoryFilter"
+                class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
                 <option value="">All Subcategories</option>
             </select>
         </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mt-2">
     <div id="shared-sets" class="p-2">
-        <% if (typeof sharedSets === 'undefined' || !Array.isArray(sharedSets) || sharedSets.length === 0) { %>
+        <% if (typeof sharedSets==='undefined' || !Array.isArray(sharedSets) || sharedSets.length===0) { %>
             <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
                 No sets have been shared with you.
             </div>
-        <% } %>
+            <% } %>
     </div>
 </div>
 
@@ -55,10 +64,13 @@
     <div class="bg-surface-light dark:bg-surface-dark p-8 rounded-lg shadow-lg w-1/3 text-center">
         <p id="confirmation-message" class="text-lg font-mono text-accent-light dark:text-accent-dark mb-4"></p>
         <div class="flex justify-around">
-            <button id="confirm-delete" class="border-2 font-mono font-bold rounded-md p-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+            <button id="confirm-delete"
+                class="border-2 font-mono font-bold rounded-md p-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                 Yes
             </button>
-            <button id="cancel-delete" class="border-2 font-mono font-bold rounded-md p-2 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105" onclick="document.getElementById('confirmation-modal').classList.add('hidden');">
+            <button id="cancel-delete"
+                class="border-2 font-mono font-bold rounded-md p-2 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105"
+                onclick="document.getElementById('confirmation-modal').classList.add('hidden');">
                 No
             </button>
         </div>
@@ -68,13 +80,17 @@
 <!-- Modal for share -->
 <div id="share-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
     <div class="bg-surface-light dark:bg-surface-dark p-8 rounded-lg shadow-lg w-1/3 text-center">
-        <p id="share-message" class="text-lg font-mono text-accent-light dark:text-accent-dark mb-4">Share this set with a user:</p>
-        <input id="username-input" type="text" placeholder="Enter username" class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark mb-4 w-full">
+        <p id="share-message" class="text-lg font-mono text-accent-light dark:text-accent-dark mb-4">Share this set with
+            a user:</p>
+        <input id="username-input" type="text" placeholder="Enter username"
+            class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark placeholder:text-text-light dark:placeholder:text-text-dark mb-4 w-full">
         <div class="flex justify-around">
-            <button id="confirm-share" class="border-2 font-mono font-bold rounded-md p-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+            <button id="confirm-share"
+                class="border-2 font-mono font-bold rounded-md p-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                 Share
             </button>
-            <button id="cancel-share" class="border-2 font-mono font-bold rounded-md p-2 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+            <button id="cancel-share"
+                class="border-2 font-mono font-bold rounded-md p-2 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark hover:bg-highlight-light hover:dark:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                 Cancel
             </button>
         </div>
