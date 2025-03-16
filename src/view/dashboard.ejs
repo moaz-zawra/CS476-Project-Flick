@@ -21,8 +21,10 @@
 
         <%- include('partials/status-message') %>
 
-            <div class="font-mono mt-7 text-2xl text-accent-light dark:text-accent-dark"> Welcome, <%= user.username %>
-            </div>
+            <div class="font-mono mt-7 text-2xl text-accent-light dark:text-accent-dark"> Welcome, <b>
+                    <%= user.username %>
+                </b> </div>
+
             <br />
 
             <% if (role==='admin' ) { %>
@@ -72,7 +74,7 @@
     <% userSets.forEach(function(set, index) { %>
         <script>
             const setData<%= index %> = <% - JSON.stringify(set) %>;
-            insertSet(setData <%= index %>.setID, setData <%= index %>.setName, setData <%= index %>.category, setData <%= index %>.subCategory, false, setData <%= index %>.publicSet);
+            insertSet(setData <%= index %>.setID, setData <%= index %>.setName, setData <%= index %>.category, setData <%= index %>.subCategory, false, setData <%= index %>.publicSet, setData <%= index %>.publicSet);
         </script>
         <% }); %>
             <% } else { %>

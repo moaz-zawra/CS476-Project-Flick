@@ -9,11 +9,21 @@
         </div>
         <!-- New buttons added -->
         <div class="flex flex-col space-y-2">
-            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('allUsersModal')">Get all Users</button>
-            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('weeklyActivityModal')">User Activity Report (7 days)</button>
-            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('alltimeActivityModal')">User Activity Report (Alltime)</button>
-            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('reportedSetsModal')">Get Reported Sets</button>
-            <button class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors" onclick="showModal('unapprovedSetsModal')">Get unapproved public sets</button>
+            <button
+                class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                onclick="showModal('allUsersModal')">Get all Users</button>
+            <button
+                class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                onclick="showModal('weeklyActivityModal')">User Activity Report (7 days)</button>
+            <button
+                class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                onclick="showModal('alltimeActivityModal')">User Activity Report (Alltime)</button>
+            <button
+                class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                onclick="showModal('reportedSetsModal')">Get Reported Sets</button>
+            <button
+                class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark p-2 rounded-md hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                onclick="showModal('unapprovedSetsModal')">Get unapproved public sets</button>
         </div>
     </div>
 </div>
@@ -21,471 +31,709 @@
 <!-- Include the regular user dashboard content as well -->
 <%- include('regular_dashboard') %>
 
-<!-- Modals -->
-<div id="allUsersModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('allUsersModal')">&times;</span>
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">All Users</h2>
-        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Email</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Role</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Ban Reason</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% users.forEach(userObj => { %>
+    <!-- Modals -->
+    <div id="allUsersModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4">
+            <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer"
+                onclick="closeModal('allUsersModal')">&times;</span>
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">All Users</h2>
+            <table class="min-w-full bg-surface-light dark:bg-surface-dark">
+                <thead>
                     <tr>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.user.username %></td>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.user.email %></td>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.user.role %></td>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.banReason || 'N/A' %></td>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
-                            <div class="flex justify-center space-x-2">
-                                <% if (userObj.banned == 0) { %>
-                                    <button 
-                                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="showBanModal('<%= userObj.user.username %>')">
-                                        Ban
-                                    </button>
-                                <% } else { %>
-                                    <button 
-                                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="showUnbanModal('<%= userObj.user.username %>')">
-                                        Unban
-                                    </button>
-                                <% } %>
-                            </div>
-                        </td>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Username</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Email</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Role</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Ban Reason</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Actions</th>
                     </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div id="weeklyActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4">
-        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('weeklyActivityModal')">&times;</span>
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">User Activity Report (7 days)</h2>
-        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Sets</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Cards</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Shared Sets</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Viewed Sets</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Other Actions</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Page Views</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Total</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Last Active</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (usersWeeklyActivity && Object.keys(usersWeeklyActivity).length > 0) { %>
-                    <% Object.keys(usersWeeklyActivity).forEach(username => { %>
-                        <% 
-                            const activities = usersWeeklyActivity[username];
-                            const newSetCount = activities.filter(act => act.action === '0').length;
-                            const newCardCount = activities.filter(act => act.action === '1').length;
-                            const shareSetCount = activities.filter(act => act.action === '2').length;
-                            const viewSetCount = activities.filter(act => act.action === '3').length;
-                            const otherCount = activities.filter(act => act.action === '4').length;
-                            const pageViewCount = activities.filter(act => act.action === '5').length;
-                            const totalCount = activities.length;
-                            let lastActiveDate = "Never";
-                            
-                            if (activities.length > 0) {
-                                // Sort by time (newest first) and get the first one
-                                const sortedActivities = [...activities].sort((a, b) => 
-                                    new Date(b.time).getTime() - new Date(a.time).getTime()
-                                );
-                                const lastActive = new Date(sortedActivities[0].time);
-                                lastActiveDate = lastActive.toLocaleString();
-                            }
-                        %>
+                </thead>
+                <tbody>
+                    <% users.forEach(userObj=> { %>
                         <tr>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= username %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newSetCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newCardCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= shareSetCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= viewSetCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= otherCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= pageViewCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= totalCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= lastActiveDate %></td>
+                            <td
+                                class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                <%= userObj.user.username %>
+                            </td>
+                            <td
+                                class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                <%= userObj.user.email %>
+                            </td>
+                            <td
+                                class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                <%= userObj.user.role %>
+                            </td>
+                            <td
+                                class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                <%= userObj.banReason || 'N/A' %>
+                            </td>
+                            <td
+                                class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
+                                <div class="flex justify-center space-x-2">
+                                    <% if (userObj.banned==0) { %>
+                                        <button
+                                            class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="showBanModal('<%= userObj.user.username %>')">
+                                            Ban
+                                        </button>
+                                        <% } else { %>
+                                            <button
+                                                class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                                onclick="showUnbanModal('<%= userObj.user.username %>')">
+                                                Unban
+                                            </button>
+                                            <% } %>
+                                </div>
+                            </td>
                         </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="9">No activity data available</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div id="alltimeActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4 overflow-y-auto max-h-screen">
-        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('alltimeActivityModal')">&times;</span>
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">User Activity Report (Alltime)</h2>
-        <div class="text-sm mb-4 text-text-light dark:text-text-dark font-mono">
-            <p><strong>Activity Types:</strong> NEWSET (0), NEWCARD (1), SHARESET (2), VIEWSET (3), OTHER (4), PAGE_VIEW (5)</p>
+                        <% }) %>
+                </tbody>
+            </table>
         </div>
-        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Sets</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">New Cards</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Shared Sets</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Viewed Sets</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Other Actions</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Page Views</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Total</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">First Active</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Last Active</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (usersAlltimeActivity && Object.keys(usersAlltimeActivity).length > 0) { %>
-                    <% Object.keys(usersAlltimeActivity).forEach(username => { %>
-                        <% 
-                            const activities = usersAlltimeActivity[username];
-                            const newSetCount = activities.filter(act => act.action === '0').length;
-                            const newCardCount = activities.filter(act => act.action === '1').length;
-                            const shareSetCount = activities.filter(act => act.action === '2').length;
-                            const viewSetCount = activities.filter(act => act.action === '3').length;
-                            const otherCount = activities.filter(act => act.action === '4').length;
-                            const pageViewCount = activities.filter(act => act.action === '5').length;
-                            const totalCount = activities.length;
-                            let lastActiveDate = "Never";
-                            let firstActiveDate = "Never";
-                            
-                            if (activities.length > 0) {
-                                // Sort by time (newest first)
-                                const sortedActivities = [...activities].sort((a, b) => 
-                                    new Date(b.time).getTime() - new Date(a.time).getTime()
+    </div>
+
+    <div id="weeklyActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4">
+            <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer"
+                onclick="closeModal('weeklyActivityModal')">&times;</span>
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">User Activity Report (7
+                days)</h2>
+            <table class="min-w-full bg-surface-light dark:bg-surface-dark">
+                <thead>
+                    <tr>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Username</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            New Sets</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            New Cards</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Shared Sets</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Viewed Sets</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Other Actions</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Page Views</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Total</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Last Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (usersWeeklyActivity && Object.keys(usersWeeklyActivity).length> 0) { %>
+                        <% Object.keys(usersWeeklyActivity).forEach(username=> { %>
+                            <% const activities=usersWeeklyActivity[username]; const newSetCount=activities.filter(act=>
+                                act.action === '0').length;
+                                const newCardCount = activities.filter(act => act.action === '1').length;
+                                const shareSetCount = activities.filter(act => act.action === '2').length;
+                                const viewSetCount = activities.filter(act => act.action === '3').length;
+                                const otherCount = activities.filter(act => act.action === '4').length;
+                                const pageViewCount = activities.filter(act => act.action === '5').length;
+                                const totalCount = activities.length;
+                                let lastActiveDate = "Never";
+
+                                if (activities.length > 0) {
+                                // Sort by time (newest first) and get the first one
+                                const sortedActivities = [...activities].sort((a, b) =>
+                                new Date(b.time).getTime() - new Date(a.time).getTime()
                                 );
                                 const lastActive = new Date(sortedActivities[0].time);
                                 lastActiveDate = lastActive.toLocaleString();
-                                
+                                }
+                                %>
+                                <tr>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= username %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= newSetCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= newCardCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= shareSetCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= viewSetCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= otherCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= pageViewCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= totalCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= lastActiveDate %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"
+                                                colspan="9">No activity data available</td>
+                                        </tr>
+                                        <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="alltimeActivityModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-3/4 overflow-y-auto max-h-screen">
+            <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer"
+                onclick="closeModal('alltimeActivityModal')">&times;</span>
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">User Activity Report
+                (Alltime)</h2>
+            <div class="text-sm mb-4 text-text-light dark:text-text-dark font-mono">
+                <p><strong>Activity Types:</strong> NEWSET (0), NEWCARD (1), SHARESET (2), VIEWSET (3), OTHER (4),
+                    PAGE_VIEW (5)</p>
+            </div>
+            <table class="min-w-full bg-surface-light dark:bg-surface-dark">
+                <thead>
+                    <tr>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Username</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            New Sets</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            New Cards</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Shared Sets</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Viewed Sets</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Other Actions</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Page Views</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Total</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            First Active</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Last Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (usersAlltimeActivity && Object.keys(usersAlltimeActivity).length> 0) { %>
+                        <% Object.keys(usersAlltimeActivity).forEach(username=> { %>
+                            <% const activities=usersAlltimeActivity[username]; const
+                                newSetCount=activities.filter(act=> act.action === '0').length;
+                                const newCardCount = activities.filter(act => act.action === '1').length;
+                                const shareSetCount = activities.filter(act => act.action === '2').length;
+                                const viewSetCount = activities.filter(act => act.action === '3').length;
+                                const otherCount = activities.filter(act => act.action === '4').length;
+                                const pageViewCount = activities.filter(act => act.action === '5').length;
+                                const totalCount = activities.length;
+                                let lastActiveDate = "Never";
+                                let firstActiveDate = "Never";
+
+                                if (activities.length > 0) {
+                                // Sort by time (newest first)
+                                const sortedActivities = [...activities].sort((a, b) =>
+                                new Date(b.time).getTime() - new Date(a.time).getTime()
+                                );
+                                const lastActive = new Date(sortedActivities[0].time);
+                                lastActiveDate = lastActive.toLocaleString();
+
                                 // Get oldest activity
                                 const firstActive = new Date(sortedActivities[sortedActivities.length - 1].time);
                                 firstActiveDate = firstActive.toLocaleString();
-                            }
-                        %>
-                        <tr>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= username %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newSetCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= newCardCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= shareSetCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= viewSetCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= otherCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= pageViewCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= totalCount %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= firstActiveDate %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= lastActiveDate %></td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="10">No activity data available</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+                                }
+                                %>
+                                <tr>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= username %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= newSetCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= newCardCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= shareSetCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= viewSetCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= otherCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= pageViewCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= totalCount %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= firstActiveDate %>
+                                    </td>
+                                    <td
+                                        class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                        <%= lastActiveDate %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"
+                                                colspan="10">No activity data available</td>
+                                        </tr>
+                                        <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<div id="reportedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-4/5 overflow-y-auto max-h-screen">
-        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('reportedSetsModal')">&times;</span>
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Reported Sets</h2>
-        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set ID</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set Name</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Category</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Subcategory</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Description</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Reporter</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Reason</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (reportedSets && Object.keys(reportedSets).length > 0) { %>
-                    <% Object.keys(reportedSets).forEach(key => { %>
-                        <tr data-set-id="<%= reportedSets[key].cardSet.setID %>">
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.setID %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.setName %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.category %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].cardSet.subCategory %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
-                                <% if (reportedSets[key].cardSet.description) { %>
-                                    <%= reportedSets[key].cardSet.description.length > 50 ? reportedSets[key].cardSet.description.substring(0, 50) + '...' : reportedSets[key].cardSet.description %>
+    <div id="reportedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-4/5 overflow-y-auto max-h-screen">
+            <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer"
+                onclick="closeModal('reportedSetsModal')">&times;</span>
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Reported Sets</h2>
+            <table class="min-w-full bg-surface-light dark:bg-surface-dark">
+                <thead>
+                    <tr>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Set ID</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Set Name</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Category</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Subcategory</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Description</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Reporter</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Reason</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (reportedSets && Object.keys(reportedSets).length> 0) { %>
+                        <% Object.keys(reportedSets).forEach(key=> { %>
+                            <tr data-set-id="<%= reportedSets[key].cardSet.setID %>">
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= reportedSets[key].cardSet.setID %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= reportedSets[key].cardSet.setName %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= reportedSets[key].cardSet.category %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= reportedSets[key].cardSet.subCategory %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <% if (reportedSets[key].cardSet.description) { %>
+                                        <%= reportedSets[key].cardSet.description.length> 50 ?
+                                            reportedSets[key].cardSet.description.substring(0, 50) + '...' :
+                                            reportedSets[key].cardSet.description %>
+                                            <% } else { %>
+                                                <em>No description</em>
+                                                <% } %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= reportedSets[key].reporterUsername %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= reportedSets[key].reason %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
+                                    <div class="flex justify-center space-x-2">
+                                        <button
+                                            class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="removeReportedSet(<%= reportedSets[key].cardSet.setID %>)">
+                                            Remove Set
+                                        </button>
+                                        <button
+                                            class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="dismissReport(<%= reportedSets[key].reportID %>)">
+                                            Dismiss Report
+                                        </button>
+                                        <button
+                                            class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="viewSet(<%= reportedSets[key].cardSet.setID %>)">
+                                            View
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
                                 <% } else { %>
-                                    <em>No description</em>
-                                <% } %>
-                            </td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].reporterUsername %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= reportedSets[key].reason %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
-                                <div class="flex justify-center space-x-2">
-                                    <button 
-                                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="removeReportedSet(<%= reportedSets[key].cardSet.setID %>)">
-                                        Remove Set
-                                    </button>
-                                    <button 
-                                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="dismissReport(<%= reportedSets[key].reportID %>)">
-                                        Dismiss Report
-                                    </button>
-                                    <button 
-                                        class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="viewSet(<%= reportedSets[key].cardSet.setID %>)">
-                                        View
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="8">No reported sets available</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"
+                                            colspan="8">No reported sets available</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<div id="unapprovedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-4/5 overflow-y-auto max-h-screen">
-        <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer" onclick="closeModal('unapprovedSetsModal')">&times;</span>
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Unapproved Public Sets</h2>
-        <table class="min-w-full bg-surface-light dark:bg-surface-dark">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set ID</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Set Name</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Created By</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Category</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Subcategory</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Description</th>
-                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (unapprovedSets && Object.keys(unapprovedSets).length > 0) { %>
-                    <% Object.keys(unapprovedSets).forEach(key => { %>
-                        <tr data-set-id="<%= unapprovedSets[key].setID %>">
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].setID %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].setName %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].ownerID %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].category %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= unapprovedSets[key].subCategory %></td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
-                                <% if (unapprovedSets[key].description) { %>
-                                    <%= unapprovedSets[key].description.length > 50 ? unapprovedSets[key].description.substring(0, 50) + '...' : unapprovedSets[key].description %>
+    <div id="unapprovedSetsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-4/5 overflow-y-auto max-h-screen">
+            <span class="close text-accent-light dark:text-accent-dark float-right text-2xl cursor-pointer"
+                onclick="closeModal('unapprovedSetsModal')">&times;</span>
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Unapproved Public Sets
+            </h2>
+            <table class="min-w-full bg-surface-light dark:bg-surface-dark">
+                <thead>
+                    <tr>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Set ID</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Set Name</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Created By</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Category</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Subcategory</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Description</th>
+                        <th
+                            class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (unapprovedSets && Object.keys(unapprovedSets).length> 0) { %>
+                        <% Object.keys(unapprovedSets).forEach(key=> { %>
+                            <tr data-set-id="<%= unapprovedSets[key].setID %>">
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= unapprovedSets[key].setID %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= unapprovedSets[key].setName %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= unapprovedSets[key].ownerID %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= unapprovedSets[key].category %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <%= unapprovedSets[key].subCategory %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center">
+                                    <% if (unapprovedSets[key].description) { %>
+                                        <%= unapprovedSets[key].description.length> 50 ?
+                                            unapprovedSets[key].description.substring(0, 50) + '...' :
+                                            unapprovedSets[key].description %>
+                                            <% } else { %>
+                                                <em>No description</em>
+                                                <% } %>
+                                </td>
+                                <td
+                                    class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
+                                    <div class="flex justify-center space-x-2">
+                                        <button
+                                            class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="approveSet(<%= unapprovedSets[key].setID %>)">
+                                            Approve
+                                        </button>
+                                        <button
+                                            class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="disapproveSet(<%= unapprovedSets[key].setID %>)">
+                                            Disapprove
+                                        </button>
+                                        <button
+                                            class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                            onclick="viewSet(<%= unapprovedSets[key].setID %>)">
+                                            View
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
                                 <% } else { %>
-                                    <em>No description</em>
-                                <% } %>
-                            </td>
-                            <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
-                                <div class="flex justify-center space-x-2">
-                                    <button 
-                                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="approveSet(<%= unapprovedSets[key].setID %>)">
-                                        Approve
-                                    </button>
-                                    <button 
-                                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="disapproveSet(<%= unapprovedSets[key].setID %>)">
-                                        Disapprove
-                                    </button>
-                                    <button 
-                                        class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="viewSet(<%= unapprovedSets[key].setID %>)">
-                                        View
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center" colspan="7">No unapproved sets available</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+                                    <tr>
+                                        <td class="py-2 px-4 border-b border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"
+                                            colspan="7">No unapproved sets available</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<!-- Ban Reason Modal -->
-<div id="banReasonModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Ban User</h2>
-        <p class="mb-4 text-text-light dark:text-text-dark">You are about to ban user: <span id="banUsername" class="font-bold"></span></p>
-        
-        <form id="banUserForm" method="POST" action="/api/banUser?_method=PUT">
-            <input type="hidden" name="username" id="banUsernameField">
-            <div class="mb-4">
-                <label for="banReason" class="block mb-2 text-accent-light dark:text-accent-dark">Reason for ban:</label>
-                <textarea 
-                    id="banReason" 
-                    name="reason" 
-                    rows="3" 
-                    class="w-full p-2 border border-accent-light dark:border-accent-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark"
-                    required
-                ></textarea>
-            </div>
+    <!-- Ban Reason Modal -->
+    <div id="banReasonModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Ban User</h2>
+            <p class="mb-4 text-text-light dark:text-text-dark">You are about to ban user: <span id="banUsername"
+                    class="font-bold"></span></p>
+
+            <form id="banUserForm" method="POST" action="/api/banUser?_method=PUT">
+                <input type="hidden" name="username" id="banUsernameField">
+                <div class="mb-4">
+                    <label for="banReason" class="block mb-2 text-accent-light dark:text-accent-dark">Reason for
+                        ban:</label>
+                    <textarea id="banReason" name="reason" rows="3"
+                        class="w-full p-2 border border-accent-light dark:border-accent-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark"
+                        required></textarea>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button"
+                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                        onclick="closeModal('banReasonModal')">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Unban Reason Modal -->
+    <div id="unbanReasonModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
+            <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Unban User</h2>
+            <p class="mb-4 text-text-light dark:text-text-dark">You are about to unban user: <span id="unbanUsername"
+                    class="font-bold"></span></p>
+
+            <form id="unbanUserForm" method="POST" action="/api/unbanUser?_method=PUT">
+                <input type="hidden" name="username" id="unbanUsernameField">
+                <div class="mb-4">
+                    <label for="unbanReason" class="block mb-2 text-accent-light dark:text-accent-dark">Reason for
+                        unban:</label>
+                    <textarea id="unbanReason" name="reason" rows="3"
+                        class="w-full p-2 border border-accent-light dark:border-accent-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark"
+                        required></textarea>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button"
+                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                        onclick="closeModal('unbanReasonModal')">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reusable Confirmation Modal -->
+    <div id="confirmationModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
+            <h2 id="confirmationModalTitle"
+                class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark"></h2>
+            <p id="confirmationModalMessage" class="mb-4 text-text-light dark:text-text-dark"></p>
             <div class="flex justify-end space-x-2">
-                <button 
-                    type="button" 
+                <button type="button"
                     class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                    onclick="closeModal('banReasonModal')"
-                >
+                    onclick="closeModal('confirmationModal')">
                     Cancel
                 </button>
-                <button 
-                    type="submit" 
-                    class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                >
-                    Submit
+                <button id="confirmationModalConfirmButton" type="button"
+                    class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors">
+                    Confirm
                 </button>
             </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<!-- Unban Reason Modal -->
-<div id="unbanReasonModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
-        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Unban User</h2>
-        <p class="mb-4 text-text-light dark:text-text-dark">You are about to unban user: <span id="unbanUsername" class="font-bold"></span></p>
-        
-        <form id="unbanUserForm" method="POST" action="/api/unbanUser?_method=PUT">
-            <input type="hidden" name="username" id="unbanUsernameField">
-            <div class="mb-4">
-                <label for="unbanReason" class="block mb-2 text-accent-light dark:text-accent-dark">Reason for unban:</label>
-                <textarea 
-                    id="unbanReason" 
-                    name="reason" 
-                    rows="3" 
-                    class="w-full p-2 border border-accent-light dark:border-accent-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark"
-                    required
-                ></textarea>
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button 
-                    type="button" 
-                    class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                    onclick="closeModal('unbanReasonModal')"
-                >
-                    Cancel
-                </button>
-                <button 
-                    type="submit" 
-                    class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                >
-                    Submit
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+    <!-- Hidden forms for mod actions -->
+    <form id="removeSetForm" method="POST" action="/api/deleteSet?_method=DELETE" style="display: none;">
+        <input type="hidden" name="setID" id="removeSetID">
+    </form>
 
-<!-- Hidden forms for mod actions -->
-<form id="removeSetForm" method="POST" action="/api/deleteSet?_method=DELETE" style="display: none;">
-    <input type="hidden" name="setID" id="removeSetID">
-</form>
+    <form id="dismissReportForm" method="POST" action="/api/dismissReport" style="display: none;">
+        <input type="hidden" name="reportID" id="dismissReportID">
+    </form>
 
-<form id="dismissReportForm" method="POST" action="/api/dismissReport" style="display: none;">
-    <input type="hidden" name="reportID" id="dismissReportID">
-</form>
+    <form id="approveSetForm" method="POST" action="/api/approveSet?_method=PUT" style="display: none;">
+        <input type="hidden" name="setID" id="approveSetID">
+    </form>
 
-<form id="approveSetForm" method="POST" action="/api/approveSet" style="display: none;">
-    <input type="hidden" name="setID" id="approveSetID">
-</form>
+    <form id="disapproveSetForm" method="POST" action="/api/disapproveSet?_method=PUT" style="display: none;">
+        <input type="hidden" name="setID" id="disapproveSetID">
+    </form>
 
-<form id="disapproveSetForm" method="POST" action="/api/disapproveSet" style="display: none;">
-    <input type="hidden" name="setID" id="disapproveSetID">
-</form>
-
-<script>
-    function showModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.classList.add('hidden');
+    <script>
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
         }
-    }
-    
-    // Functions for handling reported sets
-    function removeReportedSet(setId) {
-        if (confirm('Are you sure you want to remove this set? This action cannot be undone.')) {
-            // Set the value in the hidden form and submit
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showConfirmationModal(title, message, confirmCallback) {
+            document.getElementById('confirmationModalTitle').textContent = title;
+            document.getElementById('confirmationModalMessage').textContent = message;
+            const confirmButton = document.getElementById('confirmationModalConfirmButton');
+            confirmButton.onclick = confirmCallback;
+            showModal('confirmationModal');
+        }
+
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+            }
+        }
+
+        // Functions for handling reported sets
+        function removeReportedSet(setId) {
             document.getElementById('removeSetID').value = setId;
+            showConfirmationModal(
+                'Confirm Remove Set',
+                'Are you sure you want to remove this set? This action cannot be undone.',
+                confirmRemoveSet
+            );
+        }
+
+        function confirmRemoveSet() {
             document.getElementById('removeSetForm').submit();
         }
-    }
-    
-    function dismissReport(reportID) {
-        if (confirm('Are you sure you want to dismiss this report?')) {
-            // Set the value in the hidden form and submit
+
+        function dismissReport(reportID) {
             document.getElementById('dismissReportID').value = reportID;
+            showConfirmationModal(
+                'Confirm Dismiss Report',
+                'Are you sure you want to dismiss this report?',
+                confirmDismissReport
+            );
+        }
+
+        function confirmDismissReport() {
             document.getElementById('dismissReportForm').submit();
         }
-    }
 
-    // Functions for handling unapproved sets
-    function approveSet(setId) {
-        if (confirm('Are you sure you want to approve this set?')) {
-            // Set the value in the hidden form and submit
+        // Functions for handling unapproved sets
+        function approveSet(setId) {
             document.getElementById('approveSetID').value = setId;
+            showConfirmationModal(
+                'Confirm Approve Set',
+                'Are you sure you want to approve this set?',
+                confirmApproveSet
+            );
+        }
+
+        function confirmApproveSet() {
             document.getElementById('approveSetForm').submit();
         }
-    }
-    
-    function disapproveSet(setId) {
-        if (confirm('Are you sure you want to disapprove this set? This will make it private.')) {
-            // Set the value in the hidden form and submit
+
+        function disapproveSet(setId) {
             document.getElementById('disapproveSetID').value = setId;
+            showConfirmationModal(
+                'Confirm Disapprove Set',
+                'Are you sure you want to disapprove this set? This will make it private.',
+                confirmDisapproveSet
+            );
+        }
+
+        function confirmDisapproveSet() {
             document.getElementById('disapproveSetForm').submit();
         }
-    }
-    
-    function viewSet(setId) {
-        // Redirect to view the set
-        window.open(`/view_set?setID=${setId}&set_type=modaccess`, '_blank');
-    }
 
-    // Functions for handling ban/unban
-    function showBanModal(username) {
-        document.getElementById('banUsername').textContent = username;
-        document.getElementById('banUsernameField').value = username;
-        showModal('banReasonModal');
-    }
-    
-    function showUnbanModal(username) {
-        document.getElementById('unbanUsername').textContent = username;
-        document.getElementById('unbanUsernameField').value = username;
-        showModal('unbanReasonModal');
-    }
-</script>
+        function viewSet(setId) {
+            // Redirect to view the set
+            window.open(`/view_set?setID=${setId}&set_type=modaccess`, '_blank');
+        }
+
+        // Functions for handling ban/unban
+        function showBanModal(username) {
+            document.getElementById('banUsername').textContent = username;
+            document.getElementById('banUsernameField').value = username;
+            showModal('banReasonModal');
+        }
+
+        function showUnbanModal(username) {
+            document.getElementById('unbanUsername').textContent = username;
+            document.getElementById('unbanUsernameField').value = username;
+            showModal('unbanReasonModal');
+        }
+    </script>

@@ -12,6 +12,8 @@ window.tailwindConfig = {
                 'accent-dark': '#4d908e',      // Teal accent
                 'highlight-dark': '#f05454',   // Coral red highlight
                 'contrast-dark': '#1565C0',    // Dark blue
+                'main-button-dark': '#4d908e',  // Teal
+                'secondary-button-dark': '#1565C0',    // Dark blue
 
                 // Light theme
                 'bg-light': '#FFE082',         // Amber for better contrast
@@ -48,7 +50,7 @@ function toggleTheme() {
 }
 
 // Initialize theme based on localStorage or media query after DOM loads
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const themeToggle = document.getElementById('theme-toggle');
     if (localStorage.theme === 'dark' ||
         (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
