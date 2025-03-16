@@ -335,6 +335,24 @@ controller.put('/api/unbanUser',
         await APIService.handleUnBan(req, res);
     })
 );
+
+controller.put('/api/approveSet', 
+    isAuthenticated,
+    isModeratorUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.approveSet(req, res);
+    })
+);
+
+controller.put('/api/disapproveSet', 
+    isAuthenticated,
+    isModeratorUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.disapproveSet(req, res);
+    })
+);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //DELETE API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,44 @@ import {CardSet, Category, makeCardSet, Report} from "./cardset.model";
 import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
 
 export class CardSetService {
+    static async disapproveSet(setID: number): Promise<CardSetRemoveStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM card_sets WHERE setID = ? LIMIT 1",
+                [setID]
+            );
+            if(rows.length === 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
+
+            await db.connection.execute<RowDataPacket[]>(
+                "UPDATE card_sets SET approved = 0, public_set = 0 WHERE setID = ?",
+                [setID]
+            );
+            return CardSetRemoveStatus.SUCCESS;
+        } catch(error){
+            console.error(`Failed to disapprove set with error: ${error instanceof Error ? error.message : error}`);
+            return CardSetRemoveStatus.DATABASE_FAILURE;
+        }
+    }
+    static async approveSet(setID: number): Promise<CardSetRemoveStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM card_sets WHERE setID = ? LIMIT 1",
+                [setID]
+            );
+            if(rows.length === 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
+
+            await db.connection.execute<RowDataPacket[]>(
+                "UPDATE card_sets SET approved = 1 WHERE setID = ?",
+                [setID]
+            );
+            return CardSetRemoveStatus.SUCCESS;
+        } catch(error){
+            console.error(`Failed to approve set with error: ${error instanceof Error ? error.message : error}`);
+            return CardSetRemoveStatus.DATABASE_FAILURE;
+        }
+    }
     static async dismissReport(reportID: number): Promise<CardSetRemoveStatus> {
         try{
             const db = await DatabaseService.getConnection();

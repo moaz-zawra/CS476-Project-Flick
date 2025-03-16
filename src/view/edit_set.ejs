@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,205 +13,163 @@
         tailwind.config = window.tailwindConfig;
     </script>
 </head>
-
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
-    <%- include('partials/header') %>
-        <%- include('partials/status-message') %>
+<%- include('partials/header') %>
+<%- include('partials/status-message') %>
 
-            <div class="container mx-auto px-4">
-                <div
-                    class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-                    <form id="edit-form" action="/api/editSet?_method=PUT" method="POST" class="space-y-6"
-                        onsubmit="return confirm('Are you sure you want to save changes?');">
-                        <input type="hidden" name="setID" value="<%= set.setID %>">
+<div class="container mx-auto px-4">
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <form id="edit-form" action="/api/editSet?_method=PUT" method="POST" class="space-y-6" onsubmit="return confirm('Are you sure you want to save changes?');">
+            <input type="hidden" name="setID" value="<%= set.setID %>">
 
-                        <div>
-                            <label for="setName"
-                                class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Set
-                                Name</label>
-                            <input type="text" id="setName" name="setName" value="<%= set.setName %>"
-                                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200" />
-                        </div>
+            <div>
+                <label for="setName" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Set Name</label>
+                <input type="text" id="setName" name="setName" value="<%= set.setName %>"
+                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200" />
+            </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="category"
-                                    class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Category</label>
-                                <select id="category" name="category"
-                                    class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-                                    <option value="" disabled>Select a category</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label for="subcategory"
-                                    class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Subcategory</label>
-                                <select id="subcategory" name="subcategory"
-                                    class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-                                    <option value="none">None</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="description"
-                                class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Description</label>
-                            <textarea id="description" name="setDesc" rows="4"
-                                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"><%= set.description %></textarea>
-                        </div>
-
-                        <div class="flex justify-end space-x-4">
-                            <button type="button" onclick="window.location.href='/'"
-                                class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                                Cancel
-                            </button>
-                            <button type="submit"
-                                class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
-                                Save Changes
-                            </button>
-                        </div>
-                    </form>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="category" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Category</label>
+                    <select id="category" name="category" 
+                            class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+                        <option value="" disabled>Select a category</option>
+                    </select>
                 </div>
 
-                <div
-                    class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-8 shadow-custom transition-all duration-300 hover:shadow-lg">
-                    <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Cards</h2>
+                <div>
+                    <label for="subcategory" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Subcategory</label>
+                    <select id="subcategory" name="subcategory" 
+                            class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+                        <option value="none">None</option>
+                    </select>
+                </div>
+            </div>
 
-                    <div class="flex flex-wrap gap-4 justify-center">
-                        <% if (typeof cards !=='undefined' && cards && cards.length> 0) { %>
-                            <% cards.forEach(function(card) {; %>
-                                <div
-                                    class="p-4 rounded-lg w-[300px] h-[300px] relative border-2 border-accent-light dark:border-accent-dark bg-gray-200 dark:bg-accent-dark">
-                                    <div class="grid grid-cols-1 h-full gap-4 ">
-                                        <div class="flex flex-col justify-center">
-                                            <h3
-                                                class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">
-                                                Front</h3>
-                                            <p id='front<%=card.cardID%>'
-                                                class="text-text-light dark:text-text-dark font-mono text-lg">
-                                                <%= card.front_text %>
-                                            </p>
-                                        </div>
-                                        <div
-                                            class="flex flex-col justify-center border-t-2 border-surface-light dark:border-surface-dark pt-4">
-                                            <h3
-                                                class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">
-                                                Back</h3>
-                                            <p id='back<%=card.cardID%>'
-                                                class="text-text-light dark:text-text-dark font-mono text-lg">
-                                                <%= card.back_text %>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="absolute bottom-4 right-4 flex gap-2">
-                                        <button onclick="editCard('<%= card.cardID %>')"
-                                            class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
-                                            <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
-                                            <span
-                                                class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Edit
-                                                Card</span>
-                                        </button>
-                                        <button onclick="deleteCard('<%= card.cardID %>')"
-                                            class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
-                                            <img src="delete.svg" alt="Delete Icon"
-                                                class="w-6 h-6 invert dark:invert-0">
-                                            <span
-                                                class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Delete
-                                                Card</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <% }); %>
-                                    <% } %>
+            <div>
+                <label for="description" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Description</label>
+                <textarea id="description" name="setDesc" rows="4"
+                          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"><%= set.description %></textarea>
+            </div>
 
-                                        <button onclick="addNewCard()"
-                                            class="w-[300px] h-[300px] rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
-                                            <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add
-                                                New Card</span>
-                                        </button>
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="window.location.href='/'"
+                        class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-8 shadow-custom transition-all duration-300 hover:shadow-lg">
+        <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Cards</h2>
+
+        <div class="flex flex-wrap gap-4 justify-center">
+            <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
+                <%  cards.forEach(function(card) {; %>
+                    <div class="p-4 rounded-lg w-[300px] h-[300px] relative border-2 border-accent-light dark:border-accent-dark bg-gray-200 dark:bg-accent-dark">
+                        <div class="grid grid-cols-1 h-full gap-4 ">
+                            <div class="flex flex-col justify-center">
+                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
+                                <p id='front<%=card.cardID%>' class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.front_text %></p>
+                            </div>
+                            <div class="flex flex-col justify-center border-t-2 border-surface-light dark:border-surface-dark pt-4">
+                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Back</h3>
+                                <p id='back<%=card.cardID%>' class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.back_text %></p>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <button onclick="editCard('<%= card.cardID %>')" class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
+                                <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
+                                <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Edit Card</span>
+                            </button>
+                            <button onclick="deleteCard('<%= card.cardID %>')" class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
+                                <img src="delete.svg" alt="Delete Icon" class="w-6 h-6 invert dark:invert-0">
+                                <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Delete Card</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                <% }); %>
+            <% } %>
+
+            <button onclick="addNewCard()"
+                    class="w-[300px] h-[300px] rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add New Card</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="cardModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[700px] max-h-[90vh] overflow-y-auto">
+        <h2 id='cardFormTitle' class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Add New Card</h2>
+
+        <form id="cardForm" action="/api/addCardToSet" method="POST" class="space-y-6">
+            <input type="hidden" id="cardSetID" name="setID">
+            <input type="hidden" id="cardID" name="cardID">
+            <div>
+                <label for="cardFront" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Front Text</label>
+                <textarea id="cardFront" name="front_text" rows="3"
+                          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
             </div>
 
-            <div id="cardModal"
-                class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-                <div
-                    class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[700px] max-h-[90vh] overflow-y-auto">
-                    <h2 id='cardFormTitle'
-                        class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Add New Card</h2>
-
-                    <form id="cardForm" action="/api/addCardToSet" method="POST" class="space-y-6">
-                        <input type="hidden" id="cardSetID" name="setID">
-                        <input type="hidden" id="cardID" name="cardID">
-                        <div>
-                            <label for="cardFront"
-                                class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Front
-                                Text</label>
-                            <textarea id="cardFront" name="front_text" rows="3"
-                                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
-                        </div>
-
-                        <div>
-                            <label for="cardBack"
-                                class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Back
-                                Text</label>
-                            <textarea id="cardBack" name="back_text" rows="3"
-                                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
-                        </div>
-
-                        <div class="flex justify-end space-x-4">
-                            <button type="button" onclick="closeCardModal()"
-                                class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                                Cancel
-                            </button>
-                            <button type="submit"
-                                class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                                Save Card
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div>
+                <label for="cardBack" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">Back Text</label>
+                <textarea id="cardBack" name="back_text" rows="3"
+                          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"></textarea>
             </div>
 
-            <!-- Delete Confirmation Modal -->
-            <div id="confirmation-modal"
-                class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-                <div
-                    class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[400px] max-h-[90vh] overflow-y-auto">
-                    <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Confirm Delete
-                    </h2>
-                    <p id="confirmation-message" class="text-text-light dark:text-text-dark mb-6"></p>
-                    <form id="deleteCardForm" action="/api/deleteCard?_method=DELETE" method="POST">
-                        <input type="hidden" id="deleteCardID" name="cardID">
-                        <input type="hidden" name="setID" value="<%= set.setID %>">
-                        <div class="flex justify-end space-x-4">
-                            <button type="button" id="cancel-delete"
-                                class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                                Cancel
-                            </button>
-                            <button type="submit" id="confirm-delete"
-                                class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
-                                Delete
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeCardModal()"
+                        class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Save Card
+                </button>
             </div>
+        </form>
+    </div>
+</div>
 
-            <!-- Make data available to external JS file -->
-            <script>
-                // Pass EJS data to global variables
-                window.categoryNames = <% - JSON.stringify(categoryNames) %>;
-                window.subcategoriesData = <% - JSON.stringify(subcategories) %>;
-                window.category = <% - JSON.stringify(set.category) %>;
-                window.subcategory = <% - JSON.stringify(set.subCategory) %>;
-                window.setID = <%= set.setID %>;
-            </script>
+<!-- Delete Confirmation Modal -->
+<div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[400px] max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Confirm Delete</h2>
+        <p id="confirmation-message" class="text-text-light dark:text-text-dark mb-6"></p>
+        <form id="deleteCardForm" action="/api/deleteCard?_method=DELETE" method="POST">
+            <input type="hidden" id="deleteCardID" name="cardID">
+            <input type="hidden" name="setID" value="<%= set.setID %>">
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancel-delete" class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                    Cancel
+                </button>
+                <button type="submit" id="confirm-delete" class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                    Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-            <script>
+<!-- Make data available to external JS file -->
+<script>
+    // Pass EJS data to global variables
+    window.categoryNames = <%- JSON.stringify(categoryNames) %>;
+    window.subcategoriesData = <%- JSON.stringify(subcategories) %>;
+    window.category = <%- JSON.stringify(set.category) %>;
+    window.subcategory = <%- JSON.stringify(set.subCategory) %>;
+    window.setID = <%= set.setID %>;
+</script>
 
-            </script>
+<script>
+
+</script>
 
 </body>
-
 </html>

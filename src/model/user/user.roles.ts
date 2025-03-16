@@ -93,6 +93,12 @@ export class Regular implements User {
 
 
 export class Moderator extends Regular {
+    async approveSet(setID: number): Promise<CardSetRemoveStatus> {
+        return CardSetService.approveSet(setID);
+    }
+    async disapproveSet(setID: number): Promise<CardSetRemoveStatus> {
+        return CardSetService.disapproveSet(setID);
+    }
     async dismissReport(reportID: number): Promise<CardSetRemoveStatus> {
         return CardSetService.dismissReport(reportID);
     }

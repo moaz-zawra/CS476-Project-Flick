@@ -163,7 +163,6 @@ function insertSet(setID, setName, category, subcategory, shared, publicSet, app
     subcategorySpan.className = 'bg-secondary-light dark:bg-secondary-dark text-accent-light dark:text-accent-dark px-2 py-1 rounded-md';
     subcategorySpan.textContent = subcategory;
     categoryDiv.appendChild(subcategorySpan);
-
     // Check if the set is public
     if (publicSet) {
         const publicSetSpan = document.createElement('span');

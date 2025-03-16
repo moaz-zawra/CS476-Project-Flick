@@ -64,6 +64,38 @@ export const SERVERERROR = 500;
 export const CONFLICT = 409;
 
 export class APIService{
+    static async disapproveSet(req: express.Request, res: express.Response) {
+        const user: Moderator = createUserFromSession(req, Moderator);
+        const setID = parseInt(req.body.setID as string);
+        const result = await user.disapproveSet(setID);
+
+        switch(result){
+            case CardSetRemoveStatus.SUCCESS:
+                return handleResponse(res, POSTOK, '/', 'success');
+            case CardSetRemoveStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            case CardSetRemoveStatus.SET_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/', 'does-not-exist');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
+        }
+    }
+    static async approveSet(req: express.Request, res: express.Response) {
+        const user: Moderator = createUserFromSession(req, Moderator);
+        const setID = parseInt(req.body.setID as string);
+        const result = await user.approveSet(setID);
+
+        switch(result){
+            case CardSetRemoveStatus.SUCCESS:
+                return handleResponse(res, POSTOK, '/', 'success');
+            case CardSetRemoveStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            case CardSetRemoveStatus.SET_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/', 'does-not-exist');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
+        }
+    }
     static async handleDismissReport(req: express.Request, res: express.Response) {
         const user: Moderator = createUserFromSession(req, Moderator);
         const reportID = parseInt(req.body.reportID as string);
@@ -114,8 +146,6 @@ export class APIService{
     static async handleGetSet(req: express.Request, res: express.Response, setType: string): Promise<void> {
         const user: Regular = createUserFromSession(req, Regular);
         const setID = parseInt(req.query.setID as string);
-
-        console.log('in handleGetSet getting a ' + setType + ' set');
 
         const result = await user.getSet(setID, setType);
 
