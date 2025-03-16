@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,74 +14,81 @@
         tailwind.config = window.tailwindConfig;
     </script>
 </head>
+
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 
-<%- include('partials/header') %>
+    <%- include('partials/header') %>
 
-<%- include('partials/status-message') %>
+        <%- include('partials/status-message') %>
 
-<div class="font-mono mt-7 text-2xl text-accent-light dark:text-accent-dark"> Welcome, <%= user.username %> </div>
-<br />
+            <div class="font-mono mt-7 text-2xl text-accent-light dark:text-accent-dark"> Welcome, <%= user.username %>
+            </div>
+            <br />
 
-<% if (role === 'admin') { %>
-    <%- include('partials/admin_dashboard') %>
-<% } else if (role === 'moderator') { %>
-    <%- include('partials/mod_dashboard') %>
-<% } else if (role === 'regular') { %>
-    <%- include('partials/regular_dashboard') %>
-<% } %>
+            <% if (role==='admin' ) { %>
+                <%- include('partials/admin_dashboard') %>
+                    <% } else if (role==='moderator' ) { %>
+                        <%- include('partials/mod_dashboard') %>
+                            <% } else if (role==='regular' ) { %>
+                                <%- include('partials/regular_dashboard') %>
+                                    <% } %>
 
-<br />
+                                        <br />
 
-<!-- Report Modal -->
-<div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3"> <!-- Increased width to 2/3 -->
-        <h2 class="text-lg font-bold mb-2">Report Set</h2>
-        <textarea id="reason-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter reason for reporting"></textarea>
-        <div class="flex justify-end mt-4">
-            <button id="cancel-report" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
-            <button id="confirm-report" class="bg-red-500 text-white px-4 py-2 rounded-md">Report</button>
-        </div>
-    </div>
-</div>
+                                        <!-- Report Modal -->
+                                        <div id="report-modal"
+                                            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                            <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3">
+                                                <!-- Increased width to 2/3 -->
+                                                <h2 class="text-lg font-bold mb-2">Report Set</h2>
+                                                <textarea id="reason-input"
+                                                    class="w-full p-2 border border-gray-300 rounded-md"
+                                                    placeholder="Enter reason for reporting"></textarea>
+                                                <div class="flex justify-end mt-4">
+                                                    <button id="cancel-report"
+                                                        class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
+                                                    <button id="confirm-report"
+                                                        class="bg-red-500 text-white px-4 py-2 rounded-md">Report</button>
+                                                </div>
+                                            </div>
+                                        </div>
 
 </body>
+
 </html>
 
 <!-- Make data available to external JS file -->
 <script>
     // Pass EJS data to global variables
-    window.categoryNames = <%- JSON.stringify(categoryNames) %>;
-    window.subcategoriesData = <%- JSON.stringify(subcategories) %>;
+    window.categoryNames = <% - JSON.stringify(categoryNames) %>;
+    window.subcategoriesData = <% - JSON.stringify(subcategories) %>;
 </script>
 
 <!-- Include dashboard.js with all functionality -->
 <script src="/js/dashboard.js"></script>
 
 <!-- Initialize card sets -->
-<% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
+<% if (typeof userSets !=='undefined' && Array.isArray(userSets)) { %>
     <% userSets.forEach(function(set, index) { %>
         <script>
-            const setData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.category, setData<%= index %>.subCategory, false, setData<%= index %>.publicSet);
+            const setData<%= index %> = <% - JSON.stringify(set) %>;
+            insertSet(setData <%= index %>.setID, setData <%= index %>.setName, setData <%= index %>.category, setData <%= index %>.subCategory, false, setData <%= index %>.publicSet);
         </script>
-    <% }); %>
-<% } else { %>
-    <script>
-        console.log("No sets available to display");
-    </script>
-<% } %>
-<% if (typeof sharedSets !== 'undefined' && Array.isArray(sharedSets)) { %>
-    <% sharedSets.forEach(function(set, index) { %>
-        <script>
-            const sharedSetData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, sharedSetData<%= index %>.publicSet);
-        </script>
-    <% }); %>
-<% } else { %>
-    <script>
-        console.log("No shared sets available to display");
-    </script>
-<% } %>
-
-
+        <% }); %>
+            <% } else { %>
+                <script>
+                    console.log("No sets available to display");
+                </script>
+                <% } %>
+                    <% if (typeof sharedSets !=='undefined' && Array.isArray(sharedSets)) { %>
+                        <% sharedSets.forEach(function(set, index) { %>
+                            <script>
+                                const sharedSetData<%= index %> = <% - JSON.stringify(set) %>;
+                                insertSet(sharedSetData <%= index %>.setID, sharedSetData <%= index %>.setName, sharedSetData <%= index %>.category, sharedSetData <%= index %>.subCategory, true, sharedSetData <%= index %>.publicSet);
+                            </script>
+                            <% }); %>
+                                <% } else { %>
+                                    <script>
+                                        console.log("No shared sets available to display");
+                                    </script>
+                                    <% } %>
