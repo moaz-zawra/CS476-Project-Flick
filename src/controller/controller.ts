@@ -583,7 +583,6 @@ controller.get('/view_set',
             headers: { cookie }
         });
 
-        
         res.render("view_set", { 
             set: set.data.result, 
             cards: cards.data.result, 

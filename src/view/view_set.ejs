@@ -119,10 +119,10 @@
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     // Store category data locally
-                    const categoryNames = <% - JSON.stringify(categoryNames) %>;
+                    const categoryNames = <%- JSON.stringify(categoryNames) %>;
 
                     const category_display = document.getElementById('category-display');
-                    const category = <% - JSON.stringify(set.category) %>;
+                    const category = <%- JSON.stringify(set.category) %>;
 
                     // Display category name using the utility function with passed parameter
                     category_display.innerText = getCategoryName(category, categoryNames);
