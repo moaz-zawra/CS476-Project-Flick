@@ -265,7 +265,13 @@ export async function isSetOwner(req: express.Request, res: express.Response, ne
             res.status(400).json({ error: 'Set ID is required' });
             return;
         }
-        
+
+        //Allow admins and moderators to access any set for moderation purposes
+        if(req.session?.user?.role === "ADMINISTRATOR" || req.session?.user?.role === "MODERATOR"){
+            next();
+            return;
+        }
+
         // Get the set details
         const set = await CardSetService.getSet(createUserFromSession(req, Regular),Number(setID), setType);
         

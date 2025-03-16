@@ -93,6 +93,8 @@ export class Regular implements User {
 
 
 export class Moderator extends Regular {
+
+
     readonly role: Role = Role.MODERATOR;
 
     async getRegularUsers(): Promise<Regular[]> {
@@ -141,6 +143,14 @@ export class Moderator extends Regular {
     }
     async unbanUser(): Promise<unbanResult>{
         return unbanResult.SUCCESS
+    }
+
+    async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number }[] | CardSetGetStatus> {
+        return CardSetService.getReportedSets();
+    }
+
+    async getUnapprovedSets(): Promise<CardSet[] | CardSetGetStatus> {
+        return CardSetService.getUnapprovedSets();
     }
 }
 

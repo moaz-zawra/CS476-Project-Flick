@@ -64,6 +64,19 @@ export const SERVERERROR = 500;
 export const CONFLICT = 409;
 
 export class APIService{
+    static async handleGetUnapprovedSets(req: express.Request, res: express.Response) {
+        const user: Moderator = createUserFromSession(req, Moderator);
+        const result = await user.getUnapprovedSets();
+
+        switch (result) {
+            case CardSetGetStatus.DATABASE_FAILURE:
+                return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleGetSets()', error: 'Database Error' });
+            case CardSetGetStatus.USER_HAS_NO_SETS:
+                return handleResponse(res, GETOK, '', 'no_sets', []);
+            default:
+                return handleResponse(res, GETOK, '', 'success', result);
+        }
+    }
     //All of these functions assume req.session.user has already been authenticated in the route beforehand
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,6 +186,19 @@ export class APIService{
             return handleResponse(res, GETOK, '', 'success', result);
         } else {
             return handleResponse(res, NOTFOUND, '', 'no_data', [""]);
+        }
+    }
+    static async handleGetReportedSets(req: express.Request, res: express.Response): Promise<void> {
+        const user: Moderator = createUserFromSession(req, Moderator);
+        const result = await user.getReportedSets();
+
+        switch (result) {
+            case CardSetGetStatus.DATABASE_FAILURE:
+                return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleGetSets()', error: 'Database Error' });
+            case CardSetGetStatus.USER_HAS_NO_SETS:
+                return handleResponse(res, GETOK, '', 'no_sets', []);
+            default:
+                return handleResponse(res, GETOK, '', 'success', result);
         }
     }
     
