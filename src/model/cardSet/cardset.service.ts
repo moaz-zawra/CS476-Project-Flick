@@ -6,6 +6,70 @@ import {CardSet, Category, makeCardSet, Report} from "./cardset.model";
 import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
 
 export class CardSetService {
+    static async getUnapprovedSets(): Promise<CardSet[] | CardSetGetStatus> {
+        try {
+            const db = await DatabaseService.getConnection();
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved FROM card_sets WHERE approved = 0 AND public_set = 1"
+            );
+            if (!rows || rows.length === 0) return CardSetGetStatus.USER_HAS_NO_SETS;
+
+            const sets = rows.map(row => makeCardSet(
+                row.ownerID,
+                row.set_name,
+                row.category as Category,
+                row.sub_category,
+                row.description,
+                row.setID,
+                row.public_set,
+                row.approved
+            ));
+            return sets;
+        } catch (error) {
+            console.error("Failed to get unapproved card sets with error: ", error);
+            return CardSetGetStatus.DATABASE_FAILURE;
+        }
+    }
+    
+    /**
+     * Retrieves all reported card sets.
+     * @returns Promise resolving to an array of reported card sets or a status code
+     */
+    static async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number }[] | CardSetGetStatus> {
+        try {
+            const db = await DatabaseService.getConnection();
+            const query = `
+                SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, r.reason, r.reporterID 
+                FROM card_sets cs 
+                INNER JOIN reports r ON cs.setID = r.setID
+            `;
+            const [rows] = await db.connection.execute<RowDataPacket[]>(query);
+
+            if (!rows || rows.length === 0) {
+                return CardSetGetStatus.USER_HAS_NO_SETS;
+            }
+
+            const reportedSets = rows.map(row => ({
+                cardSet: makeCardSet(
+                    row.ownerID,
+                    row.set_name,
+                    row.category as Category,
+                    row.sub_category,
+                    row.description,
+                    row.setID,
+                    row.public_set,
+                    row.approved
+                ),
+                reason: row.reason,
+                reporterID: row.reporterID
+            }));
+
+            return reportedSets;
+        } catch (error) {
+            console.error("Failed to get reported card sets with error: ", error);
+            return CardSetGetStatus.DATABASE_FAILURE;
+        }
+    }
     /**
      * Adds a new card set for a given user.
      * @param user - The user adding the set

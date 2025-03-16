@@ -56,12 +56,12 @@ export enum Role {
 }
 
 export enum UserAction{
-    NEWSET,
-    NEWCARD,
-    SHARESET,
-    VIEWSET,
-    OTHER,
-    PAGE_VIEW
+    NEWSET = 0,
+    NEWCARD = 1,
+    SHARESET = 2,
+    VIEWSET = 3,
+    OTHER = 4,
+    PAGE_VIEW = 5
 }
 
 export interface UserActivity{

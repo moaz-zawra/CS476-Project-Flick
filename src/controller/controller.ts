@@ -96,6 +96,23 @@ controller.get('/api/getSet',
     })
 );
 
+controller.get('/api/getReportedSets',
+    isAuthenticated,
+    isModeratorUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleGetReportedSets(req, res);
+    })
+);
+controller.get('/api/getUnapprovedSets',
+    isAuthenticated,
+    isModeratorUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleGetUnapprovedSets(req, res);
+    })
+);
+
 controller.get('/api/getCardsInSet', 
     isAuthenticated,
     isSetOwner,
@@ -382,19 +399,53 @@ controller.get('/',
 
             if(isModerator(req.session.user)){
                 //Get data required for moderator dashboard
-                const regulars = await axios.get('http://localhost:' + port + '/api/getRegulars', {
+                const users = await axios.get('http://localhost:' + port + '/api/getRegulars', {
                     headers: {
                         cookie
                     }
                 });
-                const userActivities = await axios.get('http://localhost:' + port + '/api/getAllUsersActivity', {
+                const usersAllTimeActivity = await axios.get('http://localhost:' + port + '/api/getAllUsersActivity', {
+                    headers: {
+                        cookie
+                    }, params: { time_period: 'alltime' }
+                });
+                const usersWeeklyActivity = await axios.get('http://localhost:' + port + '/api/getAllUsersActivity', {
+                    headers: {
+                        cookie
+                    }, params: { time_period: '7days' }
+                });
+                const reportedSets = await axios.get('http://localhost:' + port + '/api/getReportedSets', {
                     headers: {
                         cookie
                     }
                 });
+                // append username to each reported set
+                reportedSets.data.result = await Promise.all(
+                    reportedSets.data.result.map(async (set: any) => {
+                        const user = await UserService.getUserByIdentifier(set.reporterID);
+                        set.reporterUsername = user?.username || '';
+                        return set;
+                    })
+                );
+                const unapprovedSets = await axios.get('http://localhost:' + port + '/api/getUnapprovedSets', {
+                    headers: {
+                        cookie
+                    }
+                });
+                // append username to each unapproved set
+                unapprovedSets.data.result = await Promise.all(
+                    unapprovedSets.data.result.map(async (set: any) => {
+                        const user = await UserService.getUserByIdentifier(set.ownerID);
+                        set.ownerID = user?.username || '';
+                        return set;
+                    })
+                );
+                
+
+                console.log(unapprovedSets.data.result);
+                console.log(reportedSets.data.result);
                 if(isAdmin(req.session.user)){
-                    //Get data required for admin dashboard
-                    // ...existing code...
+
                 } else {
                     handleTemplateResponse(res,GETOK,'dashboard', {
                         role: 'moderator',
@@ -403,9 +454,12 @@ controller.get('/',
                         status: req.query.status,
                         userSets: userSets.data.result,
                         sharedSets: sharedSets.data.result,
-                        regulars: regulars.data.result,
-                        userActivities: userActivities.data.result,
+                        users: users.data.result,
+                        reportedSets: reportedSets.data.result,
+                        usersAlltimeActivity: usersAllTimeActivity.data.result,
+                        usersWeeklyActivity: usersWeeklyActivity.data.result,
                         categoryNames,
+                        unapprovedSets: unapprovedSets.data.result,
                         subcategories: {
                             [Category.Language]: SubCategory_Language,
                             [Category.Technology]: SubCategory_Technology,
