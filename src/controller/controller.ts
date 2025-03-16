@@ -317,6 +317,24 @@ controller.put('/api/demoteModerator',
         //await APIService.handleDemotion(req, res);
     })
 );
+
+controller.put('/api/banUser', 
+    isAuthenticated,
+    isModeratorUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleBan(req, res);
+    })
+);
+
+controller.put('/api/unbanUser', 
+    isAuthenticated,
+    isModeratorUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleUnBan(req, res);
+    })
+);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //DELETE API routes
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -449,7 +467,7 @@ controller.get('/',
                         return set;
                     })
                 );
-                console.log(reportedSets.data.result);
+                console.log(users.data.result);
                 if(isAdmin(req.session.user)){
 
                 } else {
@@ -510,7 +528,7 @@ controller.get('/login',
     isNotAuthenticated,
     logUserActivity, 
     routeHandler((req, res) => {
-        res.render('login', { status: req.query.status, currentPage: 'login' });
+        res.render('login', { status: req.query.status, reason: req.query.reason, currentPage: 'login' });
     })
 );
 

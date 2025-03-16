@@ -27,6 +27,7 @@ export enum UserChangeStatus{
 export enum banResult{
     SUCCESS,
     USER_ALREADY_BANNED,
+    USER_DOES_NOT_EXIST,
     USER_IS_ADMIN,
     DATABASE_FAILURE,
 }
@@ -34,6 +35,7 @@ export enum banResult{
 export enum unbanResult{
     SUCCESS,
     USER_NOT_BANNED,
+    USER_DOES_NOT_EXIST,
     DATABASE_FAILURE,
 }
 
@@ -44,6 +46,7 @@ export enum LoginStatus {
     WRONG_PASSWORD,      // The provided password is incorrect.
     USER_DOES_NOT_EXIST, // No account found with the provided username or email.
     DATABASE_FAILURE,    // Error occurred while interacting with the database.
+    USER_IS_BANNED,      // The user is banned and cannot log in.
     OTHER               // Any other login-related issue.
 }
 /**

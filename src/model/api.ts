@@ -3,7 +3,7 @@ import {Administrator, Moderator, Regular} from "./user/user.roles";
 import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetShareStatus, CardSetReportStatus} from "./cardSet/cardset.types";
 import {CardAddStatus, CardEditStatus, CardGetStatus, CardRemoveStatus} from "./card/card.types";
 import {UserCreator} from "./user/user.auth";
-import {LoginStatus, RegisterStatus, UserAction, UserChangeStatus} from "./user/user.types";
+import {banResult, LoginStatus, RegisterStatus, unbanResult, UserAction, UserChangeStatus} from "./user/user.types";
 import {UserService} from "./user/user.service";
 import {makeCardSet, makeSetReport} from "./cardSet/cardset.model";
 import {logUserAction, createUserFromSession} from "./utility";
@@ -67,7 +67,6 @@ export class APIService{
     static async handleDismissReport(req: express.Request, res: express.Response) {
         const user: Moderator = createUserFromSession(req, Moderator);
         const reportID = parseInt(req.body.reportID as string);
-        console.log('in handleDismissReport w/ report id: ' + reportID);
         const result = await user.dismissReport(reportID);
         switch (result) {
             case CardSetRemoveStatus.SUCCESS:
@@ -222,6 +221,10 @@ export class APIService{
     static async handleLogin(req: express.Request, res: express.Response): Promise<void> {
         const user = await new UserCreator().login(req.body.identifier, req.body.password);
 
+        if (typeof user === 'object' && 'status' in user && user.status === LoginStatus.USER_IS_BANNED) {
+            return res.redirect(`/login?status=user-is-banned&reason=${encodeURIComponent(user.reason)}`);
+        }
+
         switch (user) {
             case LoginStatus.USER_DOES_NOT_EXIST:
                 return handleResponse(res, NOTFOUND, '/login', 'does-not-exist');
@@ -347,8 +350,44 @@ export class APIService{
         }
     }
 
-    static async handleBan(req: express.Request, res: express.Response): Promise<void> {}
-    static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {}
+    static async handleBan(req: express.Request, res: express.Response): Promise<void> {
+        const user = createUserFromSession(req, Moderator);
+        const { username, reason } = req.body;
+
+        const result = await user.banUser(username, reason);
+        switch (result){
+            case banResult.SUCCESS:
+                return handleResponse(res, POSTOK, '/', 'success');
+            case banResult.USER_ALREADY_BANNED:
+                return handleResponse(res, CONFLICT, '/', 'already-banned');
+            case banResult.USER_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/', 'user-does-not-exist');
+            case banResult.USER_IS_ADMIN:
+                return handleResponse(res, FORBIDDEN, '/', 'user-is-admin');
+            case banResult.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
+        }
+    }
+    static async handleUnBan(req: express.Request, res: express.Response): Promise<void> {
+        const user = createUserFromSession(req, Moderator);
+        const { username, reason } = req.body;
+
+        const result = await user.unbanUser(username, reason);
+        switch (result){
+            case(unbanResult.SUCCESS):
+                return handleResponse(res, POSTOK, '/', 'success');
+            case(unbanResult.USER_NOT_BANNED):
+                return handleResponse(res, CONFLICT, '/', 'not-banned');
+            case(unbanResult.USER_DOES_NOT_EXIST):
+                return handleResponse(res, NOTFOUND, '/', 'user-does-not-exist');
+            case(unbanResult.DATABASE_FAILURE):
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
+        }
+    }
 
     //PUT handlers
     static async handleEditUser(req: express.Request, res: express.Response): Promise<void> {

@@ -100,7 +100,12 @@ export class Moderator extends Regular {
 
     readonly role: Role = Role.MODERATOR;
 
-    async getRegularUsers(): Promise<Regular[]> {
+    async getRegularUsers(): Promise<{
+        user: Regular;
+        joinDate: string;
+        banned: boolean;
+        banReason: string;
+    }[]> {
         return UserService.getRegularUsers();
     }
     async getUsersWeeklyActivity(): Promise<{ [username: string]: UserActivity[] }> {
@@ -111,8 +116,8 @@ export class Moderator extends Regular {
         const userActivities: { [username: string]: UserActivity[] } = {};
 
         for (const user of regularUsers) {
-            const username = user.username;
-            const activity = await UserService.getUserActivityLast7Days(user);
+            const username = user.user.username;
+            const activity = await UserService.getUserActivityLast7Days(user.user);
 
             //Only add the activity if it's not null
             if (activity) {
@@ -130,8 +135,8 @@ export class Moderator extends Regular {
         const userActivities: { [username: string]: UserActivity[] } = {};
 
         for (const user of regularUsers) {
-            const username = user.username;
-            const activity = await UserService.getUserActivityAllTime(user);
+            const username = user.user.username;
+            const activity = await UserService.getUserActivityAllTime(user.user);
 
             //Only add the activity if it's not null
             if (activity) {
@@ -141,11 +146,11 @@ export class Moderator extends Regular {
 
         return userActivities;
     }
-    async banUser(): Promise<banResult>{
-        return banResult.SUCCESS
+    async banUser(username:string, reason:string): Promise<banResult>{
+        return UserService.banUser(username, reason);
     }
-    async unbanUser(): Promise<unbanResult>{
-        return unbanResult.SUCCESS
+    async unbanUser(username:string, reason:string): Promise<unbanResult>{
+        return UserService.unbanUser(username, reason);
     }
 
     async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number, reportID: number }[] | CardSetGetStatus> {

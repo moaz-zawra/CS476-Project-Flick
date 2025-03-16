@@ -12,5 +12,6 @@
 </div>
 <script>
     window.statusCode = '<%= status %>';
+    window.statusReason = '<%= typeof reason !== 'undefined' ? reason : '' %>';
 </script>
 <% } %>

@@ -32,14 +32,34 @@
                     <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Username</th>
                     <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Email</th>
                     <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Role</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Ban Reason</th>
+                    <th class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-accent-light dark:text-accent-dark text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <% Object.keys(users).forEach(key => { %>
+                <% users.forEach(userObj => { %>
                     <tr>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= users[key].username %></td>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= users[key].email %></td>
-                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= users[key].role %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.user.username %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.user.email %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.user.role %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark text-center"><%= userObj.banReason || 'N/A' %></td>
+                        <td class="py-2 px-4 border-b border-x border-accent-light dark:border-accent-dark text-text-light dark:text-text-dark">
+                            <div class="flex justify-center space-x-2">
+                                <% if (userObj.banned == 0) { %>
+                                    <button 
+                                        class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="showBanModal('<%= userObj.user.username %>')">
+                                        Ban
+                                    </button>
+                                <% } else { %>
+                                    <button 
+                                        class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                                        onclick="showUnbanModal('<%= userObj.user.username %>')">
+                                        Unban
+                                    </button>
+                                <% } %>
+                            </div>
+                        </td>
                     </tr>
                 <% }) %>
             </tbody>
@@ -311,6 +331,80 @@
     </div>
 </div>
 
+<!-- Ban Reason Modal -->
+<div id="banReasonModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Ban User</h2>
+        <p class="mb-4 text-text-light dark:text-text-dark">You are about to ban user: <span id="banUsername" class="font-bold"></span></p>
+        
+        <form id="banUserForm" method="POST" action="/api/banUser?_method=PUT">
+            <input type="hidden" name="username" id="banUsernameField">
+            <div class="mb-4">
+                <label for="banReason" class="block mb-2 text-accent-light dark:text-accent-dark">Reason for ban:</label>
+                <textarea 
+                    id="banReason" 
+                    name="reason" 
+                    rows="3" 
+                    class="w-full p-2 border border-accent-light dark:border-accent-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark"
+                    required
+                ></textarea>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button 
+                    type="button" 
+                    class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                    onclick="closeModal('banReasonModal')"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit" 
+                    class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                >
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Unban Reason Modal -->
+<div id="unbanReasonModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-lg w-1/2">
+        <h2 class="text-xl font-bold font-mono mb-4 text-accent-light dark:text-accent-dark">Unban User</h2>
+        <p class="mb-4 text-text-light dark:text-text-dark">You are about to unban user: <span id="unbanUsername" class="font-bold"></span></p>
+        
+        <form id="unbanUserForm" method="POST" action="/api/unbanUser?_method=PUT">
+            <input type="hidden" name="username" id="unbanUsernameField">
+            <div class="mb-4">
+                <label for="unbanReason" class="block mb-2 text-accent-light dark:text-accent-dark">Reason for unban:</label>
+                <textarea 
+                    id="unbanReason" 
+                    name="reason" 
+                    rows="3" 
+                    class="w-full p-2 border border-accent-light dark:border-accent-dark rounded bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark"
+                    required
+                ></textarea>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button 
+                    type="button" 
+                    class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                    onclick="closeModal('unbanReasonModal')"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit" 
+                    class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark py-1 px-4 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
+                >
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Hidden forms for mod actions -->
 <form id="removeSetForm" method="POST" action="/api/deleteSet?_method=DELETE" style="display: none;">
     <input type="hidden" name="setID" id="removeSetID">
@@ -380,5 +474,18 @@
     function viewSet(setId) {
         // Redirect to view the set
         window.open(`/view_set?setID=${setId}&set_type=modaccess`, '_blank');
+    }
+
+    // Functions for handling ban/unban
+    function showBanModal(username) {
+        document.getElementById('banUsername').textContent = username;
+        document.getElementById('banUsernameField').value = username;
+        showModal('banReasonModal');
+    }
+    
+    function showUnbanModal(username) {
+        document.getElementById('unbanUsername').textContent = username;
+        document.getElementById('unbanUsernameField').value = username;
+        showModal('unbanReasonModal');
     }
 </script>

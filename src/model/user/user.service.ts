@@ -2,10 +2,50 @@ import bcrypt from 'bcrypt';
 import { DatabaseService } from "../database/databaseService";
 import { RowDataPacket } from "mysql2/promise";
 import { User } from "./user.model";
-import {LoginStatus, UserAction, UserActivity, UserChangeStatus} from "./user.types";
+import {banResult, LoginStatus, unbanResult, UserAction, UserActivity, UserChangeStatus} from "./user.types";
 import {Moderator, Regular} from "./user.roles";
 
 export class UserService {
+    public static async unbanUser(username: string, reason: string): Promise<unbanResult> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const user = await this.getUserByUsername(username);
+            // Check if the user exists
+            if (user){
+                //Check if the user is banned
+                if (user.banned){
+                    await db.connection.execute(
+                        "UPDATE users SET banned = ?, ban_reason = ? WHERE username = ?",
+                        [0,reason,username]
+                    )
+                    return unbanResult.SUCCESS;
+                } else return unbanResult.USER_NOT_BANNED;
+            } else return unbanResult.USER_DOES_NOT_EXIST;
+        } catch(e){
+            console.error(`Error unbanning user: ${(e as Error).message}`);
+            return unbanResult.DATABASE_FAILURE;
+        }
+    }
+    public static async banUser(username: string, reason: string): Promise<banResult> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const user = await this.getUserByUsername(username);
+            // Check if the user exists
+            if (user){
+                //Check if the user is already banned
+                if (!user.banned){
+                    await db.connection.execute(
+                        "UPDATE users SET banned = ?, ban_reason = ? WHERE username = ?",
+                        [1,reason,username]
+                    )
+                    return banResult.SUCCESS;
+                } else return banResult.USER_ALREADY_BANNED;
+            } else return banResult.USER_DOES_NOT_EXIST;
+        } catch(e){
+            console.error(`Error banning user: ${(e as Error).message}`);
+            return banResult.DATABASE_FAILURE;
+        }
+    }
     /**
      * Changes user details like username and email.
      * @param user - The user whose details are being changed
@@ -71,7 +111,7 @@ export class UserService {
             const db = await DatabaseService.getConnection();
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT username, email, hash, role FROM users WHERE email = ?",
+                "SELECT uID, username, email, hash, banned, ban_reason, role FROM users WHERE email = ?",
                 [email]
             );
 
@@ -92,7 +132,7 @@ export class UserService {
         const db = await DatabaseService.getConnection();
 
         const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT username, email, hash, role FROM users WHERE username = ?",
+            "SELECT uID, username, email, hash, banned, ban_reason, role FROM users WHERE username = ?",
             [username]
         );
 
@@ -111,14 +151,14 @@ export class UserService {
             
             if (typeof identifier === 'number') {
                 const [rows] = await db.connection.execute<RowDataPacket[]>(
-                    "SELECT uID, username, email, hash, role FROM users WHERE uID = ?",
+                    "SELECT uID, username, email, hash, banned, ban_reason, role FROM users WHERE uID = ?",
                     [identifier]
                 );
                 return rows.length ? rows[0] : null;
             }
             
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT uID, username, email, hash, role FROM users WHERE username = ? OR email = ?",
+                "SELECT uID, username, email, hash, banned, ban_reason, role FROM users WHERE username = ? OR email = ?",
                 [identifier, identifier]
             );
             
@@ -271,16 +311,21 @@ export class UserService {
     /**
      * Retrieves all users with the role REGULAR.
      * @async
-     * @returns {Promise<Regular[]>} A promise resolving to an array of regular users.
+     * @returns {Promise<{ user: Regular, joinDate: string, banned: boolean, banReason: string }[]>} A promise resolving to an array of regular users.
      */
-    public static async getRegularUsers(): Promise<Regular[]> {
+    public static async getRegularUsers(): Promise<{ user: Regular, joinDate: string, banned: boolean, banReason: string }[]> {
         const db = await DatabaseService.getConnection();
 
         const [rows] = await db.connection.execute<RowDataPacket[]>(
-            "SELECT username, email FROM users WHERE role = 'REGULAR'"
+            "SELECT username, email, join_date, banned, ban_reason FROM users WHERE role = 'REGULAR'"
         );
 
-        return rows.map(row => new Regular(row.username, row.email));
+        return rows.map(row => ({
+            user: new Regular(row.username, row.email),
+            joinDate: row.join_date,
+            banned: row.banned,
+            banReason: row.ban_reason
+        }));
     }
 
     /**

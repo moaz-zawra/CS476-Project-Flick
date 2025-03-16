@@ -6,8 +6,10 @@ import { Regular, Moderator, Administrator } from "./user.roles";
 import bcrypt from "bcrypt";
 
 abstract class UserFactory {
-    public abstract login(identifier: string, password: string): Promise<User | LoginStatus>;
+    public abstract login(identifier: string, password: string): Promise<LoginResponse>;
 }
+
+type LoginResponse = User | LoginStatus | { status: LoginStatus.USER_IS_BANNED, reason: string };
 
 export class UserCreator extends UserFactory {
     /**
@@ -22,6 +24,7 @@ export class UserCreator extends UserFactory {
     public async registerUser(username: string, email: string, password: string, cpassword: string): Promise<RegisterStatus> {
         try {
             const db = await DatabaseService.getConnection();
+
 
 
             const emailExists = await UserService.getUserByEmail(email);
@@ -49,9 +52,9 @@ export class UserCreator extends UserFactory {
      * @async
      * @param identifier - The username or email of the user.
      * @param password - The user's password.
-     * @returns {Promise<User | LoginStatus>} A promise resolving to a user instance or a LoginStatus on failure.
+     * @returns {Promise<LoginResponse>} A promise resolving to a user instance or a LoginStatus on failure.
      */
-    public async login(identifier: string, password: string): Promise<User | LoginStatus> {
+    public async login(identifier: string, password: string): Promise<LoginResponse> {
         try {
             const db = await DatabaseService.getConnection();
             const userData = await UserService.getUserByIdentifier(identifier);
@@ -64,6 +67,8 @@ export class UserCreator extends UserFactory {
 
             const isPasswordCorrect = await bcrypt.compare(password, userData.hash);
             if (!isPasswordCorrect) return LoginStatus.WRONG_PASSWORD;
+            console.log(userData)
+            if(userData.banned) return { status: LoginStatus.USER_IS_BANNED, reason: userData.ban_reason };
 
             switch (userData.role) {
                 case "REGULAR": {

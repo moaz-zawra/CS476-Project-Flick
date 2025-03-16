@@ -55,6 +55,19 @@ function initializeStatusMessage(status) {
         case 'already-shared':
             setStatusMessage('This set is already shared with this user.', 'warning');
             break;
+        case 'user-is-banned':
+            const reason = window.statusReason || 'No reason provided';
+            setStatusMessage(`Your account has been banned. Reason: ${reason}`, 'error');
+            break;
+        case 'user-is-admin':
+            setStatusMessage('Cannot ban an admin user.', 'error');
+            break;
+        case 'not-banned':
+            setStatusMessage('User is not banned.', 'warning');
+            break;
+        case 'already-reported':
+            setStatusMessage('This set has already been reported.', 'warning');
+            break;
         
         // Form submission related messages
         case 'missing-fields':
