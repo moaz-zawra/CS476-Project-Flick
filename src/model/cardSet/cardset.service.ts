@@ -6,6 +6,25 @@ import {CardSet, Category, makeCardSet, Report} from "./cardset.model";
 import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
 
 export class CardSetService {
+    static async dismissReport(reportID: number): Promise<CardSetRemoveStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM reports WHERE reportID = ? LIMIT 1",
+                [reportID]
+            );
+            if(rows.length === 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
+
+            await db.connection.execute<RowDataPacket[]>(
+                "DELETE FROM reports WHERE reportID = ?",
+                [reportID]
+            );
+            return CardSetRemoveStatus.SUCCESS;
+        } catch(error){
+            console.error(`Failed to dismiss report with error: ${error instanceof Error ? error.message : error}`);
+            return CardSetRemoveStatus.DATABASE_FAILURE;
+        }
+    }
     static async getUnapprovedSets(): Promise<CardSet[] | CardSetGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
@@ -35,11 +54,11 @@ export class CardSetService {
      * Retrieves all reported card sets.
      * @returns Promise resolving to an array of reported card sets or a status code
      */
-    static async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number }[] | CardSetGetStatus> {
+    static async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number, reportID: number }[] | CardSetGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
             const query = `
-                SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, r.reason, r.reporterID 
+                SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, r.reason, r.reportID, r.reporterID 
                 FROM card_sets cs 
                 INNER JOIN reports r ON cs.setID = r.setID
             `;
@@ -61,7 +80,8 @@ export class CardSetService {
                     row.approved
                 ),
                 reason: row.reason,
-                reporterID: row.reporterID
+                reporterID: row.reporterID,
+                reportID: row.reportID
             }));
 
             return reportedSets;

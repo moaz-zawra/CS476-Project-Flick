@@ -64,6 +64,22 @@ export const SERVERERROR = 500;
 export const CONFLICT = 409;
 
 export class APIService{
+    static async handleDismissReport(req: express.Request, res: express.Response) {
+        const user: Moderator = createUserFromSession(req, Moderator);
+        const reportID = parseInt(req.body.reportID as string);
+        console.log('in handleDismissReport w/ report id: ' + reportID);
+        const result = await user.dismissReport(reportID);
+        switch (result) {
+            case CardSetRemoveStatus.SUCCESS:
+                return handleResponse(res, POSTOK, '/', 'success');
+            case CardSetRemoveStatus.DATABASE_FAILURE:
+                return handleResponse(res, SERVERERROR, '/', 'error');
+            case CardSetRemoveStatus.SET_DOES_NOT_EXIST:
+                return handleResponse(res, NOTFOUND, '/', 'does-not-exist');
+            default:
+                return handleResponse(res, BADREQUEST, '/', 'unknown-error');
+        }
+    }
     static async handleGetUnapprovedSets(req: express.Request, res: express.Response) {
         const user: Moderator = createUserFromSession(req, Moderator);
         const result = await user.getUnapprovedSets();

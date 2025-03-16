@@ -251,6 +251,15 @@ controller.post('/api/reportSet',
     })
 );
 
+controller.post('/api/dismissReport', 
+    isAuthenticated, 
+    isModeratorUser, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+        await APIService.handleDismissReport(req, res);
+    })
+);
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PUT API routes
@@ -440,7 +449,7 @@ controller.get('/',
                         return set;
                     })
                 );
-                
+                console.log(reportedSets.data.result);
                 if(isAdmin(req.session.user)){
 
                 } else {
@@ -571,7 +580,9 @@ controller.get('/view_set',
             }, 
             status: req.query.status, 
             currentPage: 'view_set',
-            shared: setType === 'shared' ? true : false
+            shared: setType === 'shared' ? true : false,
+            public: setType === 'public' ? true : false,
+            modaccess: setType === 'modaccess' ? true : false
         });
     })
 );

@@ -226,7 +226,7 @@
                                     </button>
                                     <button 
                                         class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark py-1 px-2 rounded hover:bg-button-accent-light dark:hover:bg-accent-dark transition-colors"
-                                        onclick="dismissReport(<%= reportedSets[key].cardSet.setID %>)">
+                                        onclick="dismissReport(<%= reportedSets[key].reportID %>)">
                                         Dismiss Report
                                     </button>
                                     <button 
@@ -311,6 +311,23 @@
     </div>
 </div>
 
+<!-- Hidden forms for mod actions -->
+<form id="removeSetForm" method="POST" action="/api/deleteSet?_method=DELETE" style="display: none;">
+    <input type="hidden" name="setID" id="removeSetID">
+</form>
+
+<form id="dismissReportForm" method="POST" action="/api/dismissReport" style="display: none;">
+    <input type="hidden" name="reportID" id="dismissReportID">
+</form>
+
+<form id="approveSetForm" method="POST" action="/api/approveSet" style="display: none;">
+    <input type="hidden" name="setID" id="approveSetID">
+</form>
+
+<form id="disapproveSetForm" method="POST" action="/api/disapproveSet" style="display: none;">
+    <input type="hidden" name="setID" id="disapproveSetID">
+</form>
+
 <script>
     function showModal(modalId) {
         document.getElementById(modalId).classList.remove('hidden');
@@ -328,101 +345,40 @@
     
     // Functions for handling reported sets
     function removeReportedSet(setId) {
-        console.log('removeReportedSet', setId);
         if (confirm('Are you sure you want to remove this set? This action cannot be undone.')) {
-            // Make an API call to delete the set
-            fetch(`/api/deleteSet?setID=${setId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Remove the row from the table
-                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
-                    alert('Set successfully removed.');
-                } else {
-                    throw new Error('Failed to remove set' + response);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to remove set. Please try again.');
-            });
+            // Set the value in the hidden form and submit
+            document.getElementById('removeSetID').value = setId;
+            document.getElementById('removeSetForm').submit();
         }
     }
     
-    function dismissReport(setId) {
+    function dismissReport(reportID) {
         if (confirm('Are you sure you want to dismiss this report?')) {
-            // Make an API call to dismiss the report
-            fetch(`/api/dismissReport?setID=${setId}`, {
-                method: 'POST',
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Remove the row from the table
-                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
-                    alert('Report dismissed successfully.');
-                } else {
-                    throw new Error('Failed to dismiss report');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to dismiss report. Please try again.');
-            });
+            // Set the value in the hidden form and submit
+            document.getElementById('dismissReportID').value = reportID;
+            document.getElementById('dismissReportForm').submit();
         }
     }
 
     // Functions for handling unapproved sets
     function approveSet(setId) {
         if (confirm('Are you sure you want to approve this set?')) {
-            // Make an API call to approve the set
-            fetch(`/api/approveSet?setID=${setId}`, {
-                method: 'POST',
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Remove the row from the table
-                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
-                    alert('Set approved successfully.');
-                } else {
-                    throw new Error('Failed to approve set');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to approve set. Please try again.');
-            });
+            // Set the value in the hidden form and submit
+            document.getElementById('approveSetID').value = setId;
+            document.getElementById('approveSetForm').submit();
         }
     }
     
     function disapproveSet(setId) {
         if (confirm('Are you sure you want to disapprove this set? This will make it private.')) {
-            // Make an API call to disapprove the set
-            fetch(`/api/disapproveSet?setID=${setId}`, {
-                method: 'POST',
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Remove the row from the table
-                    document.querySelector(`tr[data-set-id="${setId}"]`).remove();
-                    alert('Set disapproved successfully. The set is now private.');
-                } else {
-                    throw new Error('Failed to disapprove set');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to disapprove set. Please try again.');
-            });
+            // Set the value in the hidden form and submit
+            document.getElementById('disapproveSetID').value = setId;
+            document.getElementById('disapproveSetForm').submit();
         }
     }
     
     function viewSet(setId) {
         // Redirect to view the set
-        window.open(`/view_set?setID=${setId}`, '_blank');
+        window.open(`/view_set?setID=${setId}&set_type=modaccess`, '_blank');
     }
 </script>

@@ -93,6 +93,9 @@ export class Regular implements User {
 
 
 export class Moderator extends Regular {
+    async dismissReport(reportID: number): Promise<CardSetRemoveStatus> {
+        return CardSetService.dismissReport(reportID);
+    }
 
 
     readonly role: Role = Role.MODERATOR;
@@ -145,7 +148,7 @@ export class Moderator extends Regular {
         return unbanResult.SUCCESS
     }
 
-    async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number }[] | CardSetGetStatus> {
+    async getReportedSets(): Promise<{ cardSet: CardSet, reason: string, reporterID: number, reportID: number }[] | CardSetGetStatus> {
         return CardSetService.getReportedSets();
     }
 

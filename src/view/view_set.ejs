@@ -95,7 +95,7 @@
 
                             <div class="flex items-center gap-2 mt-4">
 
-                                <% if (!shared) { %>
+                                <% if (!shared && !modaccess && !public) { %>
                                     <button onclick="window.location.href='/edit_set?setID=<%= set.setID %>'"
                                         class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
                                         <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">

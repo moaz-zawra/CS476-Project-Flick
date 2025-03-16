@@ -74,7 +74,7 @@
     <% sharedSets.forEach(function(set, index) { %>
         <script>
             const sharedSetData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, setData<%= index %>.publicSet);
+            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, sharedSetData<%= index %>.publicSet);
         </script>
     <% }); %>
 <% } else { %>
