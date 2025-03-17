@@ -8,8 +8,6 @@ import {UserService} from "./user/user.service";
 import {makeCardSet, makeSetReport} from "./cardSet/cardset.model";
 import {logUserAction, createUserFromSession} from "./utility";
 import {makeCard} from "./card/card.model";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ParsedQs } from "qs";
 
 
 /**
@@ -64,6 +62,21 @@ export const SERVERERROR = 500;
 export const CONFLICT = 409;
 
 export class APIService{
+    static async handleIncrementSetViews(req: express.Request, res: express.Response) {
+        const user: Regular = createUserFromSession(req, Regular);
+        const setID = parseInt(req.body.setID as string);
+        console.log("in handleIncrementSetViews, setID is " + setID);
+
+        const result = await user.incrementSetViews(setID);
+        switch(result){
+            case CardSetRemoveStatus.DATABASE_FAILURE:
+                return handleTemplateResponse(res, SERVERERROR, 'error', { action: 'APIService.handleIncrementSetViews()', error: 'Database Error' });
+            case CardSetRemoveStatus.SET_DOES_NOT_EXIST:
+                return handleTemplateResponse(res, NOTFOUND, 'error', { action: 'APIService.handleIncrementSetViews()', error: 'Requested set does not exist in DB' });
+            default:
+                return handleResponse(res, GETOK, '', 'success', result);
+        }
+    }
     static async disapproveSet(req: express.Request, res: express.Response) {
         const user: Moderator = createUserFromSession(req, Moderator);
         const setID = parseInt(req.body.setID as string);

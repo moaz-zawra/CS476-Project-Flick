@@ -19,7 +19,12 @@
 
 <%- include('partials/status-message') %>
 
-<div class="font-mono mt-7 text-2xl text-accent-light dark:text-accent-dark"> Welcome, <b><%= user.username %></b> </div>
+<div class="flex justify-between items-center mt-4">
+    <div class="font-mono text-2xl text-accent-light dark:text-accent-dark"> Welcome, <b><%= user.username %></b> </div>
+    <a href="/public_sets" class="border-2 rounded-xl px-4 py-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+        View Public Sets
+    </a>
+</div>
 
 <br />
 
@@ -33,9 +38,9 @@
 
 <br />
 
-<!-- Report Modal -->
+
 <div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3"> <!-- Increased width to 2/3 -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3"> 
         <h2 class="text-lg font-bold mb-2">Report Set</h2>
         <textarea id="reason-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter reason for reporting"></textarea>
         <div class="flex justify-end mt-4">
@@ -48,17 +53,17 @@
 </body>
 </html>
 
-<!-- Make data available to external JS file -->
+
 <script>
-    // Pass EJS data to global variables
+    
     window.categoryNames = <%- JSON.stringify(categoryNames) %>;
     window.subcategoriesData = <%- JSON.stringify(subcategories) %>;
 </script>
 
-<!-- Include dashboard.js with all functionality -->
+
 <script src="/js/dashboard.js"></script>
 
-<!-- Initialize card sets -->
+
 <% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
     <% userSets.forEach(function(set, index) { %>
         <script>

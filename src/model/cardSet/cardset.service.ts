@@ -6,6 +6,26 @@ import {CardSet, Category, makeCardSet, Report} from "./cardset.model";
 import {CardSetAddStatus, CardSetEditStatus, CardSetGetStatus, CardSetRemoveStatus, CardSetReportStatus, CardSetShareStatus} from "./cardset.types";
 
 export class CardSetService {
+    static async incrementSetViews(setID: number): Promise<CardSetRemoveStatus> {
+        try{
+            const db = await DatabaseService.getConnection();
+            const [rows] = await db.connection.execute<RowDataPacket[]>(
+                "SELECT 1 FROM card_sets WHERE setID = ? LIMIT 1",
+                [setID]
+            );
+            if(rows.length === 0) return CardSetRemoveStatus.SET_DOES_NOT_EXIST;
+
+            await db.connection.execute<RowDataPacket[]>(
+                "UPDATE card_sets SET views = views + 1 WHERE setID = ?",
+                [setID]
+            );
+            return CardSetRemoveStatus.SUCCESS;
+        } catch(error){
+            console.error(`Failed to increment set views with error: ${error instanceof Error ? error.message : error}`);
+            return CardSetRemoveStatus.DATABASE_FAILURE;
+        }
+    }
+    
     static async disapproveSet(setID: number): Promise<CardSetRemoveStatus> {
         try{
             const db = await DatabaseService.getConnection();
@@ -211,22 +231,27 @@ export class CardSetService {
     /**
      * Retrieves all card sets for a given user.
      * @param user - The user whose sets to retrieve
-     * @param setType - The type of sets to retrieve (e.g., 'shared')
+     * @param setType - The type of sets to retrieve (e.g., 'shared', 'public')
      * @returns Promise resolving to an array of card sets or a status code
      */
     static async getAllSets(user: User, setType: string): Promise<CardSet[] | CardSetGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
             const ownerID = await UserService.getIDOfUser(user.username);
-            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved FROM card_sets WHERE ownerID = ?";
-            let params = [ownerID];
+            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views FROM card_sets WHERE ownerID = ?";
+            let params: any[] = [ownerID];
 
             if (setType === 'shared') {
-                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved 
+                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.views
                          FROM card_sets cs 
                          INNER JOIN shared_sets ss ON cs.setID = ss.setID 
                          WHERE ss.uID = ?`;
                 params = [ownerID];
+            } else if (setType === 'public') {
+                query = `SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views
+                         FROM card_sets 
+                         WHERE public_set = 1 AND approved = 1`;
+                params = [];
             }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(query, params);
@@ -243,7 +268,8 @@ export class CardSetService {
                 row.description,
                 row.setID,
                 row.public_set,
-                row.approved
+                row.approved,
+                row.views
             ));
             return sets;
         } catch (error) {
@@ -254,25 +280,31 @@ export class CardSetService {
 
     /**
      * Retrieves a specific card set by its ID.
-     * @param user - The user requesting the shared set
-     * @param setID - The ID of the shared set
-     * @param setType - The type of sets to retrieve (e.g., 'shared')
+     * @param user - The user requesting the set
+     * @param setID - The ID of the set
+     * @param setType - The type of set to retrieve (e.g., 'shared', 'public')
      * @returns Promise resolving to the card set or a status code
      */
     static async getSet(user: User, setID: number, setType: string): Promise<CardSet | CardSetGetStatus> {
         try {
             const db = await DatabaseService.getConnection();
             const userID = await UserService.getIDOfUser(user.username);
-            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved FROM card_sets WHERE setID = ?";
-            let params = [setID];
+            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views FROM card_sets WHERE setID = ?";
+            let params: any[] = [setID];
 
             if (setType === 'shared') {
-                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved 
+                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.views
                          FROM card_sets cs 
                          INNER JOIN shared_sets ss ON cs.setID = ss.setID 
                          WHERE ss.uID = ? AND cs.setID = ? 
                          LIMIT 1`;
                 params = [userID, setID];
+            } else if (setType === 'public') {
+                query = `SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views
+                         FROM card_sets 
+                         WHERE setID = ? AND public_set = 1 AND approved = 1 
+                         LIMIT 1`;
+                params = [setID];
             }
 
             const [rows] = await db.connection.execute<RowDataPacket[]>(query, params);
@@ -287,7 +319,8 @@ export class CardSetService {
                 row.description,
                 row.setID,
                 row.public_set,
-                row.approved
+                row.approved,
+                row.views
             );
         } catch (error) {
             console.error("Failed to get card set " + setID + " with error: ", error);

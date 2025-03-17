@@ -10,6 +10,7 @@ import {UserService} from "./user.service";
 
 export class Regular implements User {
 
+
     readonly username: string;
     readonly email: string;
     readonly role: Role = Role.REGULAR;
@@ -20,6 +21,10 @@ export class Regular implements User {
     constructor(username: string, email: string) {
         this.username = username;
         this.email = email;
+    }
+    
+    async incrementSetViews(setID: number): Promise<CardSetRemoveStatus> {
+        return CardSetService.incrementSetViews(setID);
     }
 
     async reportSet(report: Report) {

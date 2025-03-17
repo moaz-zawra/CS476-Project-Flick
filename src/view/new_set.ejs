@@ -94,16 +94,16 @@
         const subcategoryContainer = document.getElementById('subcategory-container');
         
         categorySelect.addEventListener('change', function() {
-            // Get subcategories for this category and update the subcategory dropdown
+            
             const selectedCategory = this.value;
             const subCategoryEnum = subcategoriesData[selectedCategory];
             console.log(subCategoryEnum);
-            // Clear existing options
+            
             while (subcategorySelect.options.length > 0) {
                 subcategorySelect.remove(0);
             }
             
-            // Add default option
+            
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
             defaultOption.textContent = 'Select a subcategory';
@@ -111,7 +111,7 @@
             defaultOption.selected = true;
             subcategorySelect.appendChild(defaultOption);
             
-            // If we have subcategories, add them and show the container
+            
             if (subCategoryEnum) {
                 Object.entries(subCategoryEnum).forEach(([key, value]) => {
                     if (isNaN(Number(key))) {

@@ -306,7 +306,12 @@ export async function isSetOwner(req: express.Request, res: express.Response, ne
             
             // User is the owner, proceed
             next();
-        } else next();
+        } else if(setType === 'shared' || setType === 'public') {
+            // For shared sets and public sets, we already validated access in getSet
+            next();
+        } else {
+            next();
+        }
     } catch (error) {
         console.error('Error verifying set ownership:', error);
         res.status(500).json({ error: 'Server error validating set ownership' });

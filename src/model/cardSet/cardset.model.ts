@@ -4,13 +4,15 @@ export interface CardSet {
     category: Category;
     subCategory: string;
     description: string;
+    views?: number;
     setID?: number;
     publicSet?: boolean;
     approved?: boolean;
+    
 }
 
-export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:boolean, approved?: boolean): CardSet {
-    return {ownerID, setName, category, subCategory, description, setID, publicSet, approved};
+export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:boolean, approved?: boolean, views?: number): CardSet {
+    return {ownerID, setName, category, subCategory, description, setID, publicSet, approved, views};
 }
 
 export interface Report {

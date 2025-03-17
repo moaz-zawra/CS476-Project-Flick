@@ -137,29 +137,34 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[400px] max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Confirm Delete</h2>
-        <p id="confirmation-message" class="text-text-light dark:text-text-dark mb-6"></p>
-        <form id="deleteCardForm" action="/api/deleteCard?_method=DELETE" method="POST">
-            <input type="hidden" id="deleteCardID" name="cardID">
-            <input type="hidden" name="setID" value="<%= set.setID %>">
-            <div class="flex justify-end space-x-4">
-                <button type="button" id="cancel-delete" class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-secondary-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                    Cancel
-                </button>
-                <button type="submit" id="confirm-delete" class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
-                    Delete
-                </button>
+            
+            <div id="confirmation-modal"
+                class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+                <div
+                    class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[400px] max-h-[90vh] overflow-y-auto">
+                    <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Confirm Delete
+                    </h2>
+                    <p id="confirmation-message" class="text-text-light dark:text-text-dark mb-6"></p>
+                    <form id="deleteCardForm" action="/api/deleteCard?_method=DELETE" method="POST">
+                        <input type="hidden" id="deleteCardID" name="cardID">
+                        <input type="hidden" name="setID" value="<%= set.setID %>">
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" id="cancel-delete"
+                                class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                                Cancel
+                            </button>
+                            <button type="submit" id="confirm-delete"
+                                class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                                Delete
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
 
-<!-- Make data available to external JS file -->
+
 <script>
-    // Pass EJS data to global variables
+    
     window.categoryNames = <%- JSON.stringify(categoryNames) %>;
     window.subcategoriesData = <%- JSON.stringify(subcategories) %>;
     window.category = <%- JSON.stringify(set.category) %>;

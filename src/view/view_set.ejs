@@ -18,9 +18,10 @@
         .card {
             transform-style: preserve-3d;
             transition: transform 0.6s;
+            cursor: pointer;
         }
 
-        .card:hover {
+        .card.flipped {
             transform: rotateY(180deg);
         }
 
@@ -46,87 +47,166 @@
 
             <main>
                 <div
-                    class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-                    <div class="font-mono text-2xl text-text-light dark:text-text-dark mb-4">Set Name: <%= set.setName
-                            %>
+                    class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
+                    
+                    
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4 border-b-2 border-accent-light dark:border-accent-dark pb-2">Set Info</h2>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
+                            <h3 class="font-mono text-2xl font-bold text-accent-light dark:text-accent-dark mb-2 text-left"><%= set.setName %></h3>
+                            
+                            <p class="text-text-light dark:text-text-dark mt-1 mb-3 text-left">
+                                <%= set.description || "No description available" %>
+                            </p>
+                            
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <% if (set.category) { %>
+                                    <span class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark px-2 py-1 rounded-md text-sm">
+                                        Category: <span id="category-display"></span>
+                                    </span>
+                                <% } %>
+                                
+                                <% if (set.subCategory) { %>
+                                    <span class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark px-2 py-1 rounded-md text-sm">
+                                        Subcategory: <span id="subcategory-display"><%= set.subCategory %></span>
+                                    </span>
+                                <% } %>
+                                
+                                <span class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark px-2 py-1 rounded-md text-sm">
+                                    Views: <span><%= set.views || 0 %></span>
+                                </span>
+                                
+                                <% if (set.ownerID) { %>
+                                    <span class="bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark px-2 py-1 rounded-md text-sm">
+                                        Created by: <%= set.ownerID.username || set.ownerID.email || "Anonymous" %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
                     </div>
 
-                    <% if (set.category) { %>
-                        <div class="font-mono text-lg text-text-light dark:text-text-dark mb-4">
-                            Category: <span id="category-display"></span>
-                            <% if (set.subCategory) { %>
-                                | Subcategory: <span id="subcategory-display">
-                                    <%= set.subCategory %>
-                                </span>
-                                <% } %>
+                    
+                    <div class="mt-8">
+                        <h2 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4 border-b-2 border-accent-light dark:border-accent-dark pb-2">Play Set</h2>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
+                            <form id="play-set-form" class="space-y-4">
+                                <input type="hidden" name="setID" value="<%= set.setID %>">
+                                <label for="shuffle" class="flex items-center gap-2">
+                                    <input type="checkbox" name="shuffle" id="shuffle" checked>
+                                    <span class="text-text-light dark:text-text-dark">Shuffle Cards?</span>
+                                </label>
+                                <label for="timed" class="flex items-center gap-2">
+                                    <input type="checkbox" name="timed" id="timed">
+                                    <span class="text-text-light dark:text-text-dark">Time limit on cards?</span>
+                                </label>
+                                <label for="timepercard" class="flex items-center gap-2">
+                                    <input type="number" name="timepercard" id="timepercard">
+                                    <span class="text-text-light dark:text-text-dark">Time per Card</span>
+                                </label>
+                                <div class="flex justify-center">
+                                    <button type="button" onclick="window.location.href='/play_set?setID=<%= set.setID %>'"
+                                        class="border-2 rounded-xl px-8 py-3 bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                                        Start Practice Session
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <% } %>
+                    </div>
 
-
-                            <div class="flex flex-wrap gap-16 items-center justify-center">
-                                <% if (typeof cards !=='undefined' && cards && cards.length> 0) { %>
-                                    <% cards.forEach(function(card) { %>
-                                        <div class="w-48 h-72 perspective-1000">
-                                            <div class="relative w-full h-full card">
-                                                <!--Front Text Display of the Flashcard-->
+                    
+                    <div class="mt-8">
+                        <h2 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4 border-b-2 border-accent-light dark:border-accent-dark pb-2">Cards</h2>
+                        
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
+                            <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
+                                <div class="flex flex-wrap gap-16 items-center justify-center py-4">
+                                    <% cards.forEach(function(card, index) { %>
+                                        <div class="w-72 h-48 perspective-1000">
+                                            <div class="relative w-full h-full card" id="card-<%= index %>">
+                                                
                                                 <div
-                                                    class="front bg-yellow-200 dark:bg-purple-900 text-black dark:text-white flex items-center justify-center rounded-lg">
+                                                    class="front bg-yellow-200 dark:bg-purple-900 text-black dark:text-white flex items-center justify-center rounded-lg p-4">
                                                     <h3
-                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">
+                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-xl">
                                                         <%= card.front_text %>
                                                     </h3>
                                                 </div>
-                                                <!--Back Text Display of the Flashcard-->
+                                                
                                                 <div
-                                                    class="back bg-green-200 dark:bg-teal-900 text-black dark:text-white flex items-center justify-center rounded-lg backface-hidden rotate-y-180 transition-transform duration-500 group-hover:rotate-y-0">
+                                                    class="back bg-green-200 dark:bg-teal-900 text-black dark:text-white flex flex-col items-center justify-center rounded-lg backface-hidden p-4">
                                                     <h3
-                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">
-                                                        Answer: </h3>
-                                                    <h3
-                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">
+                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-lg">
+                                                        Answer:</h3>
+                                                    <p
+                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-lg mt-2">
                                                         <%= card.back_text %>
-                                                    </h3>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
-                                        <% }); %>
-                                            <% } %>
-                            </div>
+                                    <% }); %>
+                                </div>
+                            <% } else { %>
+                                <div class="text-center py-10">
+                                    <p class="text-xl font-semibold text-accent-light dark:text-accent-dark">No Cards in this Set</p>
+                                    <p class="text-text-light dark:text-text-dark mt-2">This flashcard set doesn't contain any cards yet.</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
 
-                            <div class="flex items-center gap-2 mt-4">
+                    <div class="flex items-center gap-2 mt-6">
+                        <% if (!shared && !modaccess && !public) { %>
+                            <button onclick="window.location.href='/edit_set?setID=<%= set.setID %>'"
+                                class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
+                                <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
+                                <span
+                                    class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                    Edit Set
+                                </span>
+                            </button>
+                        <% } %>
 
-                                <% if (!shared && !modaccess && !public) { %>
-                                    <button onclick="window.location.href='/edit_set?setID=<%= set.setID %>'"
-                                        class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
-                                        <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
-                                        <span
-                                            class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-                                            Edit Set
-                                        </span>
-                                    </button>
-                                    <% } %>
-
-
-                                        <button onclick="window.location.href='/'"
-                                            class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                                            Back to Dashboard
-                                        </button>
-                            </div>
-                </div>
+                        <button onclick="goBack()"
+                            class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                            Back
+                        </button>
+                    </div>
                 </div>
             </main>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
-                    // Store category data locally
+                    
                     const categoryNames = <%- JSON.stringify(categoryNames) %>;
 
                     const category_display = document.getElementById('category-display');
                     const category = <%- JSON.stringify(set.category) %>;
 
-                    // Display category name using the utility function with passed parameter
+                    
                     category_display.innerText = getCategoryName(category, categoryNames);
+                    
+                    
+                    const cards = document.querySelectorAll('.card');
+                    cards.forEach(card => {
+                        card.addEventListener('click', function() {
+                            this.classList.toggle('flipped');
+                        });
+                    });
                 });
+
+                
+                function goBack() {
+                    if (document.referrer) {
+                        
+                        window.history.back();
+                    } else {
+                        
+                        window.location.href = '/';
+                    }
+                }
             </script>
 
 </body>

@@ -34,7 +34,6 @@ import { APIService, GETOK, handleTemplateResponse } from '../model/api';
 const categoryNames = Object.keys(Category)
     .filter(key => !isNaN(Number(key)))
     .reduce((acc: { [key: string]: string }, key: string) => {
-        // Format CourseSubjects as "Course Subjects"
         if (Category[key as any] === "CourseSubjects") {
             acc[key] = "Course Subjects";
         } else {
@@ -112,7 +111,6 @@ controller.get('/api/getUnapprovedSets',
         await APIService.handleGetUnapprovedSets(req, res);
     })
 );
-
 controller.get('/api/getCardsInSet', 
     isAuthenticated,
     isSetOwner,
@@ -270,6 +268,15 @@ controller.put('/api/editUser',
     logUserActivity,
     asyncHandler(async (req, res) => {
         await APIService.handleEditUser(req, res);
+    })
+);
+
+controller.put('/api/incrementSetViews',
+    isAuthenticated,
+    isRegularUser,
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        await APIService.handleIncrementSetViews(req, res);
     })
 );
 
@@ -537,6 +544,46 @@ controller.get('/',
     })
 );
 
+controller.get('/public_sets',
+    isAuthenticated, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+        const cookie = getCookie(req); // gets authentication cookie
+        const publicSets = await axios.get('http://localhost:' + port + '/api/getSets', {
+            headers: {
+                cookie
+            },
+            params: {set_type: 'public'}
+        });
+        // Add owner info to each public set object
+        publicSets.data.result = await Promise.all(
+            publicSets.data.result.map(async (set: any) => {
+                const owner = await UserService.getUserByIdentifier(set.ownerID);
+                set.ownerID = {username: owner?.username || '', email: owner?.email || ''};
+                return set;
+            })
+        );
+        console.log(publicSets.data.result);
+        handleTemplateResponse(res,GETOK,'public_sets', {
+            role: 'regular',
+            user: createUserFromSession(req, Regular),
+            uID: await UserService.getIDOfUser(req.session.user.username),
+            status: req.query.status,
+            publicSets: publicSets.data.result,
+            categoryNames,
+            subcategories: {
+                [Category.Language]: SubCategory_Language,
+                [Category.Technology]: SubCategory_Technology,
+                [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                [Category.Law]: SubCategory_Law,
+                [Category.Medical]: SubCategory_Medical,
+                [Category.Military]: SubCategory_Military
+            },
+            currentPage: 'public_sets'
+        });
+    })
+);
+
 /**
  * Renders the login page
  * @param req - Express request object
@@ -600,6 +647,15 @@ controller.get('/view_set',
             params: { setID, set_type: setType },
             headers: { cookie }
         });
+        
+        await axios.put(`http://localhost:${port}/api/incrementSetViews`, 
+            { setID },
+            { headers: { cookie } } // Separate the headers from the data
+        );
+
+        //add owner info to set object
+        const owner = await UserService.getUserByIdentifier(set.data.result.ownerID);
+        set.data.result.ownerID = {username: owner?.username || '', email: owner?.email || ''};
 
         res.render("view_set", { 
             set: set.data.result, 
