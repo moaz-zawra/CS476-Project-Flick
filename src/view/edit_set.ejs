@@ -12,6 +12,46 @@
     <script>
         tailwind.config = window.tailwindConfig;
     </script>
+    <style>
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card .front,
+        .card .back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .card .back {
+            transform: rotateY(180deg);
+        }
+        
+        .card-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 20;
+        }
+    </style>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 <%- include('partials/header') %>
@@ -69,20 +109,42 @@
         <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Cards</h2>
 
         <div class="flex flex-wrap gap-4 justify-center">
+            <button onclick="addNewCard()"
+            class="w-[300px] h-[300px] rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add New Card</span>
+            </button>
+
             <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
                 <%  cards.forEach(function(card) {; %>
-                    <div class="p-4 rounded-lg w-[300px] h-[300px] relative border-2 border-accent-light dark:border-accent-dark bg-gray-200 dark:bg-accent-dark">
-                        <div class="grid grid-cols-1 h-full gap-4 ">
-                            <div class="flex flex-col justify-center">
-                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
-                                <p id='front<%=card.cardID%>' class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.front_text %></p>
+                    <div class="relative w-[300px] h-[300px] perspective-1000">
+                        <div class="card" id="card-<%= card.cardID %>" onclick="flipCard(event, this)">
+                            <!-- Front side -->
+                            <div class="front bg-yellow-200 dark:bg-purple-900 text-black dark:text-white">
+                                <div class="flex flex-col h-full">
+                                    <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Front</h3>
+                                    <div class="flex-1 overflow-y-auto">
+                                        <p id='front<%=card.cardID%>' class="text-text-light dark:text-text-dark font-mono text-lg break-words">
+                                            <%= card.front_text %>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex flex-col justify-center border-t-2 border-surface-light dark:border-surface-dark pt-4">
-                                <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Back</h3>
-                                <p id='back<%=card.cardID%>' class="text-text-light dark:text-text-dark font-mono text-lg"><%= card.back_text %></p>
+                            
+                            <!-- Back side -->
+                            <div class="back bg-green-200 dark:bg-teal-900 text-black dark:text-white">
+                                <div class="flex flex-col h-full">
+                                    <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl mb-2">Back</h3>
+                                    <div class="flex-1 overflow-y-auto">
+                                        <p id='back<%=card.cardID%>' class="text-text-light dark:text-text-dark font-mono text-lg break-words">
+                                            <%= card.back_text %>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="absolute bottom-4 right-4 flex gap-2">
+                        
+                        <!-- Edit/Delete buttons stay outside the flipping part, but still positioned over the card -->
+                        <div class="card-controls flex gap-2">
                             <button onclick="editCard('<%= card.cardID %>')" class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
                                 <img src="edit.svg" alt="Edit Icon" class="w-6 h-6 invert dark:invert-0">
                                 <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">Edit Card</span>
@@ -95,11 +157,6 @@
                     </div>
                 <% }); %>
             <% } %>
-
-            <button onclick="addNewCard()"
-                    class="w-[300px] h-[300px] rounded-lg border-2 border-dashed border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark flex items-center justify-center hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
-                <span class="text-text-light dark:text-text-dark font-mono text-xl">+ Add New Card</span>
-            </button>
         </div>
     </div>
 </div>
@@ -138,30 +195,26 @@
 </div>
 
             
-            <div id="confirmation-modal"
-                class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-                <div
-                    class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[400px] max-h-[90vh] overflow-y-auto">
-                    <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Confirm Delete
-                    </h2>
-                    <p id="confirmation-message" class="text-text-light dark:text-text-dark mb-6"></p>
-                    <form id="deleteCardForm" action="/api/deleteCard?_method=DELETE" method="POST">
-                        <input type="hidden" id="deleteCardID" name="cardID">
-                        <input type="hidden" name="setID" value="<%= set.setID %>">
-                        <div class="flex justify-end space-x-4">
-                            <button type="button" id="cancel-delete"
-                                class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                                Cancel
-                            </button>
-                            <button type="submit" id="confirm-delete"
-                                class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
-                                Delete
-                            </button>
-                        </div>
-                    </form>
+<div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg border-2 border-accent-light dark:border-accent-dark w-[400px] max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-mono font-bold mb-6 text-text-light dark:text-text-dark">Confirm Delete</h2>
+            <p id="confirmation-message" class="text-text-light dark:text-text-dark mb-6"></p>
+            <form id="deleteCardForm" action="/api/deleteCard?_method=DELETE" method="POST">
+                <input type="hidden" id="deleteCardID" name="cardID">
+                <input type="hidden" name="setID" value="<%= set.setID %>">
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancel-delete"
+                        class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
+                        Cancel
+                    </button>
+                    <button type="submit" id="confirm-delete"
+                        class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-secondary-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+                        Delete
+                    </button>
                 </div>
-            </div>
-
+            </form>
+    </div>
+</div>
 
 <script>
     
@@ -173,7 +226,14 @@
 </script>
 
 <script>
-
+    // Function to handle card flipping but ignore clicks on buttons
+    function flipCard(event, card) {
+        // Don't flip if clicking on a button
+        if (event.target.closest('button') || event.target.closest('.card-controls')) {
+            return;
+        }
+        card.classList.toggle('flipped');
+    }
 </script>
 
 </body>

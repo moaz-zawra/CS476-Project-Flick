@@ -33,10 +33,21 @@
             left: 0;
             right: 0;
             bottom: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .card .back {
             transform: rotateY(180deg);
+        }
+        
+        /* text overflow handling */
+        .card-content {
+            overflow-y: auto;
+            word-break: break-word;
+            max-height: 100%;
+            padding: 10px;
         }
     </style>
 </head>
@@ -48,8 +59,6 @@
             <main>
                 <div
                     class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-                    
-                    
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4 border-b-2 border-accent-light dark:border-accent-dark pb-2">Set Info</h2>
                         
@@ -106,7 +115,7 @@
                                     <span class="text-text-light dark:text-text-dark">Time per Card</span>
                                 </label>
                                 <div class="flex justify-center">
-                                    <button type="button" onclick="window.location.href='/play_set?setID=<%= set.setID %>'"
+                                    <button type="button" onclick="startPracticeSession()"
                                         class="border-2 rounded-xl px-8 py-3 bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
                                         Start Practice Session
                                     </button>
@@ -127,22 +136,23 @@
                                             <div class="relative w-full h-full card" id="card-<%= index %>">
                                                 
                                                 <div
-                                                    class="front bg-yellow-200 dark:bg-purple-900 text-black dark:text-white flex items-center justify-center rounded-lg p-4">
-                                                    <h3
-                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-xl">
-                                                        <%= card.front_text %>
-                                                    </h3>
+                                                    class="front bg-yellow-200 dark:bg-purple-900 text-black dark:text-white rounded-lg p-4">
+                                                    <div class="card-content">
+                                                        <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-xl">
+                                                            <%= card.front_text %>
+                                                        </h3>
+                                                    </div>
                                                 </div>
                                                 
                                                 <div
-                                                    class="back bg-green-200 dark:bg-teal-900 text-black dark:text-white flex flex-col items-center justify-center rounded-lg backface-hidden p-4">
-                                                    <h3
-                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-lg">
-                                                        Answer:</h3>
-                                                    <p
-                                                        class="text-text-light dark:text-text-dark font-mono font-semibold text-lg mt-2">
-                                                        <%= card.back_text %>
-                                                    </p>
+                                                    class="back bg-green-200 dark:bg-teal-900 text-black dark:text-white rounded-lg backface-hidden p-4">
+                                                    <div class="card-content">
+                                                        <h3 class="text-text-light dark:text-text-dark font-mono font-semibold text-lg">
+                                                            Answer:</h3>
+                                                        <p class="text-text-light dark:text-text-dark font-mono font-semibold text-lg mt-2">
+                                                            <%= card.back_text %>
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -200,12 +210,24 @@
                 
                 function goBack() {
                     if (document.referrer) {
-                        
                         window.history.back();
                     } else {
-                        
                         window.location.href = '/';
                     }
+                }
+
+                function startPracticeSession() {
+                    const setID = '<%= set.setID %>';
+                    const shuffle = document.getElementById('shuffle').checked;
+                    const timed = document.getElementById('timed').checked;
+                    const timepercard = document.getElementById('timepercard').value || 0;
+                    
+                    let url = `/play_set?setID=${setID}`;
+                    if (shuffle) url += '&shuffle=true';
+                    if (timed) url += '&timed=true';
+                    if (timepercard > 0) url += `&timepercard=${timepercard}`;
+                    
+                    window.location.href = url;
                 }
             </script>
 

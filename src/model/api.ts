@@ -65,7 +65,6 @@ export class APIService{
     static async handleIncrementSetViews(req: express.Request, res: express.Response) {
         const user: Regular = createUserFromSession(req, Regular);
         const setID = parseInt(req.body.setID as string);
-        console.log("in handleIncrementSetViews, setID is " + setID);
 
         const result = await user.incrementSetViews(setID);
         switch(result){

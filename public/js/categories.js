@@ -5,11 +5,10 @@ function getCategoryName(categoryId, categoryNames) {
         return categoryNames[categoryId];
     }
     
-    // Fallback mapping if categoryNames is not available
     const categories = {
         '0': 'Language',
         '1': 'Technology',
-        '2': 'Course Subjects', // Ensure proper formatting here too
+        '2': 'Course Subjects',
         '3': 'Law',
         '4': 'Medical',
         '5': 'Military'
@@ -18,21 +17,16 @@ function getCategoryName(categoryId, categoryNames) {
     return categories[categoryId] || 'Unknown Category';
 }
 
-// Get subcategories for a category from provided data
 function getSubcategoriesForCategory(categoryId, subcategories) {
     return subcategories && subcategories[categoryId] || [];
 }
-
-// Populate category dropdown element with provided category data
 function populateCategoryDropdown(selectElement, categoryNames, includeDefaultOption = true) {
     if (!categoryNames) return;
     
-    // Clear existing options
     while (selectElement.options.length > 0) {
         selectElement.remove(0);
     }
     
-    // Add default option if requested
     if (includeDefaultOption) {
         const defaultOption = document.createElement('option');
         defaultOption.value = '';

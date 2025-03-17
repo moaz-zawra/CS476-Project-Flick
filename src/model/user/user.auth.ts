@@ -67,7 +67,6 @@ export class UserCreator extends UserFactory {
 
             const isPasswordCorrect = await bcrypt.compare(password, userData.hash);
             if (!isPasswordCorrect) return LoginStatus.WRONG_PASSWORD;
-            console.log(userData)
             if(userData.banned) return { status: LoginStatus.USER_IS_BANNED, reason: userData.ban_reason };
 
             switch (userData.role) {

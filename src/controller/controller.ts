@@ -54,6 +54,7 @@ try {
     process.exit(1);
 }
 
+
 const activitySubject = bundle[0];
 const controller = bundle[1];
 
@@ -193,7 +194,6 @@ controller.post('/api/newSet',
     isRegularUser, 
     logUserActivity, 
     asyncHandler(async (req, res) => {
-        console.log(req.body);
         await APIService.handleNewSet(req, res);
     })
 );
@@ -492,7 +492,7 @@ controller.get('/',
                         return set;
                     })
                 );
-                console.log(users.data.result);
+          
                 if(isAdmin(req.session.user)){
 
                 } else {
@@ -544,6 +544,43 @@ controller.get('/',
     })
 );
 
+
+controller.get('/play_set',
+    isAuthenticated, 
+    logUserActivity, 
+    asyncHandler(async (req, res) => {
+        const cookie = getCookie(req); // gets authentication cookie
+        let setID = req.query.setID;
+        let setType = req.query.set_type || 'user';
+        const cards = await axios.get(`http://localhost:${port}/api/getCardsInSet`, {
+            params: { setID, setType },
+            headers: { cookie }
+        });
+        const set = await axios.get(`http://localhost:${port}/api/getSet`, {
+            params: { setID, set_type: setType },
+            headers: { cookie }
+        });
+        //add owner info to set object
+        const owner = await UserService.getUserByIdentifier(set.data.result.ownerID);
+        set.data.result.ownerID = {username: owner?.username || '', email: owner?.email || ''};
+        res.render("play_set", {
+            set: set.data.result,
+            cards: cards.data.result,
+            categoryNames,
+            subcategories: {
+                [Category.Language]: SubCategory_Language,
+                [Category.Technology]: SubCategory_Technology,
+                [Category.CourseSubjects]: SubCategory_CourseSubjects,
+                [Category.Law]: SubCategory_Law,
+                [Category.Medical]: SubCategory_Medical,
+                [Category.Military]: SubCategory_Military
+            },
+            status: req.query.status,
+            currentPage: 'play_set'
+        });
+    })
+);
+
 controller.get('/public_sets',
     isAuthenticated, 
     logUserActivity, 
@@ -563,7 +600,7 @@ controller.get('/public_sets',
                 return set;
             })
         );
-        console.log(publicSets.data.result);
+
         handleTemplateResponse(res,GETOK,'public_sets', {
             role: 'regular',
             user: createUserFromSession(req, Regular),
