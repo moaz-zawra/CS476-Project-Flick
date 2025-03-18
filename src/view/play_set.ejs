@@ -12,7 +12,6 @@
         tailwind.config = window.tailwindConfig;
     </script>
     <style>
-        /* Card flip functionality - can't be done with Tailwind alone */
         .card {
             transform-style: preserve-3d;
             transition: transform 0.6s;
@@ -36,7 +35,6 @@
             transform: rotateY(180deg);
         }
 
-        /* Navigation arrows - keeping custom positioning */
         .nav-arrow {
             position: fixed;
             top: 50%;
@@ -59,7 +57,6 @@
 <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
         
-        <!-- Set Info Section -->
         <div class="mb-6">
             <h2 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4 border-b-2 border-accent-light dark:border-accent-dark pb-2">Set Info</h2>
             
@@ -99,7 +96,6 @@
         <!-- Cards Display Section -->
         <div class="mt-8 relative min-h-[16rem]">
             <% if (typeof cards !== 'undefined' && cards && cards.length > 0) { %>
-                <!-- Navigation Arrows -->
                 <div id="prev-arrow" class="nav-arrow prev bg-gray-200 dark:bg-white bg-opacity-20 dark:bg-opacity-20 hover:bg-opacity-40 dark:hover:bg-opacity-40 p-5 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 opacity-0 pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-800 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -151,7 +147,7 @@
             <span id="card-counter" class="text-text-light dark:text-text-dark font-medium"></span>
         </div>
 
-                <!-- End Session Options - Initially Hidden -->
+                <!-- End Session Options -->
                 <div id="end-session-options" class="hidden text-center py-8">
                     <h3 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4">Practice Session Complete!</h3>
                     <div class="flex justify-center gap-4 mt-6">

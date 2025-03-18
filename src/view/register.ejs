@@ -12,64 +12,60 @@
     </script>
 </head>
 
-<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
-<%- include('partials/visitor-header') %>
-<%- include('partials/status-message') %>
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen flex flex-col">
+    <header class="w-full">
+        <%- include('partials/visitor-header') %>
+    </header>
+    <%- include('partials/status-message') %>
 
-<main>
-    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-        <form action="/api/register" method="post" class="space-y-4 max-w-sm mx-auto">
-            <div class="mb-4">
-                <label for="username" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Username
-                </label>
-                <input type="text" id="username" name="username" autocomplete="username"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
+    <main class="flex flex-col-reverse lg:flex-row items-center justify-between mx-auto max-w-6xl px-6 sm:px-12 lg:px-48 p-8 w-full flex-grow space-y-12 lg:space-y-0 lg:gap-x-32">
+        <div class="bg-surface-light dark:bg-surface-dark border-2 border-accent-light dark:border-accent-dark rounded-xl p-6 shadow-lg w-full max-w-md lg:ml-[-400px]">
+        <div class="border-b-2 border-accent-light dark:border-accent-dark pb-4 mb-6">
+            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark text-center mb-1">Create an Account</h2>
+            <p class="text-text-light dark:text-text-dark text-center text-sm">Enter your information to get started with Flick</p>
+        </div>
+        <form action="/api/register" method="post" class="space-y-3">
+            <div class="space-y-1">
+                <label for="username" class="text-sm text-text-light dark:text-text-dark font-medium block">Username</label>
+                <input type="text" id="username" name="username" autocomplete="username" class="border-2 rounded-lg p-2.5 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full" required />
             </div>
-
-            <div class="mb-4">
-                <label for="email" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Email
-                </label>
-                <input type="email" id="email" name="email" autocomplete="email"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
+            <div class="space-y-1">
+                <label for="email" class="text-sm text-text-light dark:text-text-dark font-medium block">Email</label>
+                <input type="email" id="email" name="email" autocomplete="email" class="border-2 rounded-lg p-2.5 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full" required />
             </div>
-
-            <div class="mb-4">
-                <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Password
-                </label>
-                <input type="password" id="password" name="password" autocomplete="new-password"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
-                <div id="password-strength" class="mt-2 text-left text-sm"></div>
+            <div class="space-y-1">
+                <label for="password" class="text-sm text-text-light dark:text-text-dark font-medium block">Password</label>
+                <input type="password" id="password" name="password" autocomplete="new-password" class="border-2 rounded-lg p-2.5 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full" required />
+                <div id="password-strength" class="text-xs mt-1"></div>
             </div>
-
-            <div class="mb-6">
-                <label for="cpassword" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Confirm Password
-                </label>
-                <div class="relative">
-                    <input type="password" id="cpassword" name="cpassword" autocomplete="new-password"
-                           class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                           required />
-                    <span id="password-match" class="absolute right-3 top-3 text-lg"></span>
-                </div>
+            <div class="space-y-1">
+                <label for="cpassword" class="text-sm text-text-light dark:text-text-dark font-medium block">Confirm Password</label>
+                <input type="password" id="cpassword" name="cpassword" autocomplete="new-password" class="border-2 rounded-lg p-2.5 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full" required />
+                <span id="password-match" class="text-xs mt-1 block"></span>
             </div>
-
-            <button type="submit"
-                    class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105 w-full mb-4">
-                Register
-            </button>
-
-            <button type="button"
-                    class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
-                    onclick="window.location.href='/login'">
-                Existing User? Click to Login
-            </button>
+            <div class="space-y-2 pt-2">
+                <button type="submit" class="border-2 rounded-lg px-6 py-2.5 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-semibold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 w-full">
+                    Register
+                </button>
+                <button type="button" class="border-2 rounded-lg px-6 py-2.5 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-semibold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 w-full" onclick="window.location.href='/login'">
+                    Already have an account? Log in
+                </button>
+            </div>
         </form>
+    </div>
+    
+    <div class="bg-surface-light dark:bg-surface-dark rounded-xl px-12 py-0 shadow-lg w-full max-w-2xl lg:w-[800px] lg:mr-[-400px] flex flex-col justify-between text-left min-h-[598px] lg:h-[598px]">
+        <div class="border-b-2 border-accent-light dark:border-accent-dark pt-5 pb-3 mb-5">
+            <h2 class="text-4xl font-bold text-text-light dark:text-text-dark text-center">Master Your Knowledge</h2>
+            <h2 class="text-4xl font-bold text-text-light dark:text-text-dark text-center">with Flick</h2>
+        </div>
+        <p class="text-text-light dark:text-text-dark text-lg flex-grow">Flick is your go-to flashcard platform to help you study, memorize, and succeed. Join a growing community of learners.</p>
+        <ul class="space-y-5 text-lg flex-grow">
+            <li class="flex items-center text-text-light dark:text-text-dark"><span class="text-green-500 font-bold mr-3">✔</span> Create personalized flashcards in seconds.</li>
+            <li class="flex items-center text-text-light dark:text-text-dark"><span class="text-green-500 font-bold mr-3">✔</span> Study smart with spaced repetition.</li>
+            <li class="flex items-center text-text-light dark:text-text-dark"><span class="text-green-500 font-bold mr-3">✔</span> Track your progress and stay motivated.</li>
+        </ul>
+        <p class="text-text-light dark:text-text-dark italic text-lg text-center flex-grow">Join thousands of students already using Flick to achieve their goals.</p>
     </div>
 </main>
 
