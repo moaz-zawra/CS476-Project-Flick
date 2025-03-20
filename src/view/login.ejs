@@ -1,53 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flick | Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/js/color-scheme.js"></script>
-    <script src="/js/status-handler.js"></script>
-    <script>
-        tailwind.config = window.tailwindConfig;
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flick | Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/color-scheme.js"></script>
+  <script src="/js/status-handler.js"></script>
+  <script>
+    tailwind.config = window.tailwindConfig;
+  </script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
-<%- include('partials/visitor-header') %>
-<%- include('partials/status-message') %>
+  <%- include('partials/visitor-header') %>
+  <%- include('partials/status-message') %>
 
-<main>
+  <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
-        <form action="/api/login" method="post" class="space-y-4 max-w-sm mx-auto">
-            <div class="mb-4">
-                <label for="identifier" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Username or Email
-                </label>
-                <input type="text" id="identifier" name="identifier" autocomplete="username"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
-            </div>
+      <form action="/api/login" method="post" class="space-y-4 max-w-sm mx-auto">
+        <!-- Username Field -->
+        <div class="mb-4">
+          <label for="identifier" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+            Username or Email
+          </label>
+          <input
+            type="text"
+            id="identifier"
+            name="identifier"
+            autocomplete="username"
+            placeholder="Type your username here"
+            class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
+                   focus:border-accent-light dark:focus:border-accent-dark focus:outline-none
+                   border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+            required
+          />
+        </div>
 
-            <div class="mb-6">
-                <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-                    Password
-                </label>
-                <input type="password" id="password" name="password" autocomplete="current-password"
-                       class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
-                       required />
-            </div>
+        <!-- Password Field with Eye Icon Toggle -->
+        <div class="mb-6 relative">
+          <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+            Password
+          </label>
+          <!-- Notice pr-12 to make room for the icon on the right -->
+          <input
+            type="password"
+            id="password"
+            name="password"
+            autocomplete="current-password"
+            placeholder="Type your password here"
+            class="border-2 rounded-lg p-2 pr-12 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
+                   focus:border-accent-light dark:focus:border-accent-dark focus:outline-none
+                   border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
+            required
+          />
+          <!-- Eye Icon Toggle Button: anchored at top-2 to align near the text baseline -->
+          <button
+            type="button"
+            id="togglePassword"
+            class="absolute right-2 top-11 text-gray-600 dark:text-gray-400 focus:outline-none px-2"
+          >
+            <!-- Open Eye (default) -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 
+                   8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 
+                   7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        </div>
 
-            <button type="submit"
-                    class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105 w-full mb-4">
-                Login
-            </button>
+        <button
+          type="submit"
+          class="border-2 rounded-xl px-8 py-3 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark
+                 font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark
+                 transition-all duration-200 transform hover:scale-105 w-full mb-4"
+        >
+          Login
+        </button>
 
-            <button type="button"
-                    class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105 w-full"
-                    onclick="window.location.href='/register'">
-                New User? Click to Register
-            </button>
-        </form>
+        <button
+          type="button"
+          class="border-2 rounded-xl px-8 py-3 bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark
+                 font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200
+                 transform hover:scale-105 w-full"
+          onclick="window.location.href='/register'"
+        >
+          New User? Click to Register
+        </button>
+      </form>
     </div>
-</main>
+  </main>
+
+  <script>
+    // Eye Icon SVGs
+    const eyeOpenIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 
+             8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 
+             7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    `;
+    const eyeClosedIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0 
+             -8.269-2.943-9.543-7a10.05 10.05 0 012.66-4.06M15 12a3 3 
+             0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 3l18 18" />
+      </svg>
+    `;
+
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        this.innerHTML = eyeClosedIcon;
+      } else {
+        passwordInput.type = 'password';
+        this.innerHTML = eyeOpenIcon;
+      }
+    });
+  </script>
 </body>
 </html>
