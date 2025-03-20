@@ -95,7 +95,7 @@
                         </div>
                     </div>
 
-                    <% if (!shared && !modaccess && !public) { %>
+                    <% if (!modaccess) { %>
                     <div class="mt-8">
                         <h2 class="text-2xl font-bold text-accent-light dark:text-accent-dark mb-4 border-b-2 border-accent-light dark:border-accent-dark pb-2">Play Set</h2>
                         
@@ -180,9 +180,9 @@
                             </button>
                         <% } %>
 
-                        <button onclick="goBack()"
+                        <button onclick="window.location.href='/'"
                             class="border-2 rounded-xl px-8 py-3 bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
-                            Back
+                            Return to Dashboard
                         </button>
                     </div>
                 </div>
@@ -207,15 +207,6 @@
                         });
                     });
                 });
-
-                
-                function goBack() {
-                    if (document.referrer) {
-                        window.history.back();
-                    } else {
-                        window.location.href = '/';
-                    }
-                }
 
                 function startPracticeSession() {
                     const setID = '<%= set.setID %>';
