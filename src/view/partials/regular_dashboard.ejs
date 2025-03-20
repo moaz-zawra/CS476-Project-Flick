@@ -23,9 +23,9 @@
         </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mb-4">
-    <div id="user-sets" class="space-y-4">
+    <div id="user-sets" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <% if (typeof userSets==='undefined' || !Array.isArray(userSets) || userSets.length===0) { %>
-            <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
+            <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2 col-span-full">
                 You have no sets. <a href="/new_set"
                     class="underline text-highlight-light dark:text-highlight-dark hover:text-primary-light dark:hover:text-primary-dark">Create
                     one now!</a>
@@ -50,9 +50,9 @@
         </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mb-4">
-    <div id="shared-sets" class="space-y-4">
+    <div id="shared-sets" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <% if (typeof sharedSets==='undefined' || !Array.isArray(sharedSets) || sharedSets.length===0) { %>
-            <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2">
+            <div class="font-mono text-lg text-accent-light dark:text-accent-dark py-2 col-span-full">
                 No sets have been shared with you.
             </div>
         <% } %>
