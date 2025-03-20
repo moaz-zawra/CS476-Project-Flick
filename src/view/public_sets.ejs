@@ -64,39 +64,37 @@
                 <div class="set-item border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-lg p-4 hover:shadow-lg transition-shadow duration-200"
                 data-name="<%= set.setName.toLowerCase() %>" 
                 data-category="<%= set.category %>" 
-                data-subcategory="<%= set.subCategory %>"
-                style="height: 400px; min-width: 280px">
+                data-subcategory="<%= set.subCategory %>">
                <div class="h-full flex flex-col justify-between">
-                   <div class="content-container p-4 rounded-lg bg-bg-light dark:bg-bg-dark shadow-sm">
-                       <div class="mb-4">
-                           <h2 class="font-mono text-2xl font-bold text-accent-light dark:text-accent-dark mb-2 truncate"><%= set.setName %></h2>
-                           <p class="text-text-light dark:text-text-dark text-base mb-3 line-clamp-3">
-                               <%= set.description || "No description available" %>
-                           </p>
-                       </div>
-           
-                       <div class="flex flex-wrap gap-2 mb-4">
-                           <span class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md text-sm font-medium">
-                               <%= categoryNames[set.category] || set.category || 'Unknown' %>
-                           </span>
-                           <% if (set.subCategory) { %>
-                           <span class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md text-sm font-medium">
-                               <%= set.subCategory %>
-                           </span>
-                           <% } %>
-                       </div>
+                   <div>
+                       <h2 class="font-mono text-xl font-bold text-accent-light dark:text-accent-dark mb-2"><%= set.setName %></h2>
+                       <p class="text-text-light dark:text-text-dark text-base mb-4 line-clamp-3">
+                           <%= set.description || "No description available" %>
+                       </p>
+                   </div>
+                   <div class="flex flex-wrap gap-2 mb-4">
+                       <span class="bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md text-sm font-medium">
+                           <%= categoryNames[set.category] || set.category || 'Unknown' %>
+                       </span>
+                       <% if (set.subCategory) { %>
+                       <span class="bg-secondary-light dark:bg-secondary-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md text-sm font-medium">
+                           <%= set.subCategory %>
+                       </span>
+                       <% } %>
+                       <span class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md text-sm font-medium">
+                           Public
+                       </span>
                    </div>
            
-                   <div class="bottom-section flex flex-col gap-3 mt-4 p-4 border-t-2 border-accent-light dark:border-accent-dark">
-                       <div class="stats flex items-center gap-4 text-sm">
-                           <span class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md font-medium">
-                               <%= set.views %> Views
+                   <div class="flex items-center justify-between">
+                       <div class="flex items-center gap-4">
+                           <span class="text-text-light dark:text-text-dark">
+                               Created by: <%= set.ownerID.username || set.ownerID.email || "Anonymous" %>
                            </span>
-                           <span class="bg-contrast-light dark:bg-contrast-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md font-medium">
-                               By: <%= set.ownerID.username || set.ownerID.email || "Anonymous" %>
+                           <span class="text-text-light dark:text-text-dark">
+                               Views: <%= set.views %>
                            </span>
                        </div>
-           
                        <div class="flex items-center gap-3">
                            <a href="/view_set?setID=<%= set.setID %>&set_type=public" 
                               class="relative group flex items-center justify-center p-1 bg-transparent hover:opacity-80 transition-opacity">
