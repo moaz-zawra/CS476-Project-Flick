@@ -1,99 +1,106 @@
 <header>
-    <div class="flex items-center justify-between w-full px-4">
-      <!-- Left Block (Empty for centering) -->
-      <div class="w-1/3"></div>
-      
-      <!-- Center Block: Brand and Tagline -->
-      <div class="w-1/3 text-center">
-        <a href="/" class="font-extrabold text-3xl font-mono">
-          <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">
-            Flick
-          </span>
-        </a>
-        <div>
-          <span class="text-accent-light dark:text-accent-dark text-sm italic">
-            Flashcards Just a Click Away!!
-          </span>
-        </div>
+  <div class="flex items-center justify-between w-full px-4">
+    <!-- Left Block (Empty for centering) -->
+    <div class="w-1/3"></div>
+
+    <!-- Center Block: Brand and Tagline -->
+    <div class="w-1/3 text-center">
+      <a href="/" class="font-extrabold text-3xl font-mono">
+        <span class="text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">
+          Flick
+        </span>
+      </a>
+      <div>
+        <span class="text-accent-light dark:text-accent-dark text-sm italic">
+          Your Flashcards are a Click Away!
+        </span>
       </div>
-      
-      <!-- Right Block: Theme Toggle & Pancake Menu -->
-      <div class="w-1/3 flex justify-end items-center gap-3">
-        <!-- Theme Toggle -->
-        <div class="flex items-center">
-          <label for="theme-toggle" class="inline-flex items-center cursor-pointer hover:opacity-80 transition-opacity relative group">
-            <img src="sun.svg" alt="Light Theme Icon" class="w-9 h-9">
-            <div class="relative">
-              <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
-              <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
+    </div>
+
+    <!-- Right Block: Theme Toggle & Pancake Menu -->
+    <div class="w-1/3 flex justify-end items-center gap-3">
+      <!-- Theme Toggle -->
+      <div class="flex items-center">
+        <label for="theme-toggle"
+          class="inline-flex items-center cursor-pointer hover:opacity-80 transition-opacity relative group">
+          <img src="sun.svg" alt="Light Theme Icon" class="w-9 h-9">
+          <div class="relative">
+            <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
+            <div
+              class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark">
             </div>
-            <img src="moon.svg" alt="Dark Theme Icon" class="w-9 h-9 dark:invert">
-            <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-              Toggle Theme
-            </span>
-          </label>
-        </div>
-        <!-- Pancake Menu -->
-        <div class="relative group">
-          <button id="pancake-menu-button" class="flex flex-col justify-center items-center w-8 h-8 gap-1 cursor-pointer hover:opacity-80 transition-opacity" onclick="togglePancakeMenu()">
-            <div class="w-5 h-0.5 bg-accent-light dark:bg-accent-dark rounded-full"></div>
-            <div class="w-5 h-0.5 bg-accent-light dark:bg-accent-dark rounded-full"></div>
-            <div class="w-5 h-0.5 bg-accent-light dark:bg-accent-dark rounded-full"></div>
-            <span class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-              Menu
-            </span>
-          </button>
-          <div id="pancake-dropdown" class="absolute right-0 mt-2 py-2 px-3 bg-white dark:bg-gray-800 shadow-lg rounded-lg hidden z-20 min-w-[120px] border border-gray-200 dark:border-gray-700">
-            <div class="flex flex-col gap-2 items-start">
-              <% if (currentPage !== 'dashboard' ) { %>
-                <button id="dashboard-button" onclick="window.location.href='/'"
-                  class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                  Dashboard
-                </button>
-              <% } %> 
-              <% if (currentPage !== 'account') { %>
-                <button id="account-button" onclick="window.location.href='/account'"
-                  class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
-                  Account
-                </button>
+          </div>
+          <img src="moon.svg" alt="Dark Theme Icon" class="w-9 h-9 dark:invert">
+          <span
+            class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+            Toggle Theme
+          </span>
+        </label>
+      </div>
+      <!-- Pancake Menu -->
+      <div class="relative group">
+        <button id="pancake-menu-button"
+          class="flex flex-col justify-center items-center w-8 h-8 gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+          onclick="togglePancakeMenu()">
+          <div class="w-5 h-0.5 bg-accent-light dark:bg-accent-dark rounded-full"></div>
+          <div class="w-5 h-0.5 bg-accent-light dark:bg-accent-dark rounded-full"></div>
+          <div class="w-5 h-0.5 bg-accent-light dark:bg-accent-dark rounded-full"></div>
+          <span
+            class="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-black text-white text-xs font-semibold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+            Menu
+          </span>
+        </button>
+        <div id="pancake-dropdown"
+          class="absolute right-0 mt-2 py-2 px-3 bg-white dark:bg-gray-800 shadow-lg rounded-lg hidden z-20 min-w-[120px] border border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col gap-2 items-start">
+            <% if (currentPage !=='dashboard' ) { %>
+              <button id="dashboard-button" onclick="window.location.href='/'"
+                class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-accent-light dark:hover:text-accent-dark transition-colors">
+                Dashboard
+              </button>
               <% } %>
-              <% if (currentPage !== 'public_sets') { %>
-                <button id="public-sets-button" onclick="window.location.href='/public_sets'"
-                  class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
-                  Public Sets
-                </button>
-              <% } %>
-              <% if (currentPage !== 'test') { %>
-                <button id="run-tests-button" onclick="window.location.href='/test'"
-                  class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
-                  Run Tests
-                </button>
-              <% } %>
-              <form method="post" action="/api/logout" class="inline-flex w-full">
-                <button type="submit" id="logout-button"
-                  class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
-                  Logout
-                </button>
-              </form>
-            </div>
+                <% if (currentPage !=='account' ) { %>
+                  <button id="account-button" onclick="window.location.href='/account'"
+                    class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
+                    Account
+                  </button>
+                  <% } %>
+                    <% if (currentPage !=='public_sets' ) { %>
+                      <button id="public-sets-button" onclick="window.location.href='/public_sets'"
+                        class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
+                        Public Sets
+                      </button>
+                      <% } %>
+                        <% if (currentPage !=='test' ) { %>
+                          <button id="run-tests-button" onclick="window.location.href='/test'"
+                            class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
+                            Run Tests
+                          </button>
+                          <% } %>
+                            <form method="post" action="/api/logout" class="inline-flex w-full">
+                              <button type="submit" id="logout-button"
+                                class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
+                                Logout
+                              </button>
+                            </form>
           </div>
         </div>
       </div>
     </div>
-    <hr class="border-accent-light dark:border-accent-dark mt-2">
-    <script>
-      function togglePancakeMenu() {
-        const dropdown = document.getElementById('pancake-dropdown');
-        dropdown.classList.toggle('hidden');
+  </div>
+  <hr class="border-accent-light dark:border-accent-dark mt-2">
+  <script>
+    function togglePancakeMenu() {
+      const dropdown = document.getElementById('pancake-dropdown');
+      dropdown.classList.toggle('hidden');
+    }
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (event) {
+      const dropdown = document.getElementById('pancake-dropdown');
+      const menuButton = document.getElementById('pancake-menu-button');
+      if (!dropdown.contains(event.target) && !menuButton.contains(event.target) && !dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('hidden');
       }
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('pancake-dropdown');
-        const menuButton = document.getElementById('pancake-menu-button');
-        if (!dropdown.contains(event.target) && !menuButton.contains(event.target) && !dropdown.classList.contains('hidden')) {
-          dropdown.classList.add('hidden');
-        }
-      });
-    </script>
-  </header>
-  
+    });
+  </script>
+</header>

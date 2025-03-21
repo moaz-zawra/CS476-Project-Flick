@@ -1,34 +1,37 @@
 <header>
-    <div class="flex items-center justify-between w-full px-4">
-      <!-- Left Block (empty for balance) -->
-      <div class="w-1/3"></div>
-  
-      <!-- Center Block: Flick and Tagline -->
-      <div class="w-1/3 text-center">
-        <a href="/">
-          <span class="font-extrabold text-3xl font-mono text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">
-            Flick
-          </span>
-        </a>
-        <div>
-          <span class="text-accent-light dark:text-accent-dark text-sm italic">
-            Flashcards Just a Click Away!!
-          </span>
-        </div>
-      </div>
-  
-      <!-- Right Block: Toggle Button -->
-      <div class="w-1/3 flex justify-end items-center">
-        <label for="theme-toggle" class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
-          <img src="sun.svg" alt="Light Theme Icon" class="w-9 h-9">
-          <div class="relative">
-            <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
-            <div class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark"></div>
-          </div>
-          <img src="moon.svg" alt="Dark Theme Icon" class="w-9 h-9 dark:invert">
-        </label>
+  <div class="flex items-center justify-between w-full px-4">
+    <!-- Left Block (empty for balance) -->
+    <div class="w-1/3"></div>
+
+    <!-- Center Block: Flick and Tagline -->
+    <div class="w-1/3 text-center">
+      <a href="/">
+        <span
+          class="font-extrabold text-3xl font-mono text-accent-light dark:text-accent-dark hover:opacity-80 transition-opacity cursor-pointer">
+          Flick
+        </span>
+      </a>
+      <div>
+        <span class="text-accent-light dark:text-accent-dark text-sm italic">
+          Your Flashcards are a Click Away!
+        </span>
       </div>
     </div>
-    <hr class="border-accent-light dark:border-accent-dark mt-4">
-  </header>
-  
+
+    <!-- Right Block: Toggle Button -->
+    <div class="w-1/3 flex justify-end items-center">
+      <label for="theme-toggle"
+        class="inline-flex items-center cursor-pointer mr-4 hover:opacity-80 transition-opacity">
+        <img src="sun.svg" alt="Light Theme Icon" class="w-9 h-9">
+        <div class="relative">
+          <input type="checkbox" id="theme-toggle" class="sr-only peer" onclick="toggleTheme()">
+          <div
+            class="w-11 h-6 bg-accent-light peer-focus:ring-4 peer-focus:ring-accent-light dark:peer-focus:ring-accent-dark rounded-full peer dark:bg-surface-dark peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-dark">
+          </div>
+        </div>
+        <img src="moon.svg" alt="Dark Theme Icon" class="w-9 h-9 dark:invert">
+      </label>
+    </div>
+  </div>
+  <hr class="border-accent-light dark:border-accent-dark mt-4">
+</header>
