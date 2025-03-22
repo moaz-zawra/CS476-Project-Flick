@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,99 +52,73 @@
         <p class="text-text-light dark:text-text-dark text-center text-sm">Enter your information to get started</p>
       </div>
 
-      <form action="/api/register" method="post" class="space-y-3">
-        <!-- USERNAME -->
-        <div class="space-y-1">
-          <label for="username" class="text-sm text-text-light dark:text-text-dark font-medium block">Username</label>
-          <div class="relative">
-            <input
-              type="text"
-              id="username"
-              name="username"
-              autocomplete="username"
-              placeholder="Type your username here"
-              class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
+        <form action="/api/register" method="post" class="space-y-3">
+          <!-- USERNAME -->
+          <div class="space-y-1">
+            <label for="username" class="text-sm text-text-light dark:text-text-dark font-medium block">Username</label>
+            <div class="relative">
+              <input type="text" id="username" name="username" autocomplete="username"
+                placeholder="Type your username here" class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
                      focus:border-accent-light dark:focus:border-accent-dark focus:outline-none
-                     border-accent-light dark:border-accent-dark w-full"
-              required
-            />
-            <!-- Hidden error icon -->
-            <span class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
-              !
-            </span>
+                     border-accent-light dark:border-accent-dark w-full" required />
+              <!-- Hidden error icon -->
+              <span
+                class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
+                !
+              </span>
+            </div>
           </div>
-        </div>
 
-        <!-- EMAIL -->
-        <div class="space-y-1">
-          <label for="email" class="text-sm text-text-light dark:text-text-dark font-medium block">Email</label>
-          <div class="relative">
-            <input
-              type="email"
-              id="email"
-              name="email"
-              autocomplete="email"
-              placeholder="Type your email here"
-              class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
+          <!-- EMAIL -->
+          <div class="space-y-1">
+            <label for="email" class="text-sm text-text-light dark:text-text-dark font-medium block">Email</label>
+            <div class="relative">
+              <input type="email" id="email" name="email" autocomplete="email" placeholder="Type your email here" class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
                      focus:border-accent-light dark:focus:border-accent-dark focus:outline-none
-                     border-accent-light dark:border-accent-dark w-full"
-              required
-            />
-            <span class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
-              !
-            </span>
+                     border-accent-light dark:border-accent-dark w-full" required />
+              <span
+                class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
+                !
+              </span>
+            </div>
           </div>
-        </div>
 
-        <!-- PASSWORD -->
-        <div class="space-y-1">
-          <label for="password" class="text-sm text-text-light dark:text-text-dark font-medium block">Password</label>
-          <div class="relative">
-            <input
-              type="password"
-              id="password"
-              name="password"
-              autocomplete="new-password"
-              placeholder="Type your password here"
-              class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
+          <!-- PASSWORD -->
+          <div class="space-y-1">
+            <label for="password" class="text-sm text-text-light dark:text-text-dark font-medium block">Password</label>
+            <div class="relative">
+              <input type="password" id="password" name="password" autocomplete="new-password"
+                placeholder="Type your password here" class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
                      focus:border-accent-light dark:focus:border-accent-dark focus:outline-none
-                     border-accent-light dark:border-accent-dark w-full"
-              required
-            />
-            <span class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
-              !
-            </span>
+                     border-accent-light dark:border-accent-dark w-full" required />
+              <span
+                class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
+                !
+              </span>
+            </div>
+            <div id="password-strength" class="text-xs mt-1"></div>
           </div>
-          <div id="password-strength" class="text-xs mt-1"></div>
-        </div>
 
-        <!-- CONFIRM PASSWORD -->
-        <div class="space-y-1">
-          <label for="cpassword" class="text-sm text-text-light dark:text-text-dark font-medium block">Confirm Password</label>
-          <div class="relative">
-            <input
-              type="password"
-              id="cpassword"
-              name="cpassword"
-              autocomplete="new-password"
-              placeholder="Confirm your password here"
-              class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
+          <!-- CONFIRM PASSWORD -->
+          <div class="space-y-1">
+            <label for="cpassword" class="text-sm text-text-light dark:text-text-dark font-medium block">Confirm
+              Password</label>
+            <div class="relative">
+              <input type="password" id="cpassword" name="cpassword" autocomplete="new-password"
+                placeholder="Confirm your password here" class="border-2 rounded-lg p-2.5 pr-10 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark
                      focus:border-accent-light dark:focus:border-accent-dark focus:outline-none
-                     border-accent-light dark:border-accent-dark w-full"
-              required
-            />
-            <span class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
-              !
-            </span>
+                     border-accent-light dark:border-accent-dark w-full" required />
+              <span
+                class="error-icon hidden absolute top-1/2 right-3 transform -translate-y-1/2 text-red-500 font-bold pointer-events-none">
+                !
+              </span>
+            </div>
+            <span id="password-match" class="text-xs mt-1 block"></span>
           </div>
-          <span id="password-match" class="text-xs mt-1 block"></span>
-        </div>
 
-        <!-- BUTTONS -->
-        <div class="space-y-2 pt-2">
-          <button
-            type="submit"
-            class="border-2 rounded-lg px-6 py-2.5 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark
+          <!-- BUTTONS -->
+          <div class="space-y-2 pt-2">
+            <button type="submit" class="border-2 rounded-lg px-6 py-2.5 bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark
                    font-semibold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark
                    transition-all duration-200 transform hover:scale-105 w-full mb-4"
           >
@@ -164,69 +139,70 @@
 
   </main>
 
-  <!-- JAVASCRIPT -->
-  <script>
-    // Password Strength + Match
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('cpassword');
-    const passwordStrength = document.getElementById('password-strength');
-    const passwordMatch = document.getElementById('password-match');
-    const regex = /^(?=.*[A-Z])(?=.*[a-zA-Z0-9]).{8,}$/;
+    <!-- JAVASCRIPT -->
+    <script>
+      // Password Strength + Match
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('cpassword');
+      const passwordStrength = document.getElementById('password-strength');
+      const passwordMatch = document.getElementById('password-match');
+      const regex = /^(?=.*[A-Z])(?=.*[a-zA-Z0-9]).{8,}$/;
 
-    passwordInput.addEventListener('input', () => {
-      const value = passwordInput.value;
-      if (regex.test(value)) {
-        passwordStrength.textContent = 'Strong password';
-        passwordStrength.className = 'text-green-500';
-      } else {
-        passwordStrength.textContent = 'Weak password';
-        passwordStrength.className = 'text-red-500';
-      }
-    });
+      passwordInput.addEventListener('input', () => {
+        const value = passwordInput.value;
+        if (regex.test(value)) {
+          passwordStrength.textContent = 'Strong password';
+          passwordStrength.className = 'text-green-500';
+        } else {
+          passwordStrength.textContent = 'Weak password';
+          passwordStrength.className = 'text-red-500';
+        }
+      });
 
-    confirmPasswordInput.addEventListener('input', () => {
-      if (confirmPasswordInput.value === passwordInput.value) {
-        passwordMatch.textContent = '✔ Passwords Match';
-        passwordMatch.className = 'text-green-500';
-      } else {
-        passwordMatch.textContent = '✖ Passwords don\'t Match';
-        passwordMatch.className = 'text-red-500';
-      }
-    });
+      confirmPasswordInput.addEventListener('input', () => {
+        if (confirmPasswordInput.value === passwordInput.value) {
+          passwordMatch.textContent = '✔ Passwords Match';
+          passwordMatch.className = 'text-green-500';
+        } else {
+          passwordMatch.textContent = '✖ Passwords don\'t Match';
+          passwordMatch.className = 'text-red-500';
+        }
+      });
 
-    // Show Red Border + Icon If Field Is Empty On Blur
-    document.addEventListener('DOMContentLoaded', function() {
-      const inputs = document.querySelectorAll('input');
+      // Show Red Border + Icon If Field Is Empty On Blur
+      document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('input');
 
-      inputs.forEach(input => {
-        // On blur: if empty, show red border and exclamation icon
-        input.addEventListener('blur', function() {
-          const container = this.closest('.relative'); // parent .relative
-          if (!container) return;
+        inputs.forEach(input => {
+          // On blur: if empty, show red border and exclamation icon
+          input.addEventListener('blur', function () {
+            const container = this.closest('.relative'); // parent .relative
+            if (!container) return;
 
-          const icon = container.querySelector('.error-icon');
+            const icon = container.querySelector('.error-icon');
 
-          if (this.value.trim() === '') {
-            this.classList.add('border-red-500');
-            if (icon) icon.classList.remove('hidden');
-          } else {
+            if (this.value.trim() === '') {
+              this.classList.add('border-red-500');
+              if (icon) icon.classList.remove('hidden');
+            } else {
+              this.classList.remove('border-red-500');
+              if (icon) icon.classList.add('hidden');
+            }
+          });
+
+          // On focus: remove error styling and icon
+          input.addEventListener('focus', function () {
+            const container = this.closest('.relative');
+            if (!container) return;
+
+            const icon = container.querySelector('.error-icon');
+
             this.classList.remove('border-red-500');
             if (icon) icon.classList.add('hidden');
-          }
-        });
-
-        // On focus: remove error styling and icon
-        input.addEventListener('focus', function() {
-          const container = this.closest('.relative');
-          if (!container) return;
-
-          const icon = container.querySelector('.error-icon');
-
-          this.classList.remove('border-red-500');
-          if (icon) icon.classList.add('hidden');
+          });
         });
       });
-    });
-  </script>
+    </script>
 </body>
+
 </html>
