@@ -1,6 +1,5 @@
 import path from 'path';
 import axios from 'axios';
-//aaaaaaaaaaaaa
 import {
     asyncHandler,
     createUserFromSession,
@@ -28,7 +27,7 @@ import {
     SubCategory_Military,
     SubCategory_Technology
 } from '../model/cardSet/cardset.model';
-import {Administrator, Moderator, Regular} from "../model/user/user.roles";
+import {Moderator, Regular} from "../model/user/user.roles";
 import { APIService, GETOK, handleTemplateResponse } from '../model/api';
 
 const categoryNames = Object.keys(Category)
