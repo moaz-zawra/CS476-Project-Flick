@@ -17,7 +17,35 @@
 <%- include('partials/status-message') %>
 
 <main class="flex flex-col-reverse md:flex-row items-center justify-center gap-8 mt-10 max-w-[1400px] mx-auto px-4 md:translate-x-[10%]">
-    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center shadow-custom transition-all duration-300 hover:shadow-lg">
+
+    <div class="bg-surface-light dark:bg-surface-dark rounded-xl px-12 py-0 shadow-lg w-full max-w-2xl lg:w-[800px] flex flex-col  justify-between text-left min-h-[487px] lg:h-[487px] hidden" id="guidelines">
+        <div class="border-b-2 border-accent-light dark:border-accent-dark pt-5 pb-3 mb-5">
+            <h2 class="text-4xl font-bold text-text-light dark:text-text-dark text-center">Community Guidelines</h2>
+            <h2 class="text-4xl font-bold text-text-light dark:text-text-dark text-center">for Content Creation</h2>
+        </div>
+        <p class="text-text-light dark:text-text-dark text-lg flex-grow">
+            Help us maintain a positive and inclusive learning environment by following these guidelines when creating your flashcard sets.
+        </p>
+        <ul class="space-y-5 text-lg flex-grow">
+            <li class="flex items-center text-text-light dark:text-text-dark">
+                <span class="text-green-500 font-bold mr-3">✔</span> Keep content respectful and inclusive for all learners
+            </li>
+            <li class="flex items-center text-text-light dark:text-text-dark">
+                <span class="text-green-500 font-bold mr-3">✔</span> Share accurate and educational information
+            </li>
+            <li class="flex items-center text-text-light dark:text-text-dark">
+                <span class="text-green-500 font-bold mr-3">✔</span> Avoid inappropriate or offensive material
+            </li>
+            <li class="flex items-center text-text-light dark:text-text-dark">
+                <span class="text-green-500 font-bold mr-3">✔</span> Credit sources when using external content
+            </li>
+        </ul>
+        <p class="text-text-light dark:text-text-dark italic text-lg text-center flex-grow">
+            Together, we create a better learning experience for everyone! 🌟
+        </p>
+    </div>
+
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 self-center text-center shadow-custom transition-all duration-300 hover:shadow-lg">
         <form action="/api/newSet" method="post" class="space-y-4 max-w-sm mx-auto">
             <div class="mb-4">
             <label for="setName" id="setName_label" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
@@ -82,37 +110,25 @@
             </button>
         </form>
     </div>
-    <div class="bg-surface-light dark:bg-surface-dark rounded-xl px-12 py-0 shadow-lg w-full max-w-2xl lg:w-[800px] flex flex-col justify-between text-left min-h-[487px] lg:h-[487px] hidden md:flex">
-        <div class="border-b-2 border-accent-light dark:border-accent-dark pt-5 pb-3 mb-5">
-            <h2 class="text-4xl font-bold text-text-light dark:text-text-dark text-center">Community Guidelines</h2>
-            <h2 class="text-4xl font-bold text-text-light dark:text-text-dark text-center">for Content Creation</h2>
-        </div>
-        <p class="text-text-light dark:text-text-dark text-lg flex-grow">
-            Help us maintain a positive and inclusive learning environment by following these guidelines when creating your flashcard sets.
-        </p>
-        <ul class="space-y-5 text-lg flex-grow">
-            <li class="flex items-center text-text-light dark:text-text-dark">
-                <span class="text-green-500 font-bold mr-3">✔</span> Keep content respectful and inclusive for all learners
-            </li>
-            <li class="flex items-center text-text-light dark:text-text-dark">
-                <span class="text-green-500 font-bold mr-3">✔</span> Share accurate and educational information
-            </li>
-            <li class="flex items-center text-text-light dark:text-text-dark">
-                <span class="text-green-500 font-bold mr-3">✔</span> Avoid inappropriate or offensive material
-            </li>
-            <li class="flex items-center text-text-light dark:text-text-dark">
-                <span class="text-green-500 font-bold mr-3">✔</span> Credit sources when using external content
-            </li>
-        </ul>
-        <p class="text-text-light dark:text-text-dark italic text-lg text-center flex-grow">
-            Together, we create a better learning experience for everyone! 🌟
-        </p>
-    </div>
+
 </main>
 
 <script>
     const categoryNames = <%- JSON.stringify(categoryNames) %>;
     const subcategoriesData = <%- JSON.stringify(subcategories) %>;
+
+    // Get the 'public sets' checkbox and the element to show/hide
+    const checkbox = document.getElementById("public");
+    const element = document.getElementById("guidelines");
+
+    // Add an event listener to the checkbox
+    checkbox.addEventListener("change", function() {
+        if (checkbox.checked) {
+            element.classList.remove('hidden');  // Show the element
+        } else {
+            element.classList.add('hidden');  // hide the element
+        }
+    });
     
     document.addEventListener('DOMContentLoaded', function() {
         const categorySelect = document.getElementById('category');
