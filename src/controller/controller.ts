@@ -551,6 +551,8 @@ controller.get('/play_set',
         const cookie = getCookie(req); // gets authentication cookie
         let setID = req.query.setID;
         let setType = req.query.set_type || 'user';
+        let {shuffle, timed, timepercard } = req.query;
+        
         const cards = await axios.get(`http://localhost:${port}/api/getCardsInSet`, {
             params: { setID, setType },
             headers: { cookie }
@@ -562,9 +564,26 @@ controller.get('/play_set',
         //add owner info to set object
         const owner = await UserService.getUserByIdentifier(set.data.result.ownerID);
         set.data.result.ownerID = {username: owner?.username || '', email: owner?.email || ''};
+        
+        // Apply shuffling on the server if requested
+        let cardsData = cards.data.result;
+        if (shuffle === 'true') {
+            // Fisher-Yates shuffle algorithm
+            const shuffleArray = (array: any[]) => {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            };
+            
+            cardsData = shuffleArray([...cardsData]);
+        }
+        
         res.render("play_set", {
             set: set.data.result,
-            cards: cards.data.result,
+            set_type: setType,
+            cards: cardsData,
             categoryNames,
             subcategories: {
                 [Category.Language]: SubCategory_Language,
@@ -575,7 +594,8 @@ controller.get('/play_set',
                 [Category.Military]: SubCategory_Military
             },
             status: req.query.status,
-            currentPage: 'play_set'
+            currentPage: 'play_set',
+            options: {shuffle, timed, timepercard}
         });
     })
 );

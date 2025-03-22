@@ -240,16 +240,16 @@
     const categoryNames = <%- JSON.stringify(categoryNames) %>;
     const subcategoriesData = <%- JSON.stringify(subcategories) %>;
 
-    // Get the 'public sets' checkbox and the element to show/hide
+    
     const checkbox = document.getElementById("public");
     const element = document.getElementById("guidelines");
 
-    // Add an event listener to the checkbox
+    
     checkbox.addEventListener("change", function() {
         if (checkbox.checked) {
-            element.classList.remove('hidden');  // Show the element
+            element.classList.remove('hidden');  
         } else {
-            element.classList.add('hidden');  // hide the element
+            element.classList.add('hidden');  
         }
     });
     

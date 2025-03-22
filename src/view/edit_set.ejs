@@ -226,9 +226,9 @@
 </script>
 
 <script>
-    // Function to handle card flipping but ignore clicks on buttons
+    
     function flipCard(event, card) {
-        // Don't flip if clicking on a button
+        
         if (event.target.closest('button') || event.target.closest('.card-controls')) {
             return;
         }

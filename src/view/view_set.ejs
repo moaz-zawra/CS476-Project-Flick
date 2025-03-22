@@ -102,18 +102,22 @@
                         <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                             <form id="play-set-form" class="space-y-4">
                                 <input type="hidden" name="setID" value="<%= set.setID %>">
-                                <label for="shuffle" class="flex items-center gap-2">
-                                    <input type="checkbox" name="shuffle" id="shuffle" checked>
-                                    <span class="text-text-light dark:text-text-dark">Shuffle Cards?</span>
-                                </label>
-                                <label for="timed" class="flex items-center gap-2">
-                                    <input type="checkbox" name="timed" id="timed">
-                                    <span class="text-text-light dark:text-text-dark">Time limit on cards?</span>
-                                </label>
-                                <label for="timepercard" class="flex items-center gap-2">
-                                    <input type="number" name="timepercard" id="timepercard">
-                                    <span class="text-text-light dark:text-text-dark">Time per Card</span>
-                                </label>
+                                
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" id="shuffle" checked class="w-4 h-4 accent-primary-light dark:accent-primary-dark">
+                                    <label for="shuffle" class="text-text-light dark:text-text-dark">Shuffle Cards</label>
+                                </div>
+                                
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" id="timed" class="w-4 h-4 accent-primary-light dark:accent-primary-dark" onchange="toggleTimedOptions()">
+                                    <label for="timed" class="text-text-light dark:text-text-dark">Timed Mode</label>
+                                </div>
+                                
+                                <div id="timepercard-container" class="flex items-center gap-3 hidden">
+                                    <input type="number" id="timepercard" min="1" max="120" value="10" class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-light dark:text-text-dark px-3 py-2 rounded-md w-24">
+                                    <label for="timepercard" class="text-text-light dark:text-text-dark">Seconds per Card</label>
+                                </div>
+                                
                                 <div class="flex justify-center">
                                     <button type="button" onclick="startPracticeSession()"
                                         class="border-2 rounded-xl px-8 py-3 bg-primary-light dark:bg-primary-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200 transform hover:scale-105">
@@ -208,16 +212,37 @@
                     });
                 });
 
+                
+                function toggleTimedOptions() {
+                    const timedCheckbox = document.getElementById('timed');
+                    const timeContainer = document.getElementById('timepercard-container');
+                    const timeInput = document.getElementById('timepercard');
+                    
+                    if (timedCheckbox.checked) {
+                        timeContainer.classList.remove('hidden');
+                        timeInput.required = true;
+                    } else {
+                        timeContainer.classList.add('hidden');
+                        timeInput.required = false;
+                    }
+                }
+
                 function startPracticeSession() {
                     const setID = '<%= set.setID %>';
                     const shuffle = document.getElementById('shuffle').checked;
                     const timed = document.getElementById('timed').checked;
-                    const timepercard = document.getElementById('timepercard').value || 0;
                     
                     let url = `/play_set?setID=${setID}`;
                     if (shuffle) url += '&shuffle=true';
-                    if (timed) url += '&timed=true';
-                    if (timepercard > 0) url += `&timepercard=${timepercard}`;
+                    
+                    if (timed) {
+                        const timepercard = document.getElementById('timepercard').value;
+                        if (!timepercard || parseInt(timepercard) < 1) {
+                            alert('Please enter a valid time per card (minimum 1 second)');
+                            return;
+                        }
+                        url += '&timed=true&timepercard=' + timepercard;
+                    }
                     
                     window.location.href = url;
                 }
