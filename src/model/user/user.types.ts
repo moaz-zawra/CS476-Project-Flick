@@ -62,7 +62,7 @@ export enum UserAction{
     NEWSET = 0,
     NEWCARD = 1,
     SHARESET = 2,
-    VIEWSET = 3,
+    PLAYSET = 3,
     OTHER = 4,
     PAGE_VIEW = 5
 }

@@ -13,6 +13,7 @@ import {
     isRegular,
     isRegularUser,
     isSetOwner,
+    logUserAction,
     logUserActivity,
     routeHandler,
     setupServer,
@@ -29,6 +30,7 @@ import {
 } from '../model/cardSet/cardset.model';
 import {Moderator, Regular} from "../model/user/user.roles";
 import { APIService, GETOK, handleTemplateResponse } from '../model/api';
+import { UserAction } from '../model/user/user.types';
 
 const categoryNames = Object.keys(Category)
     .filter(key => !isNaN(Number(key)))
@@ -565,7 +567,7 @@ controller.get('/play_set',
         const owner = await UserService.getUserByIdentifier(set.data.result.ownerID);
         set.data.result.ownerID = {username: owner?.username || '', email: owner?.email || ''};
         
-        // Apply shuffling on the server if requested
+
         let cardsData = cards.data.result;
         if (shuffle === 'true') {
             // Fisher-Yates shuffle algorithm
@@ -580,6 +582,7 @@ controller.get('/play_set',
             cardsData = shuffleArray([...cardsData]);
         }
         
+        logUserAction(req, res, UserAction.PLAYSET);
         res.render("play_set", {
             set: set.data.result,
             set_type: setType,

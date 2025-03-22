@@ -341,12 +341,13 @@ export class APIService{
         const { front_text, back_text, setID } = req.body;
 
         if (front_text && back_text && setID) {
-            logUserAction(req, res, UserAction.NEWCARD);
+
             const card = makeCard(setID, front_text, back_text);
             const result = await user.addCardToSet(card);
 
             switch (result) {
                 case CardAddStatus.SUCCESS:
+                    logUserAction(req, res, UserAction.NEWCARD);
                     return handleResponse(res, POSTOK, `/edit_set?setID=${setID}`, 'success');
                 case CardAddStatus.MISSING_INFORMATION:
                     return handleResponse(res, BADREQUEST, `/edit_set?setID=${setID}`, 'missing-fields');
@@ -375,6 +376,7 @@ export class APIService{
 
             switch (result) {
                 case CardSetShareStatus.SUCCESS:
+                    logUserAction(req, res, UserAction.SHARESET);
                     return handleResponse(res, POSTOK, '/', 'success');
                 case CardSetShareStatus.USER_DOES_NOT_EXIST:
                     return handleResponse(res, NOTFOUND, '/', 'user-does-not-exist');
