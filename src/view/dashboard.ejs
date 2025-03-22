@@ -16,16 +16,24 @@
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 
 <%- include('partials/header') %>
-
 <%- include('partials/status-message') %>
 
 <div class="flex justify-between items-center mt-4">
-    <div class="font-mono text-2xl text-accent-light dark:text-accent-dark"> Welcome, <b><%= user.username %></b> </div>
-    <a href="/public_sets" class="border-2 rounded-xl px-4 py-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
-        View Public Sets
+    <a href="/account">
+    <div class="flex items-center">
+      <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark">
+        <%= user.username.charAt(0).toUpperCase() %>
+      </div>
+      <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
+         <div><b><%= user.username %></b></div>
+      </div>
+    </div>
     </a>
-</div>
-
+    <a href="/public_sets" class="border-2 rounded-xl px-4 py-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+      View Public Sets
+    </a>
+  </div>
+ 
 <br />
 
 <% if (role === 'admin') { %>
@@ -35,6 +43,9 @@
 <% } else if (role === 'regular') { %>
     <%- include('partials/regular_dashboard') %>
 <% } %>
+
+<div id="user-sets" class="space-y-4 mt-6"></div>
+<div id="shared-sets" class="space-y-4 mt-6"></div>
 
 <br />
 

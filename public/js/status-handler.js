@@ -17,7 +17,7 @@ function initializeStatusMessage(status) {
     switch(status) {
         // Success messages
         case 'success':
-            setStatusMessage('Operation completed successfully!', 'success');
+            setStatusMessage('Success!', 'success');
             break;
         case 'registration-success':
             setStatusMessage('Registration successful! Please log in.', 'success');

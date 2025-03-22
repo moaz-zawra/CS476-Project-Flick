@@ -19,16 +19,15 @@
 <%- include('partials/header') %>
 <%- include('partials/status-message') %>
 <div class="flex justify-between items-center mt-4">
-    <div class="flex items-center">
-      <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark">
-        <%= user.username.charAt(0).toUpperCase() %>
-      </div>
-      <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
-      <b><%= user.username %></b>
-      </div>
-    </div>
-    <a href="/public_sets" class="border-2 rounded-xl px-4 py-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
-      View Public Sets
+    <a href="/account">
+        <div class="flex items-center">
+            <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark">
+              <%= user.username.charAt(0).toUpperCase() %>
+            </div>
+            <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
+            <b><%= user.username %></b>
+            </div>
+          </div>
     </a>
   </div>
   
@@ -102,10 +101,6 @@
                                                 <%= set.subCategory %>
                                             </span>
                                             <% } %>
-                                                <span
-                                                    class="bg-highlight-light dark:bg-highlight-dark text-text-light dark:text-text-dark px-3 py-1.5 rounded-md text-sm font-medium">
-                                                    Public
-                                                </span>
                                     </div>
 
                                     <div class="flex items-center justify-between">
