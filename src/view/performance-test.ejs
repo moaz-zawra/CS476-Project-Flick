@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Flick | Performance Test Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/color-scheme.js"></script>
+    <script>
+        tailwind.config = window.tailwindConfig;
+    </script>
+</head>
+
+<%- include('partials/header') %>
+
+<body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
+    <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-4xl p-6 mx-auto mt-10 shadow-custom">
+        <h1 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Performance Test Results</h1>
+        
+        <% if (error) { %>
+            <div class="bg-red-100 dark:bg-red-800 border border-red-400 dark:border-red-900 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-6">
+                <%= error %>
+            </div>
+        <% } else { %>
+            <div class="bg-green-100 dark:bg-green-800 border border-green-400 dark:border-green-900 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-6">
+                Performance tests completed successfully!
+            </div>
+            
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-text-light dark:text-text-dark mb-3">Execution Times</h3>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-accent-light dark:bg-accent-dark text-text-light dark:text-text-dark">
+                            <th class="p-3 text-left text-surface-light">Run #</th>
+                            <th class="p-3 text-left text-surface-light">Login Time</th>
+                            <th class="p-3 text-left text-surface-light">AddSet Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let i = 0; i < results.length; i++) { %>
+                            <tr class="border-b border-accent-light dark:border-accent-dark hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all">
+                                <td class="p-3 text-text-light dark:text-text-dark"><%= i + 1 %></td>
+                                <td class="p-3 text-text-light dark:text-text-dark"><%= results[i].login %></td>
+                                <td class="p-3 text-text-light dark:text-text-dark"><%= results[i].addSet %></td>
+                            </tr>
+                        <% } %>
+                        <tr class="bg-highlight-light dark:bg-highlight-dark font-bold">
+                            <td class="p-3 text-text-light dark:text-text-dark">Average</td>
+                            <td class="p-3 text-text-light dark:text-text-dark"><%= averages.login %></td>
+                            <td class="p-3 text-text-light dark:text-text-dark"><%= averages.addSet %></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-text-light dark:text-text-dark mb-3">Test Details</h3>
+                <div class="p-3 bg-surface-light dark:bg-surface-dark rounded">
+                    <p class="mb-2 text-text-light dark:text-text-dark"><strong>Login Status:</strong> <%= loginStatus %></p>
+                    <p class="text-text-light dark:text-text-dark"><strong>AddSet Status:</strong> <%= addSetStatus %></p>
+                </div>
+            </div>
+        <% } %>
+        
+        <a href="/" class="inline-block mt-6 px-4 py-2 bg-accent-light dark:bg-accent-dark hover:bg-highlight-light dark:hover:bg-highlight-dark text-text-light dark:text-text-dark rounded transition-colors">Return to Dashboard</a>
+    </div>
+</body>
+</html>
