@@ -1,103 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flick | Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/js/color-scheme.js"></script>
-    <script src="/js/categories.js"></script>
-    <script src="/js/status-handler.js"></script>
-    <script src="/js/dashboard.js"></script>
-    <script>
-        tailwind.config = window.tailwindConfig;
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flick | Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/color-scheme.js"></script>
+  <script src="/js/categories.js"></script>
+  <script src="/js/status-handler.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script>
+      tailwind.config = window.tailwindConfig;
+  </script>
 </head>
 <body class="p-4 bg-bg-light dark:bg-bg-dark min-h-screen">
 
-<%- include('partials/header') %>
-<%- include('partials/status-message') %>
+  <%- include('partials/header') %>
+  <%- include('partials/status-message') %>
 
-
-<div class="flex justify-between items-center mt-4">
+  <div class="flex justify-between items-center mt-4">
     <a href="/account">
-    <div class="flex items-center">
-      <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark font-bold hover:shadow-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-all duration-200">
-        <%= user.username.charAt(0).toUpperCase() %>
+      <div class="flex items-center">
+        <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark font-bold hover:shadow-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-all duration-200">
+          <%= user.username.charAt(0).toUpperCase() %>
+        </div>
+        <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
+          <b><%= user.username %></b>
+        </div>
       </div>
-      <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
-         <div><b><%= user.username %></b></div>
-         
-      </div>
-    </div>
     </a>
     <a href="/public_sets" class="border-2 rounded-xl px-4 py-2 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
       View Public Sets
     </a>
   </div>
- 
-<br />
 
-<% if (role === 'admin') { %>
-    <%- include('partials/admin_dashboard') %>
-<% } else if (role === 'moderator') { %>
-    <%- include('partials/mod_dashboard') %>
-<% } else if (role === 'regular') { %>
-    <%- include('partials/regular_dashboard') %>
-<% } %>
-
-<div id="user-sets" class="space-y-4 mt-6"></div>
-<div id="shared-sets" class="space-y-4 mt-6"></div>
-
-<br />
-
-
-<div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3"> 
-        <h2 class="text-lg font-bold mb-2">Report Set</h2>
-        <textarea id="reason-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter reason for reporting"></textarea>
-        <div class="flex justify-end mt-4">
-            <button id="cancel-report" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
-            <button id="confirm-report" class="bg-red-500 text-white px-4 py-2 rounded-md">Report</button>
-        </div>
+  <!-- SEARCH BAR SECTION -->
+  <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl p-4 mt-6">
+    <div class="flex flex-col md:flex-row items-start md:items-end gap-4">
+      <div class="w-full md:w-1/3">
+        <label for="nameFilter" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+          Search by Name
+        </label>
+        <input 
+          id="nameFilter"
+          placeholder="Enter set name..."
+          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+      </div>
+      <div class="w-full md:w-1/4">
+        <label for="categoryFilter" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+          Category
+        </label>
+        <select 
+          id="categoryFilter"
+          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      <div class="w-full md:w-1/4">
+        <label for="subcategoryFilter" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
+          Subcategory
+        </label>
+        <select 
+          id="subcategoryFilter"
+          class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
+          <option value="">All Subcategories</option>
+        </select>
+      </div>
+      <div>
+        <button 
+          id="applyFilters"
+          class="border-2 rounded-xl px-8 py-2.5 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
+          Apply Filters
+        </button>
+      </div>
     </div>
-</div>
+  </div>
+  
+  <!-- DASHBOARD CONTENT -->
+  <% if (role === 'admin') { %>
+    <%- include('partials/admin_dashboard') %>
+  <% } else if (role === 'moderator') { %>
+    <%- include('partials/mod_dashboard') %>
+  <% } else if (role === 'regular') { %>
+    <%- include('partials/regular_dashboard') %>
+  <% } %>
 
-</body>
-</html>
+  <!-- Containers for user and shared sets. 
+       Ensure that the sets inserted by insertSet have the class "set-item" and appropriate data attributes (data-name, data-category, data-subcategory) -->
+  <div id="user-sets" class="space-y-4 mt-6"></div>
+  <div id="shared-sets" class="space-y-4 mt-6"></div>
 
+  <!-- REPORT MODAL (remains unchanged) -->
+  <div id="report-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-md w-2/3"> 
+      <h2 class="text-lg font-bold mb-2">Report Set</h2>
+      <textarea id="reason-input" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter reason for reporting"></textarea>
+      <div class="flex justify-end mt-4">
+        <button id="cancel-report" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2">Cancel</button>
+        <button id="confirm-report" class="bg-red-500 text-white px-4 py-2 rounded-md">Report</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-    
+  <!-- Pass category and subcategory data to client -->
+  <script>
     window.categoryNames = <%- JSON.stringify(categoryNames) %>;
     window.subcategoriesData = <%- JSON.stringify(subcategories) %>;
-</script>
-
-
-<script src="/js/dashboard.js"></script>
-
-
-<% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
+  </script>
+  
+  <!-- Dashboard sets are inserted by dashboard.js and inline scripts below -->
+  <script src="/js/dashboard.js"></script>
+  
+  <% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
     <% userSets.forEach(function(set, index) { %>
-        <script>
-            const setData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.description, setData<%= index %>.category, setData<%= index %>.subCategory, false, setData<%= index %>.publicSet, setData<%= index %>.approved);
-        </script>
+      <script>
+        const setData<%= index %> = <%- JSON.stringify(set) %>;
+        insertSet(
+          setData<%= index %>.setID,
+          setData<%= index %>.setName,
+          setData<%= index %>.description,
+          setData<%= index %>.category,
+          setData<%= index %>.subCategory,
+          false,
+          setData<%= index %>.publicSet,
+          setData<%= index %>.approved
+        );
+      </script>
     <% }); %>
-<% } else { %>
+  <% } else { %>
     <script>
-        console.log("No sets available to display");
+      console.log("No sets available to display");
     </script>
-<% } %>
-<% if (typeof sharedSets !== 'undefined' && Array.isArray(sharedSets)) { %>
+  <% } %>
+  
+  <% if (typeof sharedSets !== 'undefined' && Array.isArray(sharedSets)) { %>
     <% sharedSets.forEach(function(set, index) { %>
-        <script>
-            const sharedSetData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.description, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, sharedSetData<%= index %>.publicSet, sharedSetData<%= index %>.approved);
-        </script>
+      <script>
+        const sharedSetData<%= index %> = <%- JSON.stringify(set) %>;
+        insertSet(
+          sharedSetData<%= index %>.setID,
+          sharedSetData<%= index %>.setName,
+          sharedSetData<%= index %>.description,
+          sharedSetData<%= index %>.category,
+          sharedSetData<%= index %>.subCategory,
+          true,
+          sharedSetData<%= index %>.publicSet,
+          sharedSetData<%= index %>.approved
+        );
+      </script>
     <% }); %>
-<% } else { %>
+  <% } else { %>
     <script>
-        console.log("No shared sets available to display");
+      console.log("No shared sets available to display");
     </script>
-<% } %>
+  <% } %>
+  
+  <!-- SEARCH & FILTER SCRIPT -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const categoryFilter = document.getElementById('categoryFilter');
+      const subcategoryFilter = document.getElementById('subcategoryFilter');
+      const nameFilter = document.getElementById('nameFilter');
+      const applyFiltersBtn = document.getElementById('applyFilters');
+      const originalHTML = categoryFilter.innerHTML;
+
+      // Populate category dropdown
+      populateCategoryDropdown(categoryFilter, window.categoryNames, false);
+      if (!categoryFilter.querySelector('option[value=""]')) {
+        const currentOptions = categoryFilter.innerHTML;
+        categoryFilter.innerHTML = originalHTML + currentOptions;
+      }
+      categoryFilter.value = "";
+
+      categoryFilter.addEventListener('change', function () {
+        const hasSubcategories = populateSubcategoryDropdown(
+          this.value,
+          subcategoryFilter,
+          window.subcategoriesData,
+          true
+        );
+        subcategoryFilter.disabled = !hasSubcategories;
+      });
+
+      applyFiltersBtn.addEventListener('click', filterSets);
+      nameFilter.addEventListener('input', filterSets);
+      nameFilter.addEventListener('keyup', function (e) {
+        if (e.key === 'Enter') {
+          filterSets();
+        }
+      });
+    });
+
+    function filterSets() {
+      const nameFilterVal = document.getElementById('nameFilter').value.toLowerCase();
+      const categoryVal = document.getElementById('categoryFilter').value;
+      const subcategoryVal = document.getElementById('subcategoryFilter').value;
+      // Adjust selector to target all set items on the dashboard
+      const sets = document.querySelectorAll('.set-item');
+
+      sets.forEach(set => {
+        const setName = set.getAttribute('data-name');
+        const setCategory = set.getAttribute('data-category');
+        const setSubcategory = set.getAttribute('data-subcategory');
+        let showSet = true;
+
+        if (nameFilterVal && !setName.includes(nameFilterVal)) {
+          showSet = false;
+        }
+        if (showSet && categoryVal && setCategory !== categoryVal) {
+          showSet = false;
+        }
+        if (showSet && subcategoryVal && setSubcategory !== subcategoryVal) {
+          showSet = false;
+        }
+        set.style.display = showSet ? '' : 'none';
+      });
+
+      // Optionally, add or remove a "no results" message if no sets match
+      const visibleSets = document.querySelectorAll('.set-item:not([style*="display: none"])');
+      let noResultsMessage = document.getElementById('no-results-message');
+      if (visibleSets.length === 0) {
+        if (!noResultsMessage) {
+          noResultsMessage = document.createElement('div');
+          noResultsMessage.id = 'no-results-message';
+          noResultsMessage.className = 'border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-lg p-8 text-center mt-4';
+          noResultsMessage.innerHTML = '<p class="font-mono text-lg text-accent-light dark:text-accent-dark">No matching sets found.</p>';
+          // Append the message to one of the containers (for example, user-sets)
+          document.getElementById('user-sets').appendChild(noResultsMessage);
+        }
+      } else if (noResultsMessage) {
+        noResultsMessage.remove();
+      }
+    }
+  </script>
+</body>
+</html>
