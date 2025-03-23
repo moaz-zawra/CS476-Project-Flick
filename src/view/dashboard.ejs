@@ -79,7 +79,7 @@
     <% userSets.forEach(function(set, index) { %>
         <script>
             const setData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.category, setData<%= index %>.subCategory, false, setData<%= index %>.publicSet, setData<%= index %>.approved);
+            insertSet(setData<%= index %>.setID, setData<%= index %>.setName, setData<%= index %>.description, setData<%= index %>.category, setData<%= index %>.subCategory, false, setData<%= index %>.publicSet, setData<%= index %>.approved);
         </script>
     <% }); %>
 <% } else { %>
@@ -91,7 +91,7 @@
     <% sharedSets.forEach(function(set, index) { %>
         <script>
             const sharedSetData<%= index %> = <%- JSON.stringify(set) %>;
-            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, sharedSetData<%= index %>.publicSet, sharedSetData<%= index %>.approved);
+            insertSet(sharedSetData<%= index %>.setID, sharedSetData<%= index %>.setName, sharedSetData<%= index %>.description, sharedSetData<%= index %>.category, sharedSetData<%= index %>.subCategory, true, sharedSetData<%= index %>.publicSet, sharedSetData<%= index %>.approved);
         </script>
     <% }); %>
 <% } else { %>

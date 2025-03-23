@@ -114,62 +114,71 @@ function handleRemoveSharedSet(setID, setName) {
 }
 
 
-function insertSet(setID, setName, category, subcategory, shared, publicSet, approved) {
-    // Create the outer container
+function insertSet(setID, setName, description, category, subcategory, shared, publicSet, approved) {
     const setDiv = document.createElement('div');
     setDiv.className = 'set-item border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-lg p-4 hover:shadow-lg transition-shadow duration-200';
     setDiv.setAttribute('data-name', setName.toLowerCase());
     setDiv.setAttribute('data-category', category);
     setDiv.setAttribute('data-subcategory', subcategory);
   
-    // Create a wrapper to hold top (content/tags) and bottom (icons) sections
+
     const containerWrapper = document.createElement('div');
     containerWrapper.className = 'h-full flex flex-col justify-between';
-  
-    // ----- Top Section: Title, Description and Tags -----
+
     const topSection = document.createElement('div');
   
-    // Title
+
     const setNameH2 = document.createElement('h2');
     setNameH2.className = 'font-mono text-xl font-bold text-accent-light dark:text-accent-dark mb-2';
     setNameH2.textContent = setName;
     topSection.appendChild(setNameH2);
   
-    // Description placeholder – update if you have a description available
+    const descriptionText = description ? description : "No description available";
     const descriptionP = document.createElement('p');
     descriptionP.className = 'text-text-light dark:text-text-dark text-base mb-4 line-clamp-3';
-    descriptionP.textContent = "No description available";
+    descriptionP.textContent = descriptionText;
     topSection.appendChild(descriptionP);
+
   
-    // Tags container for category and subcategory
+
     const tagsDiv = document.createElement('div');
     tagsDiv.className = 'flex flex-wrap gap-2 mb-4';
   
     const categorySpan = document.createElement('span');
-    // Changed to match the sample snippet styling for category
     categorySpan.className = 'px-2 py-1 rounded bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 text-sm';
     categorySpan.textContent = `Category: ${getCategoryName(category, window.categoryNames) || 'Unknown'}`;
     tagsDiv.appendChild(categorySpan);
   
     if (subcategory) {
       const subcategorySpan = document.createElement('span');
-      // Changed to match the sample snippet styling for subcategory
       subcategorySpan.className = 'px-2 py-1 rounded bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 text-sm';
       subcategorySpan.textContent = `Subcategory: ${subcategory}`;
       tagsDiv.appendChild(subcategorySpan);
     }
   
-    // Append the top section and tags to a content wrapper
+
+    if (publicSet) {
+      const publicSpan = document.createElement('span');
+      if (approved) {
+        publicSpan.className = 'px-2 py-1 rounded bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200 text-sm';
+      } else {
+        publicSpan.className = 'px-2 py-1 rounded bg-orange-200 dark:bg-orange-800 text-red-800 dark:text-orange-200 text-sm';
+      }
+      publicSpan.textContent = `Public (${approved ? 'Approved' : 'Pending'})`;
+      tagsDiv.appendChild(publicSpan);
+    }
+  
+
     const contentWrapper = document.createElement('div');
     contentWrapper.appendChild(topSection);
     contentWrapper.appendChild(tagsDiv);
     containerWrapper.appendChild(contentWrapper);
   
-    // ----- Bottom Section: Icon Buttons -----
+
     const bottomSection = document.createElement('div');
     bottomSection.className = 'flex items-center gap-3';
   
-    // Helper to create icon buttons
+
     function createIconButton(href, imgSrc, altText, tooltipText, clickHandler) {
       const btn = document.createElement(href ? 'a' : 'button');
       if (href) {
@@ -183,7 +192,6 @@ function insertSet(setID, setName, category, subcategory, shared, publicSet, app
       const img = document.createElement('img');
       img.src = imgSrc;
       img.alt = altText;
-      // Remove previous size classes and add inline style for 24px icons
       img.className = 'invert dark:invert-0';
       img.setAttribute("style", "width:24px !important; height:24px !important; flex-shrink:0 !important;");
       btn.appendChild(img);
@@ -196,18 +204,18 @@ function insertSet(setID, setName, category, subcategory, shared, publicSet, app
       return btn;
     }
   
-    // View button (always available)
+
     bottomSection.appendChild(
       createIconButton(`/view_set?setID=${setID}&set_type=${shared ? 'shared' : 'regular'}`, 'view.svg', 'View Icon', 'View Set')
     );
   
-    // Play button (always available)
+
     bottomSection.appendChild(
       createIconButton(`/play_set?setID=${setID}&set_type=${shared ? 'shared' : 'regular'}`, 'play.svg', 'Play Icon', 'Play Set')
     );
   
     if (!shared) {
-      // For non-shared sets, include Edit, Share, and Delete buttons
+
       bottomSection.appendChild(
         createIconButton(`/edit_set?setID=${setID}`, 'edit.svg', 'Edit Icon', 'Edit Set')
       );
@@ -235,7 +243,7 @@ function insertSet(setID, setName, category, subcategory, shared, publicSet, app
         })
       );
     } else {
-      // For shared sets, include Remove and Report buttons
+
       bottomSection.appendChild(
         createIconButton(null, 'delete.svg', 'Remove Icon', 'Remove Set', () => { handleRemoveSharedSet(setID, setName); })
       );
@@ -247,7 +255,6 @@ function insertSet(setID, setName, category, subcategory, shared, publicSet, app
     containerWrapper.appendChild(bottomSection);
     setDiv.appendChild(containerWrapper);
   
-    // Append the set element to the appropriate container
     const container = shared ? document.getElementById('shared-sets') : document.getElementById('user-sets');
     container.appendChild(setDiv);
   }
