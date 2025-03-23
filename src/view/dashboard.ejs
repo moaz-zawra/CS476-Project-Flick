@@ -18,6 +18,7 @@
 <%- include('partials/header') %>
 <%- include('partials/status-message') %>
 
+
 <div class="flex justify-between items-center mt-4">
     <a href="/account">
     <div class="flex items-center">
@@ -26,6 +27,7 @@
       </div>
       <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
          <div><b><%= user.username %></b></div>
+         
       </div>
     </div>
     </a>
@@ -99,4 +101,3 @@
         console.log("No shared sets available to display");
     </script>
 <% } %>
-
