@@ -8,11 +8,11 @@ export interface CardSet {
     setID?: number;
     publicSet?: boolean;
     approved?: boolean;
-    
+    creation_date?: string;
 }
 
-export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:boolean, approved?: boolean, views?: number): CardSet {
-    return {ownerID, setName, category, subCategory, description, setID, publicSet, approved, views};
+export function makeCardSet(ownerID: number, setName: string, category: Category, subCategory: string, description: string, setID?: number, publicSet?:boolean, approved?: boolean, views?: number, creation_date?: string): CardSet {
+    return {ownerID, setName, category, subCategory, description, setID, publicSet, approved, views, creation_date};
 }
 
 export interface Report {

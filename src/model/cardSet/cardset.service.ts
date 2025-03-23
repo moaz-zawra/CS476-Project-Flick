@@ -87,7 +87,7 @@ export class CardSetService {
         try {
             const db = await DatabaseService.getConnection();
             const [rows] = await db.connection.execute<RowDataPacket[]>(
-                "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved FROM card_sets WHERE approved = 0 AND public_set = 1"
+                "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, creation_date FROM card_sets WHERE approved = 0 AND public_set = 1"
             );
             if (!rows || rows.length === 0) return CardSetGetStatus.USER_HAS_NO_SETS;
 
@@ -116,7 +116,7 @@ export class CardSetService {
         try {
             const db = await DatabaseService.getConnection();
             const query = `
-                SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, r.reason, r.reportID, r.reporterID 
+                SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.creation_date, r.reason, r.reportID, r.reporterID 
                 FROM card_sets cs 
                 INNER JOIN reports r ON cs.setID = r.setID
             `;
@@ -135,7 +135,8 @@ export class CardSetService {
                     row.description,
                     row.setID,
                     row.public_set,
-                    row.approved
+                    row.approved,
+                    row.creation_date
                 ),
                 reason: row.reason,
                 reporterID: row.reporterID,
@@ -172,7 +173,7 @@ export class CardSetService {
             if (rows.length > 0) return CardSetAddStatus.NAME_USED;
 
             await db.connection.execute<RowDataPacket[]>(
-                "INSERT INTO card_sets (ownerID, set_name, category, sub_category, description, public_set) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO card_sets (ownerID, set_name, category, sub_category, description, public_set, creation_date) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
                 [ownerID, card_set.setName, card_set.category, card_set.subCategory, card_set.description, card_set.publicSet]
             );
             return CardSetAddStatus.SUCCESS;
@@ -238,17 +239,17 @@ export class CardSetService {
         try {
             const db = await DatabaseService.getConnection();
             const ownerID = await UserService.getIDOfUser(user.username);
-            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views FROM card_sets WHERE ownerID = ?";
+            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views, creation_date FROM card_sets WHERE ownerID = ?";
             let params: any[] = [ownerID];
 
             if (setType === 'shared') {
-                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.views
+                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.views, cs.creation_date
                          FROM card_sets cs 
                          INNER JOIN shared_sets ss ON cs.setID = ss.setID 
                          WHERE ss.uID = ?`;
                 params = [ownerID];
             } else if (setType === 'public') {
-                query = `SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views
+                query = `SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views, creation_date
                          FROM card_sets 
                          WHERE public_set = 1 AND approved = 1`;
                 params = [];
@@ -269,7 +270,8 @@ export class CardSetService {
                 row.setID,
                 row.public_set,
                 row.approved,
-                row.views
+                row.views,
+                row.creation_date
             ));
             return sets;
         } catch (error) {
@@ -289,18 +291,18 @@ export class CardSetService {
         try {
             const db = await DatabaseService.getConnection();
             const userID = await UserService.getIDOfUser(user.username);
-            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views FROM card_sets WHERE setID = ?";
+            let query = "SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views, creation_date FROM card_sets WHERE setID = ?";
             let params: any[] = [setID];
 
             if (setType === 'shared') {
-                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.views
+                query = `SELECT cs.ownerID, cs.set_name, cs.category, cs.sub_category, cs.description, cs.setID, cs.public_set, cs.approved, cs.views, creation_date
                          FROM card_sets cs 
                          INNER JOIN shared_sets ss ON cs.setID = ss.setID 
                          WHERE ss.uID = ? AND cs.setID = ? 
                          LIMIT 1`;
                 params = [userID, setID];
             } else if (setType === 'public') {
-                query = `SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views
+                query = `SELECT ownerID, set_name, category, sub_category, description, setID, public_set, approved, views, creation_date
                          FROM card_sets 
                          WHERE setID = ? AND public_set = 1 AND approved = 1 
                          LIMIT 1`;
@@ -320,7 +322,8 @@ export class CardSetService {
                 row.setID,
                 row.public_set,
                 row.approved,
-                row.views
+                row.views,
+                row.creation_date
             );
         } catch (error) {
             console.error("Failed to get card set " + setID + " with error: ", error);

@@ -21,6 +21,7 @@ import {
 import {UserService} from "../model/user/user.service";
 import {
     Category,
+    makeCardSet,
     SubCategory_CourseSubjects,
     SubCategory_Language,
     SubCategory_Law,
@@ -31,6 +32,9 @@ import {
 import {Moderator, Regular} from "../model/user/user.roles";
 import { APIService, GETOK, handleTemplateResponse } from '../model/api';
 import { UserAction } from '../model/user/user.types';
+import { User } from '../model/user/user.model';
+import { makeCard } from '../model/card/card.model';
+import { CardSetAddStatus } from '../model/cardSet/cardset.types';
 
 const categoryNames = Object.keys(Category)
     .filter(key => !isNaN(Number(key)))
@@ -449,7 +453,6 @@ controller.get('/',
                     return set;
                 })
             );
-
             if(isModerator(req.session.user)){
                 //Get data required for moderator dashboard
                 const users = await axios.get('http://localhost:' + port + '/api/getRegulars', {
@@ -857,6 +860,127 @@ controller.get('/test',
         );
 
         res.render("test_results", { results, currentPage: 'test' });
+    })
+);
+
+/**
+ * Tests performance of login and addSet operations
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+controller.get('/performance-test',
+    logUserActivity,
+    asyncHandler(async (req, res) => {
+        try {
+            // Import required dependencies
+            const { UserCreator } = await import('../model/user/user.auth');
+            const { CardSetService } = await import('../model/cardSet/cardset.service');
+            const { Category, SubCategory_Technology } = await import('../model/cardSet/cardset.model');
+            const { LoginStatus } = await import('../model/user/user.types');
+            
+            // Helper function to format time with appropriate unit
+            const formatTime = (nanoseconds: bigint): string => {
+                if (nanoseconds < BigInt(1000)) {
+                    return `${nanoseconds}ns`;
+                } else if (nanoseconds < BigInt(1000000)) {
+                    return `${Number(nanoseconds) / 1000}μs`;
+                } else if (nanoseconds < BigInt(1000000000)) {
+                    return `${Number(nanoseconds) / 1000000}ms`;
+                } else {
+                    return `${Number(nanoseconds) / 1000000000}s`;
+                }
+            };
+            
+            // Number of test runs
+            const NUM_RUNS = 10;
+            
+            // Test login performance once to check validity before running multiple times
+            const userCreator = new UserCreator();
+            const initialLoginResult = await userCreator.login("test", "12345678A");
+            
+            if (initialLoginResult === LoginStatus.USER_DOES_NOT_EXIST ||
+                initialLoginResult === LoginStatus.WRONG_PASSWORD ||
+                initialLoginResult === LoginStatus.DATABASE_FAILURE ||
+                initialLoginResult === LoginStatus.OTHER ||
+                initialLoginResult === LoginStatus.USER_IS_BANNED) {
+                return res.render("performance-test", {
+                    error: "Login failed: " + initialLoginResult,
+                    results: [],
+                    averages: { login: "N/A", addSet: "N/A" },
+                    loginStatus: initialLoginResult,
+                    addSetStatus: "N/A"
+                });
+            }
+            
+            // Array to store results of each run
+            const results = [];
+            let totalLoginNs = BigInt(0);
+            let totalAddSetNs = BigInt(0);
+            let addSetStatus;
+            
+            // Run the tests NUM_RUNS times
+            for (let i = 0; i < NUM_RUNS; i++) {
+                // Login test
+                const loginStart = process.hrtime.bigint();
+                const loginResult = await userCreator.login("test", "12345678A");
+                const loginEnd = process.hrtime.bigint();
+                const loginTime = loginEnd - loginStart;
+                
+                // AddSet test
+                const testSet = makeCardSet(
+                    await UserService.getIDOfUser("test"),
+                    `Test Set ${Date.now()}-${i}`,
+                    Category.Technology,
+                    SubCategory_Technology.Programming,
+                    "A test set for performance measurement",
+                    undefined,
+                    false
+                );
+                
+                const addSetStart = process.hrtime.bigint();
+                addSetStatus = await CardSetService.addSet(loginResult as User, testSet);
+                const addSetEnd = process.hrtime.bigint();
+                const addSetTime = addSetEnd - addSetStart;
+                
+                // Track the total times for calculating averages
+                totalLoginNs += loginTime;
+                totalAddSetNs += addSetTime;
+                
+                // Add formatted results for this run
+                results.push({
+                    login: formatTime(loginTime),
+                    addSet: formatTime(addSetTime)
+                });
+            }
+            
+            // Calculate averages
+            const avgLoginNs = totalLoginNs / BigInt(NUM_RUNS);
+            const avgAddSetNs = totalAddSetNs / BigInt(NUM_RUNS);
+            
+            // Render the template with all results
+            return res.render("performance-test", {
+                error: null,
+                results,
+                averages: {
+                    login: formatTime(avgLoginNs),
+                    addSet: formatTime(avgAddSetNs)
+                },
+                loginStatus: "Success",
+                addSetStatus: addSetStatus === CardSetAddStatus.SUCCESS ? "Success" : "Error",
+                currentPage:'performance-test'
+            });
+            
+        } catch (error) {
+            console.error("Performance test error:", error);
+            return res.render("performance-test", {
+                error: `Performance test failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+                results: [],
+                averages: { login: "N/A", addSet: "N/A" },
+                loginStatus: "Error",
+                addSetStatus: "Error",
+                currentPage:'performance-test'
+            });
+        }
     })
 );
 
