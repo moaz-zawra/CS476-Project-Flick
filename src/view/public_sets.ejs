@@ -20,14 +20,16 @@
   <%- include('partials/status-message') %>
 
   <div class="flex justify-between items-center mt-4">
+    <a href="/account">
     <div class="flex items-center">
-      <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark">
+      <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mr-4 font-mono text-xl text-accent-light dark:text-accent-dark font-bold hover:shadow-lg hover:bg-gray-200 dark:hover:bg-gray-500 transition-all duration-200">
         <%= user.username.charAt(0).toUpperCase() %>
       </div>
       <div class="font-mono text-2xl text-accent-light dark:text-accent-dark">
         <b><%= user.username %></b>
       </div>
     </div>
+    </a>
   </div>
   
   <main>
@@ -74,9 +76,7 @@
         <div>
           <button 
             id="applyFilters"
-            class="border-2 rounded-xl px-8 py-2.5 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105"
-            style="width: 150px; height: 40px;"
-          >
+            class="border-2 rounded-xl px-8 py-2.5 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
             Apply Filters
           </button>
         </div>
@@ -347,6 +347,7 @@
       } else if (noResultsMessage) {
         noResultsMessage.remove();
       }
+
     }
   </script>
 </body>
