@@ -63,12 +63,6 @@
                   Public Sets
                 </button>
               <% } %>
-              <% if (currentPage !== 'test') { %>
-                <button id="run-tests-button" onclick="window.location.href='/test'"
-                  class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">
-                  Run Tests
-                </button>
-              <% } %>
               <form method="post" action="/api/logout" class="inline-flex w-full">
                 <button type="submit" id="logout-button"
                   class="w-full text-left text-xs text-accent-light dark:text-secondary-light hover:text-secondary-light dark:hover:text-accent-dark transition-colors">

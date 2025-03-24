@@ -33,7 +33,6 @@ import {Moderator, Regular} from "../model/user/user.roles";
 import { APIService, GETOK, handleTemplateResponse } from '../model/api';
 import { LoginStatus, UserAction } from '../model/user/user.types';
 import { User } from '../model/user/user.model';
-import { makeCard } from '../model/card/card.model';
 import { CardSetAddStatus } from '../model/cardSet/cardset.types';
 import { UserCreator } from '../model/user/user.auth';
 import { CardSetService } from '../model/cardSet/cardset.service';
@@ -48,6 +47,7 @@ const categoryNames = Object.keys(Category)
         }
         return acc;
     }, {});
+
 export const port = 3000;
 
 const pub = path.join(__dirname, '../../public/');
@@ -803,7 +803,7 @@ controller.get('/new_set',
         });
     })
 );
-
+/*
 controller.get('/test', 
     isAuthenticated,
     isRegularUser,
@@ -864,12 +864,15 @@ controller.get('/test',
         res.render("test_results", { results, currentPage: 'test' });
     })
 );
+*/
+
 
 /**
  * Tests performance of login and addSet operations
  * @param req - Express request object
  * @param res - Express response object
  */
+/*
 controller.get('/performance-test',
     logUserActivity,
     asyncHandler(async (req, res) => {
@@ -975,6 +978,7 @@ controller.get('/performance-test',
         }
     })
 );
+*/
 
 /**
  * Handles 404 errors by serving the not found page

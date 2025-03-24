@@ -33,45 +33,6 @@
       View Public Sets
     </a>
   </div>
-
-  <!-- SEARCH BAR SECTION -->
-  <div
-          class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl p-4 mb-6">
-    <div class="flex flex-col md:flex-row items-start md:items-end gap-4">
-      <div class="w-full md:w-1/3">
-        <label for="nameFilter" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-          Search by Name
-        </label>
-        <input type="text" id="nameFilter" placeholder="Enter set name..."
-               class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-      </div>
-      <div class="w-full md:w-1/4">
-        <label for="categoryFilter" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-          Category
-        </label>
-        <select id="categoryFilter"
-                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-          <option value="">All Categories</option>
-        </select>
-      </div>
-      <div class="w-full md:w-1/4">
-        <label for="subcategoryFilter" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
-          Subcategory
-        </label>
-        <select id="subcategoryFilter"
-                class="border-2 rounded-lg p-2 bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark focus:border-accent-light dark:focus:border-accent-dark focus:outline-none border-accent-light dark:border-accent-dark w-full transition-colors duration-200">
-          <option value="">All Subcategories</option>
-        </select>
-      </div>
-
-      <div>
-        <button id="applyFilters"
-                class="border-2 rounded-xl px-8 py-2.5 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark hover:text-text-light dark:hover:text-text-dark transition-all duration-200 transform hover:scale-105">
-          Apply Filters
-        </button>
-      </div>
-    </div>
-  </div>
   
   <!-- DASHBOARD CONTENT -->
   <% if (role === 'admin') { %>
