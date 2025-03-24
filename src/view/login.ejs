@@ -18,7 +18,7 @@
   <main>
     <div class="border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-xl w-full max-w-md p-6 text-center mx-auto mt-10 shadow-custom transition-all duration-300 hover:shadow-lg">
       <form action="/api/login" method="post" class="space-y-4 max-w-sm mx-auto">
-        <!-- Username Field -->
+    
         <div class="mb-4">
           <label for="identifier" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
             Username or Email
@@ -36,12 +36,11 @@
           />
         </div>
 
-        <!-- Password Field with Eye Icon Toggle -->
         <div class="mb-6 relative">
           <label for="password" class="text-text-light dark:text-text-dark font-bold block text-left mb-2">
             Password
           </label>
-          <!-- Notice pr-12 to make room for the icon on the right -->
+          
           <input
             type="password"
             id="password"
@@ -53,13 +52,13 @@
                    border-accent-light dark:border-accent-dark w-full transition-colors duration-200"
             required
           />
-          <!-- Eye Icon Toggle Button: anchored at top-2 to align near the text baseline -->
+    
           <button
             type="button"
             id="togglePassword"
             class="absolute right-2 top-11 text-gray-600 dark:text-gray-400 focus:outline-none px-2"
           >
-            <!-- Open Eye (default) -->
+            
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5"

@@ -31,10 +31,12 @@ import {
 } from '../model/cardSet/cardset.model';
 import {Moderator, Regular} from "../model/user/user.roles";
 import { APIService, GETOK, handleTemplateResponse } from '../model/api';
-import { UserAction } from '../model/user/user.types';
+import { LoginStatus, UserAction } from '../model/user/user.types';
 import { User } from '../model/user/user.model';
 import { makeCard } from '../model/card/card.model';
 import { CardSetAddStatus } from '../model/cardSet/cardset.types';
+import { UserCreator } from '../model/user/user.auth';
+import { CardSetService } from '../model/cardSet/cardset.service';
 
 const categoryNames = Object.keys(Category)
     .filter(key => !isNaN(Number(key)))
@@ -872,13 +874,6 @@ controller.get('/performance-test',
     logUserActivity,
     asyncHandler(async (req, res) => {
         try {
-            // Import required dependencies
-            const { UserCreator } = await import('../model/user/user.auth');
-            const { CardSetService } = await import('../model/cardSet/cardset.service');
-            const { Category, SubCategory_Technology } = await import('../model/cardSet/cardset.model');
-            const { LoginStatus } = await import('../model/user/user.types');
-            
-            // Helper function to format time with appropriate unit
             const formatTime = (nanoseconds: bigint): string => {
                 if (nanoseconds < BigInt(1000)) {
                     return `${nanoseconds}ns`;
@@ -893,8 +888,7 @@ controller.get('/performance-test',
             
             // Number of test runs
             const NUM_RUNS = 10;
-            
-            // Test login performance once to check validity before running multiple times
+
             const userCreator = new UserCreator();
             const initialLoginResult = await userCreator.login("test", "12345678A");
             
@@ -946,7 +940,6 @@ controller.get('/performance-test',
                 totalLoginNs += loginTime;
                 totalAddSetNs += addSetTime;
                 
-                // Add formatted results for this run
                 results.push({
                     login: formatTime(loginTime),
                     addSet: formatTime(addSetTime)
@@ -957,7 +950,6 @@ controller.get('/performance-test',
             const avgLoginNs = totalLoginNs / BigInt(NUM_RUNS);
             const avgAddSetNs = totalAddSetNs / BigInt(NUM_RUNS);
             
-            // Render the template with all results
             return res.render("performance-test", {
                 error: null,
                 results,

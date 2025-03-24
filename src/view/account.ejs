@@ -34,18 +34,18 @@
 
       <div class="flex flex-col space-y-4 mt-10">
         <button onclick="openEditAccountModal()"
-          class="w-full py-3 px-6 rounded-lg bg-main-button-light dark:bg-accent-dark text-white font-semibold shadow-md hover:shadow-xl transition-all duration-200">
+          class="w-full py-3 px-6 rounded-lg bg-main-button-light dark:bg-accent-dark text-text-light dark:text-text-dark font-semibold shadow-md hover:shadow-xl transition-all duration-200">
           Edit Account Info
         </button>
         <button onclick="window.location.href='/'"
-          class="w-full py-3 px-6 rounded-lg bg-secondary-button-light dark:bg-contrast-dark text-white font-semibold shadow-md hover:shadow-xl transition-all duration-200">
+          class="w-full py-3 px-6 rounded-lg bg-secondary-button-light dark:bg-contrast-dark text-text-light dark:text-text-dark font-semibold shadow-md hover:shadow-xl transition-all duration-200">
           Back to Dashboard
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Edit Account Modal -->
+
   <div id="edit-account-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="bg-surface-light dark:bg-surface-dark p-8 rounded-lg shadow-2xl w-full max-w-md transform translate-y-[-20px] transition-all duration-300">
       <h2 class="text-xl font-semibold text-accent-light dark:text-accent-dark mb-6 text-center">Edit Account Info</h2>
@@ -85,7 +85,7 @@
     </div>
   </div>
 
-  <!-- Change Password Modal -->
+
   <div id="change-password-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="bg-surface-light dark:bg-surface-dark p-8 rounded-lg shadow-2xl w-full max-w-md transform translate-y-[-20px] transition-all duration-300">
       <h2 class="text-xl font-mono text-accent-light dark:text-accent-dark mb-6 text-center">Change Password</h2>
@@ -126,7 +126,7 @@
   </div>
 
   <script>
-    // Helper functions for opening/closing modals with smooth transitions
+   
     function openEditAccountModal() {
       document.getElementById('edit-username').value = '<%= account.username %>';
       document.getElementById('edit-email').value = '<%= account.email %>';
@@ -143,15 +143,14 @@
       const changeModal = document.getElementById('change-password-modal');
       changeModal.classList.remove('opacity-0', 'pointer-events-none');
       changeModal.classList.add('opacity-100');
-      // Optionally hide the edit modal
+     
       closeEditAccountModal();
     }
     function closeChangePasswordModal() {
       const changeModal = document.getElementById('change-password-modal');
       changeModal.classList.remove('opacity-100');
       changeModal.classList.add('opacity-0', 'pointer-events-none');
-      // Optionally, show the edit modal again if desired:
-      // openEditAccountModal();
+     
     }
   </script>
 </body>
