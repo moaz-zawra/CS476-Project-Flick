@@ -1,5 +1,6 @@
 .idea/
 .vs/
+server.log
 /.vs/
 /.idea/
 .env

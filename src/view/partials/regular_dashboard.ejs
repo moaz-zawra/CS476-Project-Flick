@@ -10,15 +10,21 @@
                     New Card Set
                 </span>
             </button>
+            <input type="text" id="userNameFilter" placeholder="Search by name..."
+                class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
             <div class="flex items-center space-x-2">
                 <select id="userCategoryFilter"
                     class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
-                    <option value="">Select Category</option>
+                    <option value="">All Categories</option>
                 </select>
                 <select id="userSubcategoryFilter"
                     class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
                     <option value="">All Subcategories</option>
                 </select>
+                <button id="userApplyFilters"
+                  class="border-2 rounded-xl px-4 py-1.5 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                  Apply
+                </button>
             </div>
         </div>
     </div>
@@ -39,14 +45,22 @@
     <div id="set-bar-shared" class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
         <span class="font-mono text-2xl text-accent-light dark:text-accent-dark">Sets Shared with me</span>
         <div class="flex items-center space-x-2 mt-2 md:mt-0">
-            <select id="sharedCategoryFilter"
+            <input type="text" id="sharedNameFilter" placeholder="Search by name..."
                 class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
-                <option value="">Select Category</option>
-            </select>
-            <select id="sharedSubcategoryFilter"
-                class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
-                <option value="">All Subcategories</option>
-            </select>
+            <div class="flex items-center space-x-2">
+                <select id="sharedCategoryFilter"
+                    class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark">
+                    <option value="">All Categories</option>
+                </select>
+                <select id="sharedSubcategoryFilter"
+                    class="font-mono py-1.5 px-3 text-text-light dark:text-text-dark border-2 border-accent-light dark:border-accent-dark rounded-lg focus:outline-none shadow-sm bg-surface-light dark:bg-surface-dark hidden">
+                    <option value="">All Subcategories</option>
+                </select>
+                <button id="sharedApplyFilters"
+                  class="border-2 rounded-xl px-4 py-1.5 bg-main-button-light dark:bg-main-button-dark text-text-light dark:text-text-dark font-bold hover:bg-highlight-light dark:hover:bg-highlight-dark transition-all duration-200">
+                  Apply
+                </button>
+            </div>
         </div>
     </div>
     <hr class="border-accent-light dark:border-accent-dark mb-4">

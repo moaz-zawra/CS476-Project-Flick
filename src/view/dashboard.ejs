@@ -67,7 +67,6 @@
   </script>
   
   <!-- Dashboard sets are inserted by dashboard.js and inline scripts below -->
-  <script src="/js/dashboard.js"></script>
   
   <% if (typeof userSets !== 'undefined' && Array.isArray(userSets)) { %>
     <% userSets.forEach(function(set, index) { %>
@@ -116,44 +115,55 @@
   <!-- SEARCH & FILTER SCRIPT -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      // Initialize global filters if they exist (these might be in the main dashboard)
       const categoryFilter = document.getElementById('categoryFilter');
       const subcategoryFilter = document.getElementById('subcategoryFilter');
       const nameFilter = document.getElementById('nameFilter');
       const applyFiltersBtn = document.getElementById('applyFilters');
-      const originalHTML = categoryFilter.innerHTML;
-
-      // Populate category dropdown
-      populateCategoryDropdown(categoryFilter, window.categoryNames, false);
-      if (!categoryFilter.querySelector('option[value=""]')) {
-        const currentOptions = categoryFilter.innerHTML;
-        categoryFilter.innerHTML = originalHTML + currentOptions;
-      }
-      categoryFilter.value = "";
-
-      categoryFilter.addEventListener('change', function () {
-        const hasSubcategories = populateSubcategoryDropdown(
-          this.value,
-          subcategoryFilter,
-          window.subcategoriesData,
-          true
-        );
-        subcategoryFilter.disabled = !hasSubcategories;
-      });
-
-      applyFiltersBtn.addEventListener('click', filterSets);
-      nameFilter.addEventListener('input', filterSets);
-      nameFilter.addEventListener('keyup', function (e) {
-        if (e.key === 'Enter') {
-          filterSets();
+      
+      if (categoryFilter && subcategoryFilter) {
+        const originalHTML = categoryFilter.innerHTML;
+        
+        // Populate category dropdown
+        populateCategoryDropdown(categoryFilter, window.categoryNames);
+        if (!categoryFilter.querySelector('option[value=""]')) {
+          const currentOptions = categoryFilter.innerHTML;
+          categoryFilter.innerHTML = originalHTML + currentOptions;
         }
-      });
+        categoryFilter.value = "";
+
+        categoryFilter.addEventListener('change', function () {
+          const hasSubcategories = populateSubcategoryDropdown(
+            this.value,
+            subcategoryFilter,
+            window.subcategoriesData
+          );
+          subcategoryFilter.disabled = !hasSubcategories;
+          
+          if (applyFiltersBtn) {
+            // Wait for Apply button to filter
+            applyFiltersBtn.addEventListener('click', applyGlobalFilters);
+          }
+        });
+
+        if (nameFilter) {
+          nameFilter.addEventListener('keyup', function (e) {
+            if (e.key === 'Enter' && applyFiltersBtn) {
+              applyGlobalFilters();
+            }
+          });
+        }
+      }
+      
+      // Individual section filters are handled in dashboard.js
     });
 
-    function filterSets() {
+    function applyGlobalFilters() {
       const nameFilterVal = document.getElementById('nameFilter').value.toLowerCase();
       const categoryVal = document.getElementById('categoryFilter').value;
       const subcategoryVal = document.getElementById('subcategoryFilter').value;
-      // Adjust selector to target all set items on the dashboard
+      
+      // Target all set items on the dashboard
       const sets = document.querySelectorAll('.set-item');
 
       sets.forEach(set => {
@@ -165,30 +175,37 @@
         if (nameFilterVal && !setName.includes(nameFilterVal)) {
           showSet = false;
         }
-        if (showSet && categoryVal && setCategory !== categoryVal) {
+        if (showSet && categoryVal && categoryVal !== '' && setCategory !== categoryVal) {
           showSet = false;
         }
-        if (showSet && subcategoryVal && setSubcategory !== subcategoryVal) {
+        if (showSet && subcategoryVal && subcategoryVal !== '' && setSubcategory !== subcategoryVal) {
           showSet = false;
         }
         set.style.display = showSet ? '' : 'none';
       });
 
-      // Optionally, add or remove a "no results" message if no sets match
-      const visibleSets = document.querySelectorAll('.set-item:not([style*="display: none"])');
-      let noResultsMessage = document.getElementById('no-results-message');
-      if (visibleSets.length === 0) {
-        if (!noResultsMessage) {
-          noResultsMessage = document.createElement('div');
-          noResultsMessage.id = 'no-results-message';
-          noResultsMessage.className = 'border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-lg p-8 text-center mt-4';
-          noResultsMessage.innerHTML = '<p class="font-mono text-lg text-accent-light dark:text-accent-dark">No matching sets found.</p>';
-          // Append the message to one of the containers (for example, user-sets)
-          document.getElementById('user-sets').appendChild(noResultsMessage);
+      // Process each container separately for no-results messaging
+      const containers = ['user-sets', 'shared-sets'];
+      containers.forEach(containerId => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const visibleSets = container.querySelectorAll('.set-item:not([style*="display: none"])');
+        const noResultsId = `no-results-${containerId}`;
+        let noResultsMessage = document.getElementById(noResultsId);
+        
+        if (visibleSets.length === 0) {
+          if (!noResultsMessage) {
+            noResultsMessage = document.createElement('div');
+            noResultsMessage.id = noResultsId;
+            noResultsMessage.className = 'col-span-full font-mono text-lg text-accent-light dark:text-accent-dark py-2 text-center';
+            noResultsMessage.innerText = 'No matching sets found.';
+            container.appendChild(noResultsMessage);
+          }
+        } else if (noResultsMessage) {
+          noResultsMessage.remove();
         }
-      } else if (noResultsMessage) {
-        noResultsMessage.remove();
-      }
+      });
     }
   </script>
 </body>

@@ -1,4 +1,3 @@
-
 function handleShareButtonClick(setID) {
     document.getElementById('share-modal').classList.remove('hidden');
 
@@ -114,20 +113,18 @@ function handleRemoveSharedSet(setID, setName) {
 }
 
 
-function insertSet(setID, setName, description, category, subcategory, shared, publicSet, approved) {
+function insertSet(setID, setName, description, category, subcategory, shared, publicSet, approved, setType = null, containerId = null, createdBy = null, views = null, creationDate = null) {
     const setDiv = document.createElement('div');
     setDiv.className = 'set-item border-2 border-accent-light dark:border-accent-dark bg-surface-light dark:bg-surface-dark rounded-lg p-4 hover:shadow-lg transition-shadow duration-200';
     setDiv.setAttribute('data-name', setName.toLowerCase());
     setDiv.setAttribute('data-category', category);
     setDiv.setAttribute('data-subcategory', subcategory);
   
-
     const containerWrapper = document.createElement('div');
     containerWrapper.className = 'h-full flex flex-col justify-between';
 
     const topSection = document.createElement('div');
   
-
     const setNameH2 = document.createElement('h2');
     setNameH2.className = 'font-mono text-xl font-bold text-accent-light dark:text-accent-dark mb-2';
     setNameH2.textContent = setName;
@@ -138,8 +135,6 @@ function insertSet(setID, setName, description, category, subcategory, shared, p
     descriptionP.className = 'text-text-light dark:text-text-dark text-base mb-4 line-clamp-3';
     descriptionP.textContent = descriptionText;
     topSection.appendChild(descriptionP);
-
-  
 
     const tagsDiv = document.createElement('div');
     tagsDiv.className = 'flex flex-wrap gap-2 mb-4';
@@ -156,7 +151,6 @@ function insertSet(setID, setName, description, category, subcategory, shared, p
       tagsDiv.appendChild(subcategorySpan);
     }
   
-
     if (publicSet) {
       const publicSpan = document.createElement('span');
       if (approved) {
@@ -167,17 +161,57 @@ function insertSet(setID, setName, description, category, subcategory, shared, p
       publicSpan.textContent = `Public (${approved ? 'Approved' : 'Pending'})`;
       tagsDiv.appendChild(publicSpan);
     }
-  
 
     const contentWrapper = document.createElement('div');
     contentWrapper.appendChild(topSection);
     contentWrapper.appendChild(tagsDiv);
     containerWrapper.appendChild(contentWrapper);
   
-
     const bottomSection = document.createElement('div');
-    bottomSection.className = 'flex items-center gap-3';
-  
+    
+    // Add metadata if this is a public set
+    if (setType === 'public' && createdBy) {
+      const metaDiv = document.createElement('div');
+      
+      // Creator and views info
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'flex items-center gap-4 mb-2';
+      
+      const creatorSpan = document.createElement('span');
+      creatorSpan.className = 'text-text-light dark:text-text-dark';
+      creatorSpan.textContent = `Created by: ${createdBy}`;
+      infoDiv.appendChild(creatorSpan);
+      
+      if (views !== null) {
+        const viewsSpan = document.createElement('span');
+        viewsSpan.className = 'text-text-light dark:text-text-dark';
+        viewsSpan.textContent = `Views: ${views}`;
+        infoDiv.appendChild(viewsSpan);
+      }
+      metaDiv.appendChild(infoDiv);
+      
+      // Creation date
+      if (creationDate) {
+        const dateDiv = document.createElement('div');
+        dateDiv.className = 'text-sm text-gray-500 dark:text-gray-400 mb-3';
+        const formattedDate = new Date(creationDate).toLocaleString("en-US", { 
+          weekday: 'short',
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit' 
+        });
+        dateDiv.textContent = `Posted on: ${formattedDate}`;
+        metaDiv.appendChild(dateDiv);
+      }
+      
+      bottomSection.appendChild(metaDiv);
+    }
+    
+    const buttonsDiv = document.createElement('div');
+    buttonsDiv.className = 'flex items-center gap-3';
 
     function createIconButton(href, imgSrc, altText, tooltipText, clickHandler) {
       const btn = document.createElement(href ? 'a' : 'button');
@@ -204,25 +238,26 @@ function insertSet(setID, setName, description, category, subcategory, shared, p
       return btn;
     }
   
+    // Determine the proper URL parameters for the set type
+    const setTypeParam = setType === 'public' ? 'public' : (shared ? 'shared' : 'regular');
 
-    bottomSection.appendChild(
-      createIconButton(`/view_set?setID=${setID}&set_type=${shared ? 'shared' : 'regular'}`, 'view.svg', 'View Icon', 'View Set')
+    buttonsDiv.appendChild(
+      createIconButton(`/view_set?setID=${setID}&set_type=${setTypeParam}`, 'view.svg', 'View Icon', 'View Set')
     );
   
-
-    bottomSection.appendChild(
-      createIconButton(`/play_set?setID=${setID}&set_type=${shared ? 'shared' : 'regular'}`, 'play.svg', 'Play Icon', 'Play Set')
+    buttonsDiv.appendChild(
+      createIconButton(`/play_set?setID=${setID}&set_type=${setTypeParam}`, 'play.svg', 'Play Icon', 'Play Set')
     );
   
-    if (!shared) {
-
-      bottomSection.appendChild(
+    if (!shared && setType !== 'public') {
+      // Regular user set buttons
+      buttonsDiv.appendChild(
         createIconButton(`/edit_set?setID=${setID}`, 'edit.svg', 'Edit Icon', 'Edit Set')
       );
-      bottomSection.appendChild(
+      buttonsDiv.appendChild(
         createIconButton(null, 'share.svg', 'Share Icon', 'Share Set', () => { handleShareButtonClick(setID); })
       );
-      bottomSection.appendChild(
+      buttonsDiv.appendChild(
         createIconButton(null, 'delete.svg', 'Delete Icon', 'Delete Set', () => {
           document.getElementById('confirmation-modal').classList.remove('hidden');
           document.getElementById('confirmation-message').textContent = `Do you want to delete the set "${setName}"?`;
@@ -242,24 +277,41 @@ function insertSet(setID, setName, description, category, subcategory, shared, p
           };
         })
       );
-    } else {
-
-      bottomSection.appendChild(
+    } else if (shared && setType !== 'public') {
+      // Shared set buttons
+      buttonsDiv.appendChild(
         createIconButton(null, 'delete.svg', 'Remove Icon', 'Remove Set', () => { handleRemoveSharedSet(setID, setName); })
       );
-      bottomSection.appendChild(
+      buttonsDiv.appendChild(
         createIconButton(null, 'report.svg', 'Report Icon', 'Report Set', () => { handleReportButtonClick(setID); })
       );
+    } else if (setType === 'public') {
+      // Public set buttons (just add report)
+      buttonsDiv.appendChild(
+        createIconButton(null, 'report.svg', 'Report Icon', 'Report Set', () => { 
+          reportPublicSet(setID); 
+        })
+      );
     }
-  
+    
+    bottomSection.appendChild(buttonsDiv);
     containerWrapper.appendChild(bottomSection);
     setDiv.appendChild(containerWrapper);
   
-    const container = shared ? document.getElementById('shared-sets') : document.getElementById('user-sets');
-    container.appendChild(setDiv);
-  }
-  
-
+    // Determine which container to append to
+    let container;
+    if (containerId) {
+      container = document.getElementById(containerId);
+    } else {
+      container = shared ? document.getElementById('shared-sets') : document.getElementById('user-sets');
+    }
+    
+    if (container) {
+      container.appendChild(setDiv);
+    } else {
+      console.error(`Container not found: ${containerId || (shared ? 'shared-sets' : 'user-sets')}`);
+    }
+}
 
 function getCategoryName(key, categoryNames) {
     return categoryNames[key] || '';
@@ -267,58 +319,103 @@ function getCategoryName(key, categoryNames) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-   
+    // Get filter elements
     const userCategoryFilter = document.getElementById('userCategoryFilter');
     const userSubcategoryFilter = document.getElementById('userSubcategoryFilter');
+    const userNameFilter = document.getElementById('userNameFilter');
+    const userApplyFiltersBtn = document.getElementById('userApplyFilters');
     const sharedCategoryFilter = document.getElementById('sharedCategoryFilter');
     const sharedSubcategoryFilter = document.getElementById('sharedSubcategoryFilter');
+    const sharedNameFilter = document.getElementById('sharedNameFilter');
+    const sharedApplyFiltersBtn = document.getElementById('sharedApplyFilters');
     
-   
-    if (!userCategoryFilter) return;
+    // Populate category dropdowns if they exist
+    if (userCategoryFilter) {
+        populateCategoryDropdown(userCategoryFilter, window.categoryNames);
+        
+        // Handle category changes
+        userCategoryFilter.addEventListener('change', function() {
+            const hasSubcategories = populateSubcategoryDropdown(this.value, userSubcategoryFilter, window.subcategoriesData);
+            if (userSubcategoryFilter) {
+                userSubcategoryFilter.classList.toggle('hidden', !hasSubcategories);
+            }
+        });
+        
+        // Apply filters button for user sets
+        if (userApplyFiltersBtn) {
+            userApplyFiltersBtn.addEventListener('click', function() {
+                filterSets('user-sets', userCategoryFilter.value, 
+                    userSubcategoryFilter ? userSubcategoryFilter.value : '', 
+                    userNameFilter ? userNameFilter.value : '');
+            });
+        }
+    }
     
-   
-    populateCategoryDropdown(userCategoryFilter, window.categoryNames);
-    populateCategoryDropdown(sharedCategoryFilter, window.categoryNames);
+    if (sharedCategoryFilter) {
+        populateCategoryDropdown(sharedCategoryFilter, window.categoryNames);
+        
+        // Handle category changes
+        sharedCategoryFilter.addEventListener('change', function() {
+            const hasSubcategories = populateSubcategoryDropdown(this.value, sharedSubcategoryFilter, window.subcategoriesData);
+            if (sharedSubcategoryFilter) {
+                sharedSubcategoryFilter.classList.toggle('hidden', !hasSubcategories);
+            }
+        });
+        
+        // Apply filters button for shared sets
+        if (sharedApplyFiltersBtn) {
+            sharedApplyFiltersBtn.addEventListener('click', function() {
+                filterSets('shared-sets', sharedCategoryFilter.value, 
+                    sharedSubcategoryFilter ? sharedSubcategoryFilter.value : '', 
+                    sharedNameFilter ? sharedNameFilter.value : '');
+            });
+        }
+    }
     
-   
-    userCategoryFilter.addEventListener('change', function() {
-        const hasSubcategories = populateSubcategoryDropdown(this.value, userSubcategoryFilter, window.subcategoriesData);
-        userSubcategoryFilter.classList.toggle('hidden', !hasSubcategories);
-        filterSets('user-sets', this.value, userSubcategoryFilter.value);
-    });
+    // Handle Enter key for name search fields
+    if (userNameFilter && userApplyFiltersBtn) {
+        userNameFilter.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                userApplyFiltersBtn.click();
+            }
+        });
+    }
     
-    sharedCategoryFilter.addEventListener('change', function() {
-        const hasSubcategories = populateSubcategoryDropdown(this.value, sharedSubcategoryFilter, window.subcategoriesData);
-        sharedSubcategoryFilter.classList.toggle('hidden', !hasSubcategories);
-        filterSets('shared-sets', this.value, sharedSubcategoryFilter.value);
-    });
-    
-   
-    userSubcategoryFilter.addEventListener('change', function() {
-        filterSets('user-sets', userCategoryFilter.value, this.value);
-    });
-    
-    sharedSubcategoryFilter.addEventListener('change', function() {
-        filterSets('shared-sets', sharedCategoryFilter.value, this.value);
-    });
+    if (sharedNameFilter && sharedApplyFiltersBtn) {
+        sharedNameFilter.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                sharedApplyFiltersBtn.click();
+            }
+        });
+    }
 });
 
-
-function filterSets(containerId, categoryValue, subcategoryValue) {
+function filterSets(containerId, categoryValue, subcategoryValue, nameValue = '') {
     const container = document.getElementById(containerId);
     if (!container) return;
     
     const sets = container.querySelectorAll('.set-item');
+    const nameFilterLower = nameValue.toLowerCase();
     
     sets.forEach(set => {
         let showSet = true;
         
-        if (categoryValue !== '') {
+        // Filter by name if provided
+        if (nameFilterLower !== '') {
+            const setName = set.getAttribute('data-name');
+            if (setName && !setName.includes(nameFilterLower)) {
+                showSet = false;
+            }
+        }
+        
+        // Filter by category if selected
+        if (showSet && categoryValue !== '') {
             const setCategory = set.getAttribute('data-category');
             if (setCategory !== categoryValue) {
                 showSet = false;
             }
             
+            // Filter by subcategory if selected and category matches
             if (showSet && subcategoryValue !== '') {
                 const setSubcategory = set.getAttribute('data-subcategory');
                 if (setSubcategory !== subcategoryValue) {
@@ -329,8 +426,24 @@ function filterSets(containerId, categoryValue, subcategoryValue) {
         
         set.style.display = showSet ? '' : 'none';
     });
+    
+    // Check if we need to show "no results" message
+    const visibleSets = container.querySelectorAll('.set-item:not([style*="display: none"])');
+    const noResultsId = `no-results-${containerId}`;
+    let noResultsMessage = document.getElementById(noResultsId);
+    
+    if (visibleSets.length === 0) {
+        if (!noResultsMessage) {
+            noResultsMessage = document.createElement('div');
+            noResultsMessage.id = noResultsId;
+            noResultsMessage.className = 'col-span-full font-mono text-lg text-accent-light dark:text-accent-dark py-2 text-center';
+            noResultsMessage.innerText = 'No matching sets found.';
+            container.appendChild(noResultsMessage);
+        }
+    } else if (noResultsMessage) {
+        noResultsMessage.remove();
+    }
 }
-
 
 function populateCategoryDropdown(dropdown, categoryNames) {
     if (!dropdown) return;
@@ -338,9 +451,10 @@ function populateCategoryDropdown(dropdown, categoryNames) {
     const categoryOptions = Object.keys(categoryNames).map(key => {
         return `<option value="${key}">${getCategoryName(key, categoryNames)}</option>`;
     }).join('');
-    dropdown.innerHTML = '<option value="">Select Category</option>' + categoryOptions;
+    
+    // Change "Select Category" to "All Categories" for consistency with public sets
+    dropdown.innerHTML = '<option value="">All Categories</option>' + categoryOptions;
 }
-
 
 function populateSubcategoryDropdown(categoryKey, dropdown, subcategories) {
     if (!dropdown) return false;
@@ -354,8 +468,14 @@ function populateSubcategoryDropdown(categoryKey, dropdown, subcategories) {
         if (!isNaN(Number(key))) return '';
         return `<option value="${value}">${value}</option>`;
     }).join('');
+    
+    // Already using "All Subcategories" so this is correct
     dropdown.innerHTML = '<option value="">All Subcategories</option>' + subcategoryOptions;
     return true;
+}
+
+function getSubcategoriesForCategory(categoryKey, subcategories) {
+    return subcategories && subcategories[categoryKey] ? subcategories[categoryKey] : [];
 }
 
 function toggleTheme() {

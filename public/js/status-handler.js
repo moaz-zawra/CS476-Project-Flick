@@ -36,8 +36,8 @@ function initializeStatusMessage(status) {
         case 'set-does-not-exist':
             setStatusMessage('Card set not found.', 'error');
             break;
-        case 'does-not-exist':
-            setStatusMessage('The requested resource does not exist.', 'error');
+        case 'user-does-not-exist':
+            setStatusMessage('No user with that identifier was found.', 'error');
             break;
         case 'name-used':
             setStatusMessage('A set with this name already exists.', 'error');

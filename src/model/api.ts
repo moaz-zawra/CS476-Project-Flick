@@ -269,7 +269,7 @@ export class APIService{
 
         switch (user) {
             case LoginStatus.USER_DOES_NOT_EXIST:
-                return handleResponse(res, NOTFOUND, '/login', 'does-not-exist');
+                return handleResponse(res, NOTFOUND, '/login', 'user-does-not-exist');
             case LoginStatus.WRONG_PASSWORD:
                 return handleResponse(res, NOTAUTH, '/login', 'wrong-password');
             case LoginStatus.OTHER:
